@@ -18,8 +18,6 @@ export const AuthProvider = ({ children }: Props) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
-  console.log(session);
-
   useEffect(() => {
     const {
       data: { subscription },
