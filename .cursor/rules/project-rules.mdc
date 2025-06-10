@@ -1,0 +1,201 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Personal Expenses Dashboard - Cursor Rules
+
+## Project Overview
+A modern personal finance management dashboard built with React 19, TypeScript, Vite 6, and Supabase.
+
+## Technology Stack
+- **Frontend**: React 19 + TypeScript 5.8+
+- **Build Tool**: Vite 6 + SWC
+- **Styling**: Tailwind CSS 4 + shadcn/ui
+- **Backend**: Supabase (Auth + Database)
+- **State Management**: Zustand + React Context (auth only)
+- **Forms**: React Hook Form + Zod validation
+- **Routing**: React Router 7
+
+## Code Standards
+
+### TypeScript Guidelines
+- Always use strict TypeScript mode
+- Prefer `interface` over `type` for object shapes
+- Use proper generic types for API responses
+- All components must have proper TypeScript props interfaces
+- Use discriminated unions for state management
+
+### React Guidelines
+- Use function components with hooks only
+- Prefer `const` arrow functions for components
+- Use React 19 features: Actions, useOptimistic, use()
+- Always wrap API calls in React.startTransition for non-urgent updates
+- Use Suspense boundaries for data loading states
+
+### Component Structure
+```tsx
+// Component file structure:
+interface ComponentProps {
+  // props interface first
+}
+
+const Component = ({ prop }: ComponentProps) => {
+  // hooks at top
+  // event handlers
+  // render return
+}
+```
+
+### File Organization
+- Use kebab-case for file names (e.g., `transaction-form.tsx`)
+- Components should be in folders with index.ts exports
+- Keep components under 200 lines, split if larger
+- Co-locate tests next to components (`.test.tsx`)
+
+### Import Order
+1. React imports
+2. Third-party libraries
+3. Internal utilities and hooks
+4. Component imports
+5. Type imports (use `import type`)
+
+### State Management Rules
+- Use Zustand for global app state (transactions, accounts)
+- Use React Context only for authentication state
+- Local component state for UI-only state
+- Always type Zustand stores properly
+
+### API & Data Handling
+- Use React Query/TanStack Query for server state
+- Implement proper error boundaries
+- Use Suspense for loading states
+- Type all API responses with Zod schemas
+- Handle loading, error, and success states consistently
+
+### Styling Guidelines
+- Use Tailwind CSS utility classes
+- Prefer shadcn/ui components over custom styling
+- Use CSS variables for theme consistency
+- Mobile-first responsive design
+- Dark mode support required
+
+### Security Practices
+- Validate all inputs with Zod schemas
+- Use TypeScript strict mode
+- Implement proper authentication checks
+- Never expose sensitive data in client state
+- Use Supabase RLS (Row Level Security)
+
+### Performance Guidelines
+- Use React.memo() for expensive components
+- Implement proper code splitting with React.lazy()
+- Optimize images and assets
+- Use Vite's bundle analysis for size monitoring
+- Lazy load non-critical features
+
+### Testing Standards
+- Unit tests for utilities and hooks
+- Component tests with React Testing Library
+- Integration tests for critical user flows
+- MSW for API mocking in tests
+- Aim for 80%+ test coverage
+
+### Error Handling
+- Use Error Boundaries for component errors
+- Implement global error logging
+- Provide user-friendly error messages
+- Handle network errors gracefully
+- Log errors to external service (Sentry recommended)
+
+### Accessibility
+- All interactive elements must be keyboard accessible
+- Proper ARIA labels and roles
+- Color contrast compliance (WCAG AA)
+- Screen reader support
+- Focus management for modals and forms
+
+## Development Workflow
+
+### Branch Naming
+- `feature/feature-name`
+- `fix/bug-description`
+- `refactor/area-being-refactored`
+- `docs/documentation-update`
+
+### Commit Message Format
+```
+type(scope): description
+
+Examples:
+feat(auth): add password reset functionality
+fix(transactions): resolve date formatting issue
+refactor(components): extract common form components
+docs(readme): update installation instructions
+```
+
+### Code Review Standards
+- All changes require PR review
+- Include tests with feature changes
+- Update documentation for API changes
+- Check performance impact for large changes
+- Verify accessibility compliance
+
+## Database Schema Guidelines
+- Use descriptive table and column names
+- Implement proper foreign key relationships
+- Add database indexes for frequently queried columns
+- Use Supabase's built-in timestamp columns
+- Implement soft deletes where appropriate
+
+## Environment & Deployment
+- Use TypeScript strict mode in production
+- Implement proper environment variable validation
+- Use Vercel for deployment (already configured)
+- Monitor bundle size and performance
+- Set up proper error tracking
+
+## AI Assistance Guidelines
+When using Cursor/AI assistance:
+- Always validate generated code for type safety
+- Review security implications of generated code
+- Test generated components thoroughly
+- Ensure generated code follows project conventions
+- Don't accept code that bypasses TypeScript strict rules
+
+## Common Patterns
+
+### Component Props Pattern
+```tsx
+interface ComponentProps {
+  data: Transaction[]
+  onUpdate: (id: string, data: Partial<Transaction>) => Promise<void>
+  loading?: boolean
+  error?: string | null
+}
+```
+
+### Custom Hook Pattern
+```tsx
+const useTransactions = () => {
+  const [state, setState] = useState<TransactionState>()
+  // hook logic
+  return { data, loading, error, actions }
+}
+```
+
+### API Service Pattern
+```tsx
+export const transactionService = {
+  async create(data: CreateTransactionDto): Promise<Transaction> {
+    // implementation
+  },
+  async update(id: string, data: Partial<Transaction>): Promise<Transaction> {
+    // implementation
+  }
+}
+```
+
+
+
+Remember: Code should be maintainable, testable, and accessible. When in doubt, prefer explicit code over clever code. 
