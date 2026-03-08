@@ -2,6 +2,7 @@ import "./App.css";
 import { Dashboard } from "@/pages/Dashboard";
 import { LoginForm } from "@/pages/Login";
 import { Profile } from "@/pages/Profile";
+import { TransactionsView } from "@/pages/Transactions";
 import { ProtectedRoute } from "@/router/ProtectedRoute.tsx";
 import { AuthContext } from "@/store/authContext.tsx";
 import { SpeedInsights } from "@vercel/speed-insights/react";
@@ -28,6 +29,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/transactions"
+          element={
+            <ProtectedRoute>
+              <TransactionsView />
             </ProtectedRoute>
           }
         />

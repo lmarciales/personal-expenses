@@ -34,10 +34,14 @@ export function ThemeProvider({
     root.classList.remove("light", "dark");
 
     if (theme === "system") {
-      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-
-      root.classList.add(systemTheme);
-      return;
+      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+      const applySystem = () => {
+        root.classList.remove("light", "dark");
+        root.classList.add(mediaQuery.matches ? "dark" : "light");
+      };
+      applySystem();
+      mediaQuery.addEventListener("change", applySystem);
+      return () => mediaQuery.removeEventListener("change", applySystem);
     }
 
     root.classList.add(theme);

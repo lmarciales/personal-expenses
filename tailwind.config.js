@@ -20,6 +20,7 @@ export default {
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        panel: "hsl(var(--panel))",
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -48,6 +49,30 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // Premium Accents based on images
+        neon: {
+          green: "#d4ff00",
+          purple: "#7c3aed",
+          blue: "#2563eb",
+          cyan: "#06b6d4",
+        },
+        // Theme-aware surface tokens
+        surface: {
+          hover: "var(--surface-hover)",
+          "hover-strong": "var(--surface-hover-strong)",
+          indicator: "var(--surface-indicator)",
+          input: "var(--surface-input)",
+          overlay: "var(--surface-overlay)",
+          "overlay-heavy": "var(--surface-overlay-heavy)",
+        },
+      },
+      borderColor: {
+        subtle: "var(--border-subtle)",
+        glass: "var(--border-glass)",
+      },
+      backgroundImage: {
+        "glass-gradient": "linear-gradient(180deg, var(--surface-hover) 0%, transparent 100%)",
+        "glass-border": "linear-gradient(180deg, var(--border-glass) 0%, transparent 100%)",
       },
       borderRadius: {
         lg: "var(--radius)",

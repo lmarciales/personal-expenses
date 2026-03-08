@@ -4,58 +4,110 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    /* Base Colors - Soft Light Theme */
+    --background: 240 5% 96%;
     --foreground: 240 10% 3.9%;
+
+    /* Panels / Cards */
+    --panel: 0 0% 100%;
     --card: 0 0% 100%;
     --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
-    --primary: 142.1 76.2% 36.3%;
-    --primary-foreground: 355.7 100% 97.3%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
+
+    /* Primary / Accents */
+    --primary: 84 80% 40%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 240 5% 90%;
+    --secondary-foreground: 240 10% 3.9%;
+
+    --muted: 240 5% 90%;
     --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
+
+    --accent: 240 5% 90%;
+    --accent-foreground: 240 10% 3.9%;
+
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 142.1 76.2% 36.3%;
-    --radius: 0.5rem;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+
+    /* Borders / Inputs */
+    --border: 240 6% 85%;
+    --input: 240 6% 85%;
+    --ring: 84 80% 40%;
+
+    --radius: 1rem;
+    /* Rounded corners for premium feel */
+
+    /* Surface / Overlay tokens */
+    --surface-hover: rgba(0, 0, 0, 0.04);
+    --surface-hover-strong: rgba(0, 0, 0, 0.07);
+    --surface-indicator: rgba(0, 0, 0, 0.12);
+    --surface-input: rgba(0, 0, 0, 0.06);
+    --surface-overlay: hsl(240 5% 90%);
+    --surface-overlay-heavy: rgba(0, 0, 0, 0.15);
+    --border-subtle: rgba(0, 0, 0, 0.06);
+    --border-glass: rgba(0, 0, 0, 0.10);
+
+    /* Chart tokens */
+    --chart-axis: #8b8b9a;
+    --chart-tooltip-bg: rgba(255, 255, 255, 0.92);
+    --chart-tooltip-border: rgba(0, 0, 0, 0.10);
+    --chart-tooltip-text: #0a0a0f;
+    --chart-tooltip-shadow: rgba(0, 0, 0, 0.12);
+    --chart-cursor: rgba(0, 0, 0, 0.04);
+    --chart-bar-inactive: rgba(0, 0, 0, 0.08);
+
+    /* Glow tokens */
+    --glow-primary-color: rgba(212, 255, 0, 0.08);
+    --glow-secondary-color: rgba(124, 58, 237, 0.08);
   }
 
+  /* Force dark mode styling across the app as default */
   .dark {
-    --background: 20 14.3% 4.1%;
-    --foreground: 0 0% 95%;
-    --card: 24 9.8% 10%;
-    --card-foreground: 0 0% 95%;
-    --popover: 0 0% 9%;
-    --popover-foreground: 0 0% 95%;
-    --primary: 142.1 70.6% 45.3%;
-    --primary-foreground: 144.9 80.4% 10%;
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --panel: 240 5.9% 10%;
+    --card: 240 5.9% 10%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 5.9% 10%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 74 100% 50%;
+    --primary-foreground: 240 5.9% 10%;
     --secondary: 240 3.7% 15.9%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 15%;
+    --muted: 240 3.7% 15.9%;
     --muted-foreground: 240 5% 64.9%;
-    --accent: 12 6.5% 15.1%;
+    --accent: 240 3.7% 15.9%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 85.7% 97.3%;
+    --destructive-foreground: 0 0% 98%;
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
-    --ring: 142.4 71.8% 29.2%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    --ring: 74 100% 50%;
+
+    /* Surface / Overlay tokens */
+    --surface-hover: rgba(255, 255, 255, 0.05);
+    --surface-hover-strong: rgba(255, 255, 255, 0.10);
+    --surface-indicator: rgba(255, 255, 255, 0.20);
+    --surface-input: rgba(0, 0, 0, 0.20);
+    --surface-overlay: rgba(0, 0, 0, 0.40);
+    --surface-overlay-heavy: rgba(0, 0, 0, 0.50);
+    --border-subtle: rgba(255, 255, 255, 0.05);
+    --border-glass: rgba(255, 255, 255, 0.10);
+
+    /* Chart tokens */
+    --chart-axis: #888888;
+    --chart-tooltip-bg: rgba(9, 9, 11, 0.80);
+    --chart-tooltip-border: rgba(255, 255, 255, 0.10);
+    --chart-tooltip-text: #ffffff;
+    --chart-tooltip-shadow: rgba(0, 0, 0, 0.50);
+    --chart-cursor: rgba(255, 255, 255, 0.05);
+    --chart-bar-inactive: rgba(255, 255, 255, 0.10);
+
+    /* Glow tokens */
+    --glow-primary-color: rgba(212, 255, 0, 0.15);
+    --glow-secondary-color: rgba(124, 58, 237, 0.15);
   }
 }
 
@@ -63,7 +115,63 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
+  }
+
+  /* Custom Minimalist Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-foreground/10 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-foreground/20;
+  }
+
+  /* For Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(var(--foreground), 0.1) transparent;
+  }
+}
+
+@layer utilities {
+  .glass-panel {
+    @apply bg-panel/60 backdrop-blur-xl border border-border/50 shadow-2xl;
+  }
+
+  .glass-card {
+    @apply bg-card/40 backdrop-blur-md border border-border/50;
+  }
+
+  /* Utility for the glowing orbs behind panels */
+  .bg-glow {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, var(--glow-primary-color) 0%, transparent 70%);
+    filter: blur(40px);
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  .bg-glow-secondary {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, var(--glow-secondary-color) 0%, transparent 70%);
+    filter: blur(40px);
+    z-index: -1;
+    pointer-events: none;
   }
 }
