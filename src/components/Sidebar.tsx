@@ -28,7 +28,7 @@ const Sidebar = () => {
   ];
 
   return (
-    <aside className="relative flex flex-col h-screen w-20 md:w-64 glass-panel border-r-0 z-10 transition-all duration-300">
+    <aside className="sticky top-0 flex flex-col h-screen shrink-0 w-20 md:w-64 glass-panel border-r-0 z-10 transition-all duration-300">
       {/* Subtle Background Glow for Sidebar */}
       <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-primary/5 to-transparent -z-10 pointer-events-none" />
 

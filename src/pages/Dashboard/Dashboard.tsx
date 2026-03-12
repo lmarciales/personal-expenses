@@ -55,14 +55,14 @@ export const Dashboard = () => {
   }
 
   return (
-    <div className="flex min-h-screen bg-background text-foreground font-sans relative overflow-hidden selection:bg-primary/30">
+    <div className="flex min-h-screen bg-background text-foreground font-sans relative overflow-y-auto overflow-x-hidden selection:bg-primary/30">
       {/* Ambient Neon Glows */}
       <div className="bg-glow top-[-10%] left-[-5%] opacity-50"></div>
       <div className="bg-glow-secondary bottom-[-10%] right-[-5%] opacity-30"></div>
 
       <Sidebar />
 
-      <main className="flex-1 overflow-y-auto relative z-10 px-6 py-8 md:px-12 md:py-10">
+      <main className="flex-1 relative z-10 px-6 py-8 md:px-12 md:py-10">
         <div className="max-w-7xl mx-auto space-y-8">
 
           {/* Header */}
