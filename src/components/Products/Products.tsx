@@ -1,6 +1,7 @@
 import { CreditCard, MoreVertical, Wallet, PlusCircle } from "lucide-react";
 import { Button } from "../ui/button";
 import { AddAccountModal } from "./AddAccountModal";
+import { formatCOPWithSymbol } from "@/lib/currency";
 
 export interface Product {
   id: string | number;
@@ -21,8 +22,8 @@ const Products = ({ products, onAccountAdded }: { products: Product[], onAccount
             <Wallet className="w-4 h-4 text-primary" /> Total Balance
           </h2>
           <div className="mt-3 flex items-baseline gap-1">
-            <span className="text-4xl font-extrabold tracking-tighter">${totalBalance.toLocaleString()}</span>
-            <span className="text-sm text-primary font-medium tracking-wide">USD</span>
+            <span className="text-4xl font-extrabold tracking-tighter">{formatCOPWithSymbol(totalBalance)}</span>
+            <span className="text-sm text-primary font-medium tracking-wide">COP</span>
           </div>
         </div>
         <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground rounded-full hover:bg-surface-hover-strong opacity-50 cursor-not-allowed">
@@ -64,7 +65,7 @@ const Products = ({ products, onAccountAdded }: { products: Product[], onAccount
                 </div>
               </div>
               <div className="text-right">
-                <div className="font-semibold text-sm">${product.balance.toLocaleString()}</div>
+                <div className="font-semibold text-sm">{formatCOPWithSymbol(product.balance)}</div>
               </div>
             </div>
           ))

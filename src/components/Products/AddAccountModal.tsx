@@ -9,10 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/supabase/client";
+import { CurrencyInput } from "@/components/ui/CurrencyInput";
 
 const accountSchema = z.object({
     name: z.string().min(1, "Name is required"),
-    balance: z.coerce.number().min(0, "Initial balance must be zero or positive"),
+    balance: z.number({ required_error: "Balance is required", invalid_type_error: "Balance is required" }).min(0, "Balance must be zero or positive"),
     type: z.string().min(1, "Type is required"),
 });
 
@@ -27,7 +28,7 @@ export function AddAccountModal({ onSuccess, children }: { onSuccess: () => void
         resolver: zodResolver(accountSchema),
         defaultValues: {
             name: "",
-            balance: 0,
+            balance: undefined,
             type: "",
         },
     });
@@ -130,7 +131,12 @@ export function AddAccountModal({ onSuccess, children }: { onSuccess: () => void
                                 <FormItem>
                                     <FormLabel>Initial Balance</FormLabel>
                                     <FormControl>
-                                        <Input type="number" step="0.01" {...field} className="bg-surface-input border-glass" />
+                                        <CurrencyInput
+                                            value={field.value}
+                                            onChange={(val) => field.onChange(val)}
+                                            placeholder="0"
+                                            className="bg-surface-input border-glass"
+                                        />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

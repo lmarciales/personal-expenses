@@ -1,5 +1,6 @@
 import { MoreVertical, PieChart } from "lucide-react";
 import { Button } from "./ui/button";
+import { formatCOPWithSymbol } from "@/lib/currency";
 
 export interface SpendingOverviewProps {
   totalExpense: number;
@@ -14,7 +15,7 @@ const SpendingOverview = ({ totalExpense }: SpendingOverviewProps) => {
             <PieChart className="w-4 h-4 text-cyan-400" /> Spending Overview
           </h2>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-3xl font-extrabold tracking-tighter">${totalExpense.toFixed(2)}</span>
+            <span className="text-3xl font-extrabold tracking-tighter">{formatCOPWithSymbol(totalExpense)}</span>
             <span className="bg-primary/10 text-primary text-xs font-bold px-2 py-1 rounded-md border border-primary/10 opacity-50">0%</span>
           </div>
         </div>
@@ -39,7 +40,7 @@ const SpendingOverview = ({ totalExpense }: SpendingOverviewProps) => {
               <div className="w-3 h-3 rounded-full bg-surface-indicator mr-3" />
               <span className="font-medium text-foreground">Uncategorized</span>
             </div>
-            <span className="font-semibold text-muted-foreground">$0.00</span>
+            <span className="font-semibold text-muted-foreground">{formatCOPWithSymbol(0)}</span>
           </div>
         </div>
       </div>

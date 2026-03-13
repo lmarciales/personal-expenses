@@ -1,4 +1,5 @@
 import { ArrowUpRight, Activity, CopyPlus } from "lucide-react";
+import { formatCOPWithSymbol } from "@/lib/currency";
 import { Button } from "../ui/button";
 import { AddTransactionModal } from "./AddTransactionModal";
 import { useNavigate } from "react-router-dom";
@@ -57,7 +58,7 @@ const Transactions = ({ transactions, accounts, onSuccess }: { transactions: Tra
               <div className="flex items-center space-x-4">
                 <div className="text-right">
                   <div className={`font-bold text-sm tracking-tight ${transaction.type === 'income' ? 'text-green-400' : 'text-foreground'}`}>
-                    {transaction.type === 'income' ? '+' : transaction.type === 'expense' ? '-' : ''}${Math.abs(transaction.amount).toFixed(2)}
+                    {transaction.type === 'income' ? '+' : transaction.type === 'expense' ? '-' : ''}{formatCOPWithSymbol(Math.abs(transaction.amount))}
                   </div>
                   <div
                     className={`text-[10px] font-medium uppercase tracking-wider mt-1 ${transaction.status === "Success"

@@ -14,9 +14,11 @@ import { PlusCircle, Trash2, Loader2, CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/supabase/client";
+import { CurrencyInput } from "@/components/ui/CurrencyInput";
+import { formatCOPWithSymbol } from "@/lib/currency";
 
 const splitSchema = z.object({
-    amount: z.coerce.number().min(0, "Amount must be positive"),
+    amount: z.number({ required_error: "Amount is required", invalid_type_error: "Amount is required" }).min(0, "Amount must be positive"),
     category: z.string().min(1, "Category is required"),
     assigned_to: z.string().min(1, "Assignee is required"),
     status: z.enum(["Settled", "Pending Receival", "Pending Payment", "Ignored"]),
@@ -25,7 +27,7 @@ const splitSchema = z.object({
 const formSchema = z.object({
     accountId: z.string().uuid("Please select an account"),
     date: z.string().min(1, "Date is required"),
-    totalAmount: z.coerce.number().min(0.01, "Amount must be greater than 0"),
+    totalAmount: z.number({ required_error: "Amount is required", invalid_type_error: "Amount is required" }).min(0.01, "Amount must be greater than 0"),
     payee: z.string().min(1, "Payee is required"),
     notes: z.string().optional(),
     type: z.enum(["expense", "income", "transfer"]).default("expense"),
@@ -73,7 +75,7 @@ export function AddTransactionModal({ accounts, onSuccess, initialData, editMode
         defaultValues: {
             accountId: initialData?.accountId || (accounts.length > 0 ? accounts[0].id : ""),
             date: initialData?.date || format(new Date(), "yyyy-MM-dd"),
-            totalAmount: initialData?.totalAmount || 0,
+            totalAmount: initialData?.totalAmount ?? undefined,
             type: initialData?.type || "expense",
             payee: initialData?.payee || "",
             notes: initialData?.notes || "",
@@ -81,7 +83,7 @@ export function AddTransactionModal({ accounts, onSuccess, initialData, editMode
             recurrenceInterval: initialData?.recurrenceInterval || "Monthly",
             splits: initialData?.splits || [
                 {
-                    amount: initialData?.totalAmount || 0,
+                    amount: initialData?.totalAmount ?? undefined,
                     category: CATEGORIES[0],
                     assigned_to: "Me",
                     status: "Settled",
@@ -98,10 +100,10 @@ export function AddTransactionModal({ accounts, onSuccess, initialData, editMode
     // Automatically update the first split amount when totalAmount changes if there's only one split
     const isRecurring = form.watch("isRecurring");
 
-    const handleTotalAmountChange = (val: number) => {
-        form.setValue("totalAmount", val, { shouldValidate: true });
+    const handleTotalAmountChange = (val: number | undefined) => {
+        form.setValue("totalAmount", val as number, { shouldValidate: true });
         if (fields.length === 1) {
-            form.setValue("splits.0.amount", val, { shouldValidate: true });
+            form.setValue("splits.0.amount", val as number, { shouldValidate: true });
         }
     };
 
@@ -200,7 +202,7 @@ export function AddTransactionModal({ accounts, onSuccess, initialData, editMode
                                             </FormControl>
                                             <SelectContent className="glass-panel border-glass">
                                                 {accounts.map(acc => (
-                                                    <SelectItem key={acc.id} value={acc.id}>{acc.name} (${acc.balance.toFixed(2)})</SelectItem>
+                                                    <SelectItem key={acc.id} value={acc.id}>{acc.name} ({formatCOPWithSymbol(acc.balance)})</SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>
@@ -284,12 +286,10 @@ export function AddTransactionModal({ accounts, onSuccess, initialData, editMode
                                     <FormItem>
                                         <FormLabel>Total Amount</FormLabel>
                                         <FormControl>
-                                            <Input
-                                                type="number"
-                                                step="0.01"
-                                                placeholder="0.00"
-                                                {...field}
-                                                onChange={(e) => handleTotalAmountChange(parseFloat(e.target.value) || 0)}
+                                            <CurrencyInput
+                                                value={field.value}
+                                                onChange={handleTotalAmountChange}
+                                                placeholder="0"
                                                 className="bg-surface-input border-glass"
                                             />
                                         </FormControl>
@@ -378,7 +378,7 @@ export function AddTransactionModal({ accounts, onSuccess, initialData, editMode
                                     variant="outline"
                                     size="sm"
                                     className="bg-transparent border-primary text-primary hover:bg-primary/20"
-                                    onClick={() => append({ amount: 0, category: CATEGORIES[0], assigned_to: "", status: "Pending Receival" })}
+                                    onClick={() => append({ amount: undefined as any, category: CATEGORIES[0], assigned_to: "", status: "Pending Receival" })}
                                 >
                                     <PlusCircle className="w-4 h-4 mr-2" />
                                     Add Split
@@ -397,7 +397,12 @@ export function AddTransactionModal({ accounts, onSuccess, initialData, editMode
                                                 <FormItem className="col-span-3">
                                                     <FormLabel className="text-xs">Amount</FormLabel>
                                                     <FormControl>
-                                                        <Input type="number" step="0.01" {...inputField} className="bg-surface-input border-glass text-sm" />
+                                                        <CurrencyInput
+                                                            value={inputField.value}
+                                                            onChange={(val) => inputField.onChange(val)}
+                                                            placeholder="0"
+                                                            className="bg-surface-input border-glass text-sm"
+                                                        />
                                                     </FormControl>
                                                 </FormItem>
                                             )}

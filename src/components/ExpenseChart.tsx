@@ -1,6 +1,7 @@
 import { ArrowUpRight, BarChart3 } from "lucide-react";
 import { Bar, BarChart, ResponsiveContainer, XAxis, Tooltip, Cell, YAxis } from "recharts";
 import { Button } from "./ui/button";
+import { formatCOPWithSymbol, formatCOP } from "@/lib/currency";
 
 const data = [
   { name: "Jan", value: 0 },
@@ -33,7 +34,7 @@ const ExpenseChart = () => {
       <div className="absolute top-20 right-8 z-20 hidden lg:block opacity-50">
         <div className="glass-panel p-4 rounded-xl border border-glass shadow-[0_10px_40px_rgba(0,0,0,0.5)] backdrop-blur-2xl">
           <div className="flex items-center justify-between mb-3 border-b border-subtle pb-2">
-            <span className="text-xl font-bold font-mono tracking-tighter text-foreground">$0.00</span>
+            <span className="text-xl font-bold font-mono tracking-tighter text-foreground">{formatCOPWithSymbol(0)}</span>
             <span className="bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 rounded border border-primary/10 ml-3">0%</span>
           </div>
           <div className="space-y-2 text-xs font-medium">
@@ -41,7 +42,7 @@ const ExpenseChart = () => {
               <span className="flex items-center text-muted-foreground">
                 <div className="w-2 h-2 rounded-full bg-surface-indicator mr-2" /> Uncategorized
               </span>
-              <span className="text-foreground">$0.00</span>
+              <span className="text-foreground">{formatCOPWithSymbol(0)}</span>
             </div>
           </div>
         </div>
@@ -63,7 +64,7 @@ const ExpenseChart = () => {
               fontSize={12}
               tickLine={false}
               axisLine={false}
-              tickFormatter={(value) => `$${value}`}
+              tickFormatter={(value) => formatCOP(value)}
             />
             <Tooltip
               cursor={{ fill: 'var(--chart-cursor)' }}

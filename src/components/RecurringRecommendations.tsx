@@ -1,6 +1,7 @@
 import { useRecurringRecommendations } from "@/hooks/useRecurringRecommendations";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { formatCOPWithSymbol } from "@/lib/currency";
 import { Loader2, CalendarClock, ArrowRight } from "lucide-react";
 import { format } from "date-fns";
 import { AddTransactionModal } from "./Transactions/AddTransactionModal";
@@ -45,7 +46,7 @@ export function RecurringRecommendations({ accounts, onSuccess }: { accounts: { 
 
                             <div className="flex items-center justify-between w-full md:w-auto gap-6 border-t border-subtle pt-4 md:border-t-0 md:pt-0">
                                 <div className="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-primary to-cyan-400 whitespace-nowrap">
-                                    {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'COP' }).format(rec.total_amount)}
+                                    {formatCOPWithSymbol(rec.total_amount)}
                                 </div>
 
                                 <AddTransactionModal

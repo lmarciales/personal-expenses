@@ -19,6 +19,7 @@ import { DateRange } from "react-day-picker";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/supabase/client";
 import { AddTransactionModal } from "@/components/Transactions/AddTransactionModal";
+import { formatCOPWithSymbol } from "@/lib/currency";
 
 const ALL_CATEGORIES = [
     "Food & Drink", "Transportation", "Shopping", "Entertainment",
@@ -254,7 +255,7 @@ export function TransactionsView() {
                                         <div className="flex flex-col items-start sm:items-end w-full sm:w-auto pl-11 sm:pl-0">
                                             <div className={`font-bold text-base tracking-tight ${txn.type === 'expense' ? 'text-foreground' : 'text-emerald-400'}`}>
                                                 {txn.type === 'expense' ? '-' : '+'}
-                                                {Intl.NumberFormat('en-US', { style: 'currency', currency: 'COP' }).format(Math.abs(txn.total_amount))}
+                                                {formatCOPWithSymbol(Math.abs(txn.total_amount))}
                                             </div>
 
                                             {/* Splits render */}
@@ -264,7 +265,7 @@ export function TransactionsView() {
                                                         <div key={split.id} className="flex items-center text-[10px] bg-surface-hover px-2 py-1 rounded-sm border border-subtle gap-1.5">
                                                             <span className="text-muted-foreground opacity-70">{split.category || 'Uncategorized'}</span>
                                                             <span className={`font-semibold ${split.status === 'Settled' ? 'text-primary' : 'text-orange-400 animate-pulse'}`}>
-                                                                {Intl.NumberFormat('en-US', { style: 'currency', currency: 'COP' }).format(Math.abs(split.amount))}
+                                                                {formatCOPWithSymbol(Math.abs(split.amount))}
                                                             </span>
                                                             <span className="uppercase text-[9px] opacity-50 ml-1">{split.assigned_to}</span>
                                                         </div>
