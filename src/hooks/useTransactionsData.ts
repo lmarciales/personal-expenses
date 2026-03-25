@@ -15,15 +15,18 @@ export interface TransactionWithSplits {
     transaction_splits: {
         id: string;
         amount: number;
-        category: string;
         assigned_to: string;
         status: string;
+    }[];
+    transaction_categories: {
+        category_id: string;
+        categories: { id: string; name: string; color: string | null };
     }[];
 }
 
 export interface TransactionFilters {
     search: string;
-    categories: string[];
+    categories: string[]; // category UUIDs
     startDate: Date | undefined;
     endDate: Date | undefined;
     limit?: number;
@@ -68,9 +71,12 @@ export function useTransactionsData(filters: TransactionFilters) {
           transaction_splits!inner(
             id,
             amount,
-            category,
             assigned_to,
             status
+          ),
+          transaction_categories(
+            category_id,
+            categories(id, name, color)
           )
         `, { count: 'exact' })
                 .eq("user_id", userId)
@@ -90,7 +96,7 @@ export function useTransactionsData(filters: TransactionFilters) {
             }
 
             if (filters.categories && filters.categories.length > 0) {
-                query = query.in("transaction_splits.category", filters.categories);
+                query = query.in("transaction_categories.category_id", filters.categories);
             }
 
             if (filters.limit) {
@@ -101,17 +107,19 @@ export function useTransactionsData(filters: TransactionFilters) {
 
             if (transactionsError) throw transactionsError;
 
-            // The !inner join on transactions_splits might return duplicate rows if there are multiple splits.
-            // Supabase's postgrest-js automatically nests them if the schema has foreign keys correctly.
-            // Let's typecast the result.
             const formattedTransactions = (transactionsData || []) as unknown as TransactionWithSplits[];
 
+            // When filtering by category, exclude transactions that had no matching categories
+            const filteredTransactions = filters.categories.length > 0
+                ? formattedTransactions.filter(t => t.transaction_categories && t.transaction_categories.length > 0)
+                : formattedTransactions;
+
             setData({
-                transactions: formattedTransactions,
+                transactions: filteredTransactions,
                 isLoading: false,
                 error: null,
                 totalCount: count || 0,
-                hasMore: count ? formattedTransactions.length < count : false,
+                hasMore: count ? filteredTransactions.length < count : false,
             });
         } catch (err: any) {
             setData((prev) => ({ ...prev, isLoading: false, error: err.message }));

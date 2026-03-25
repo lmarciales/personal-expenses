@@ -1,6 +1,7 @@
 import { X, Search, Filter, Activity, FileText, Calendar as CalendarIcon, Pencil, XCircle, CopyPlus, MoreHorizontal, Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useTransactionsData, TransactionFilters } from "@/hooks/useTransactionsData";
+import { useCategories } from "@/hooks/useCategories";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,14 +22,9 @@ import { supabase } from "@/supabase/client";
 import { AddTransactionModal } from "@/components/Transactions/AddTransactionModal";
 import { formatCOPWithSymbol } from "@/lib/currency";
 
-const ALL_CATEGORIES = [
-    "Food & Drink", "Transportation", "Shopping", "Entertainment",
-    "Housing", "Utilities", "Healthcare", "Personal Care",
-    "Education", "Travel", "Income", "Other"
-];
-
 export function TransactionsView() {
     const navigate = useNavigate();
+    const { categories } = useCategories();
 
     const [filters, setFilters] = useState<TransactionFilters>({
         search: "",
@@ -45,15 +41,15 @@ export function TransactionsView() {
         setFilters(prev => ({ ...prev, startDate: dateRange?.from, endDate: dateRange?.to, limit: 20 }));
     }, [dateRange]);
 
-    const toggleCategory = (cat: string) => {
+    const toggleCategory = (categoryId: string) => {
         setFilters(prev => {
-            const isSelected = prev.categories.includes(cat);
+            const isSelected = prev.categories.includes(categoryId);
             return {
                 ...prev,
                 limit: 20,
                 categories: isSelected
-                    ? prev.categories.filter(c => c !== cat)
-                    : [...prev.categories, cat]
+                    ? prev.categories.filter(c => c !== categoryId)
+                    : [...prev.categories, categoryId]
             };
         });
     };
@@ -81,18 +77,7 @@ export function TransactionsView() {
         if (!confirm("Are you sure you want to delete this transaction?")) return;
 
         try {
-            const { error } = await supabase.rpc('update_transaction_with_splits', {
-                p_transaction_id: id,
-                p_date: new Date().toISOString().split('T')[0], // dummy
-                p_total_amount: 0,
-                p_type: 'expense',
-                p_payee: 'dummy',
-                p_notes: "",
-                p_is_recurring: false,
-                p_recurrence_interval: "",
-                p_splits: [],
-                p_delete: true
-            } as any);
+            const { error } = await supabase.from('transactions').delete().eq('id', id);
             if (error) throw error;
             refetch();
         } catch (err) {
@@ -143,15 +128,29 @@ export function TransactionsView() {
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="w-56 border-glass bg-background/95 backdrop-blur z-50">
-                                {ALL_CATEGORIES.map(cat => (
-                                    <DropdownMenuCheckboxItem
-                                        key={cat}
-                                        checked={filters.categories.includes(cat)}
-                                        onCheckedChange={() => toggleCategory(cat)}
-                                    >
-                                        {cat}
-                                    </DropdownMenuCheckboxItem>
-                                ))}
+                                {categories.length === 0 ? (
+                                    <div className="text-xs text-muted-foreground text-center py-3 px-2">
+                                        No categories yet. Create one when adding a transaction.
+                                    </div>
+                                ) : (
+                                    categories.map(cat => (
+                                        <DropdownMenuCheckboxItem
+                                            key={cat.id}
+                                            checked={filters.categories.includes(cat.id)}
+                                            onCheckedChange={() => toggleCategory(cat.id)}
+                                        >
+                                            <span className="flex items-center gap-2">
+                                                {cat.color && (
+                                                    <span
+                                                        className="w-2.5 h-2.5 rounded-full inline-block flex-shrink-0"
+                                                        style={{ backgroundColor: cat.color }}
+                                                    />
+                                                )}
+                                                {cat.name}
+                                            </span>
+                                        </DropdownMenuCheckboxItem>
+                                    ))
+                                )}
                             </DropdownMenuContent>
                         </DropdownMenu>
 
@@ -244,6 +243,24 @@ export function TransactionsView() {
                                                     <span>•</span>
                                                     <span>{new Date(txn.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                                                 </div>
+                                                {/* Transaction-level category badges */}
+                                                {txn.transaction_categories?.length > 0 && (
+                                                    <div className="mt-1 flex flex-wrap gap-1">
+                                                        {txn.transaction_categories.map(tc => (
+                                                            <span
+                                                                key={tc.category_id}
+                                                                className="text-[10px] px-1.5 py-0.5 rounded-full border border-glass"
+                                                                style={tc.categories?.color ? {
+                                                                    backgroundColor: `${tc.categories.color}20`,
+                                                                    borderColor: `${tc.categories.color}40`,
+                                                                    color: tc.categories.color,
+                                                                } : undefined}
+                                                            >
+                                                                {tc.categories?.name || 'Unknown'}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                )}
                                                 {txn.notes && (
                                                     <div className="text-[11px] text-muted-foreground/80 mt-1 flex items-start gap-1">
                                                         <FileText className="w-3 h-3 mt-0.5 opacity-50" /> {txn.notes}
@@ -263,7 +280,6 @@ export function TransactionsView() {
                                                 <div className="mt-1.5 flex flex-wrap gap-1 md:justify-end">
                                                     {txn.transaction_splits.map(split => (
                                                         <div key={split.id} className="flex items-center text-[10px] bg-surface-hover px-2 py-1 rounded-sm border border-subtle gap-1.5">
-                                                            <span className="text-muted-foreground opacity-70">{split.category || 'Uncategorized'}</span>
                                                             <span className={`font-semibold ${split.status === 'Settled' ? 'text-primary' : 'text-orange-400 animate-pulse'}`}>
                                                                 {formatCOPWithSymbol(Math.abs(split.amount))}
                                                             </span>
@@ -290,6 +306,7 @@ export function TransactionsView() {
                                                                 type: txn.type,
                                                                 payee: txn.payee,
                                                                 isRecurring: false,
+                                                                categoryIds: txn.transaction_categories?.map(tc => tc.category_id) || [],
                                                             }}
                                                         >
                                                             <div className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full mb-1">
@@ -312,9 +329,9 @@ export function TransactionsView() {
                                                                 notes: txn.notes || "",
                                                                 isRecurring: txn.is_recurring || false,
                                                                 recurrenceInterval: txn.recurrence_interval as any,
+                                                                categoryIds: txn.transaction_categories?.map(tc => tc.category_id) || [],
                                                                 splits: txn.transaction_splits.map(s => ({
                                                                     amount: Math.abs(s.amount),
-                                                                    category: s.category || "Other",
                                                                     assigned_to: s.assigned_to || "Me",
                                                                     status: s.status as any
                                                                 }))

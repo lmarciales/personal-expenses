@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/supabase/client";
+import type { CategorySpending } from "@/components/SpendingOverview";
 
 export interface DashboardData {
     accounts: {
@@ -23,6 +24,7 @@ export interface DashboardData {
     totalBalance: number;
     totalIncome: number;
     totalExpense: number;
+    categorySpending: CategorySpending[];
     isLoading: boolean;
     error: string | null;
     refetch: () => Promise<void>;
@@ -35,6 +37,7 @@ export function useDashboardData() {
         totalBalance: 0,
         totalIncome: 0,
         totalExpense: 0,
+        categorySpending: [],
         isLoading: true,
         error: null,
     });
@@ -71,6 +74,50 @@ export function useDashboardData() {
                 .limit(5);
 
             if (transactionsError) throw transactionsError;
+
+            // Fetch expense transactions with categories for spending breakdown
+            const { data: expenseWithCategories, error: expenseCatError } = await supabase
+                .from("transactions")
+                .select(`
+            id,
+            total_amount,
+            type,
+            transaction_categories(
+              category_id,
+              categories(id, name, color)
+            )
+          `)
+                .eq("user_id", userId)
+                .eq("type", "expense");
+
+            if (expenseCatError) throw expenseCatError;
+
+            // Aggregate spending by category
+            const categoryMap = new Map<string, { name: string; color: string | null; amount: number }>();
+            for (const txn of (expenseWithCategories || []) as any[]) {
+                const cats = txn.transaction_categories || [];
+                const amount = Math.abs(txn.total_amount);
+                if (cats.length === 0) continue;
+                // Distribute amount equally among categories
+                const perCat = amount / cats.length;
+                for (const tc of cats) {
+                    const cat = tc.categories;
+                    if (!cat) continue;
+                    const existing = categoryMap.get(cat.id);
+                    if (existing) {
+                        existing.amount += perCat;
+                    } else {
+                        categoryMap.set(cat.id, { name: cat.name, color: cat.color, amount: perCat });
+                    }
+                }
+            }
+            const categorySpending = Array.from(categoryMap.values())
+                .sort((a, b) => b.amount - a.amount);
+
+            // Total expense from all expense transactions (not just last 5)
+            const allExpenseTotal = (expenseWithCategories || []).reduce(
+                (sum: number, txn: any) => sum + Math.abs(txn.total_amount), 0
+            );
 
             // Map Accounts for the UI
             const colors = [
@@ -109,7 +156,8 @@ export function useDashboardData() {
                 transactions,
                 totalBalance,
                 totalIncome: Array.isArray(transactionsData) ? transactionsData.filter(t => t.type === 'income').reduce((a, b) => a + Math.abs(b.total_amount), 0) : 0,
-                totalExpense: Array.isArray(transactionsData) ? transactionsData.filter(t => t.type === 'expense').reduce((a, b) => a + Math.abs(b.total_amount), 0) : 0,
+                totalExpense: allExpenseTotal,
+                categorySpending,
                 isLoading: false,
                 error: null,
             });

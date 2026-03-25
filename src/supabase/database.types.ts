@@ -65,6 +65,30 @@ export type Database = {
         }
         Relationships: []
       }
+      categories: {
+        Row: {
+          color: string | null
+          created_at: string
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       Test_table: {
         Row: {
           created_at: string
@@ -80,11 +104,46 @@ export type Database = {
         }
         Relationships: []
       }
+      transaction_categories: {
+        Row: {
+          category_id: string
+          created_at: string
+          id: string
+          transaction_id: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          id?: string
+          transaction_id: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          id?: string
+          transaction_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transaction_categories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transaction_categories_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       transaction_splits: {
         Row: {
           amount: number
           assigned_to: string
-          category: string
           created_at: string
           id: string
           status: string
@@ -94,7 +153,6 @@ export type Database = {
         Insert: {
           amount: number
           assigned_to: string
-          category: string
           created_at?: string
           id?: string
           status: string
@@ -104,7 +162,6 @@ export type Database = {
         Update: {
           amount?: number
           assigned_to?: string
-          category?: string
           created_at?: string
           id?: string
           status?: string
@@ -206,6 +263,22 @@ export type Database = {
             }
             Returns: string
           }
+        | {
+            Args: {
+              p_account_id: string
+              p_category_ids?: string[]
+              p_date: string
+              p_is_recurring?: boolean
+              p_notes: string
+              p_payee: string
+              p_recurrence_interval?: string
+              p_splits?: Json
+              p_total_amount: number
+              p_type?: string
+              p_user_id: string
+            }
+            Returns: string
+          }
       update_transaction_with_splits:
         | {
             Args: {
@@ -231,6 +304,23 @@ export type Database = {
               p_payee: string
               p_recurrence_interval: string
               p_splits: Json
+              p_total_amount: number
+              p_transaction_id: string
+              p_type?: string
+              p_user_id: string
+            }
+            Returns: undefined
+          }
+        | {
+            Args: {
+              p_account_id: string
+              p_category_ids?: string[]
+              p_date: string
+              p_is_recurring?: boolean
+              p_notes: string
+              p_payee: string
+              p_recurrence_interval?: string
+              p_splits?: Json
               p_total_amount: number
               p_transaction_id: string
               p_type?: string

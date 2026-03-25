@@ -23,7 +23,7 @@ import {
 export const Dashboard = () => {
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
-  const { accounts, transactions, totalExpense, isLoading, error, refetch } = useDashboardData();
+  const { accounts, transactions, totalExpense, categorySpending, isLoading, error, refetch } = useDashboardData();
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleSignOut = () => signOut().then(() => navigate("/"));
@@ -145,7 +145,7 @@ export const Dashboard = () => {
               <Products products={accounts} onAccountAdded={refetch} />
             </div>
             <div className="md:col-span-6 transition-transform hover:-translate-y-1 duration-300">
-              <SpendingOverview totalExpense={totalExpense} />
+              <SpendingOverview totalExpense={totalExpense} categorySpending={categorySpending} />
             </div>
 
             <div className="md:col-span-4 transition-transform hover:-translate-y-1 duration-300">

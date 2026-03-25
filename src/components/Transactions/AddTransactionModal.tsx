@@ -16,10 +16,11 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/supabase/client";
 import { CurrencyInput } from "@/components/ui/CurrencyInput";
 import { formatCOPWithSymbol } from "@/lib/currency";
+import { useCategories } from "@/hooks/useCategories";
+import { CategoryMultiSelect } from "@/components/ui/CategoryMultiSelect";
 
 const splitSchema = z.object({
     amount: z.number({ required_error: "Amount is required", invalid_type_error: "Amount is required" }).min(0, "Amount must be positive"),
-    category: z.string().min(1, "Category is required"),
     assigned_to: z.string().min(1, "Assignee is required"),
     status: z.enum(["Settled", "Pending Receival", "Pending Payment", "Ignored"]),
 });
@@ -33,6 +34,7 @@ const formSchema = z.object({
     type: z.enum(["expense", "income", "transfer"]).default("expense"),
     isRecurring: z.boolean().default(false),
     recurrenceInterval: z.enum(["Monthly", "Yearly", "Weekly"]).optional().nullable(),
+    categoryIds: z.array(z.string()).default([]),
     splits: z.array(splitSchema).min(1, "At least one split is required"),
 }).refine(data => {
     if (data.isRecurring && !data.recurrenceInterval) return false;
@@ -59,16 +61,11 @@ interface AddTransactionModalProps {
     children: React.ReactNode;
 }
 
-const CATEGORIES = [
-    "Food & Dining", "Transportation", "Housing", "Utilities", "Health & Fitness",
-    "Entertainment", "Shopping", "Personal Care", "Education", "Travel", "Debt",
-    "Savings", "Income", "Other"
-];
-
 export function AddTransactionModal({ accounts, onSuccess, initialData, editMode, transactionId, children }: AddTransactionModalProps) {
     const [open, setOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+    const { categories, createCategory } = useCategories();
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -81,10 +78,10 @@ export function AddTransactionModal({ accounts, onSuccess, initialData, editMode
             notes: initialData?.notes || "",
             isRecurring: initialData?.isRecurring || false,
             recurrenceInterval: initialData?.recurrenceInterval || "Monthly",
+            categoryIds: initialData?.categoryIds || [],
             splits: initialData?.splits || [
                 {
                     amount: initialData?.totalAmount ?? undefined,
-                    category: CATEGORIES[0],
                     assigned_to: "Me",
                     status: "Settled",
                 }
@@ -114,6 +111,13 @@ export function AddTransactionModal({ accounts, onSuccess, initialData, editMode
             if (userError || !userData?.user) throw new Error("User not authenticated");
             const userId = userData.user.id;
 
+            // Prepare splits without category (category is now at transaction level)
+            const splitsPayload = data.splits.map(s => ({
+                amount: s.amount,
+                assigned_to: s.assigned_to,
+                status: s.status,
+            }));
+
             if (editMode && transactionId) {
                 const { error } = await supabase.rpc("update_transaction_with_splits", {
                     p_transaction_id: transactionId,
@@ -126,7 +130,8 @@ export function AddTransactionModal({ accounts, onSuccess, initialData, editMode
                     p_type: data.type,
                     p_is_recurring: data.isRecurring,
                     p_recurrence_interval: (data.isRecurring ? data.recurrenceInterval : null) as any,
-                    p_splits: data.splits as any,
+                    p_splits: splitsPayload as any,
+                    p_category_ids: data.categoryIds,
                 });
                 if (error) throw error;
             } else {
@@ -140,7 +145,8 @@ export function AddTransactionModal({ accounts, onSuccess, initialData, editMode
                     p_type: data.type,
                     p_is_recurring: data.isRecurring,
                     p_recurrence_interval: (data.isRecurring ? data.recurrenceInterval : null) as any,
-                    p_splits: data.splits as any,
+                    p_splits: splitsPayload as any,
+                    p_category_ids: data.categoryIds,
                 });
                 if (error) throw error;
             }
@@ -315,6 +321,27 @@ export function AddTransactionModal({ accounts, onSuccess, initialData, editMode
                             />
                         </div>
 
+                        {/* Categories - Transaction Level */}
+                        <FormField
+                            control={form.control}
+                            name="categoryIds"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Categories</FormLabel>
+                                    <FormControl>
+                                        <CategoryMultiSelect
+                                            categories={categories}
+                                            selectedIds={field.value}
+                                            onChange={(ids) => field.onChange(ids)}
+                                            onCreateCategory={createCategory}
+                                            placeholder="Select or create categories..."
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
                         <FormField
                             control={form.control}
                             name="notes"
@@ -372,13 +399,13 @@ export function AddTransactionModal({ accounts, onSuccess, initialData, editMode
                         {/* Splits Section */}
                         <div className="space-y-4">
                             <div className="flex items-center justify-between">
-                                <h3 className="text-lg font-semibold text-primary">Splits & Categories</h3>
+                                <h3 className="text-lg font-semibold text-primary">Splits</h3>
                                 <Button
                                     type="button"
                                     variant="outline"
                                     size="sm"
                                     className="bg-transparent border-primary text-primary hover:bg-primary/20"
-                                    onClick={() => append({ amount: undefined as any, category: CATEGORIES[0], assigned_to: "", status: "Pending Receival" })}
+                                    onClick={() => append({ amount: undefined as any, assigned_to: "", status: "Pending Receival" })}
                                 >
                                     <PlusCircle className="w-4 h-4 mr-2" />
                                     Add Split
@@ -394,7 +421,7 @@ export function AddTransactionModal({ accounts, onSuccess, initialData, editMode
                                             control={form.control}
                                             name={`splits.${index}.amount`}
                                             render={({ field: inputField }) => (
-                                                <FormItem className="col-span-3">
+                                                <FormItem className="col-span-4">
                                                     <FormLabel className="text-xs">Amount</FormLabel>
                                                     <FormControl>
                                                         <CurrencyInput
@@ -412,7 +439,7 @@ export function AddTransactionModal({ accounts, onSuccess, initialData, editMode
                                             control={form.control}
                                             name={`splits.${index}.assigned_to`}
                                             render={({ field: inputField }) => (
-                                                <FormItem className="col-span-3">
+                                                <FormItem className="col-span-4">
                                                     <FormLabel className="text-xs">Assigned To</FormLabel>
                                                     <FormControl>
                                                         <Input placeholder="Me, Mamá..." {...inputField} className="bg-surface-input border-glass text-sm" />
@@ -423,31 +450,9 @@ export function AddTransactionModal({ accounts, onSuccess, initialData, editMode
 
                                         <FormField
                                             control={form.control}
-                                            name={`splits.${index}.category`}
-                                            render={({ field: selectField }) => (
-                                                <FormItem className="col-span-3">
-                                                    <FormLabel className="text-xs">Category</FormLabel>
-                                                    <Select onValueChange={selectField.onChange} defaultValue={selectField.value}>
-                                                        <FormControl>
-                                                            <SelectTrigger className="bg-surface-input border-glass text-sm">
-                                                                <SelectValue />
-                                                            </SelectTrigger>
-                                                        </FormControl>
-                                                        <SelectContent className="glass-panel border-glass max-h-[200px]">
-                                                            {CATEGORIES.map(cat => (
-                                                                <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                                                            ))}
-                                                        </SelectContent>
-                                                    </Select>
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                        <FormField
-                                            control={form.control}
                                             name={`splits.${index}.status`}
                                             render={({ field: selectField }) => (
-                                                <FormItem className="col-span-2">
+                                                <FormItem className="col-span-3">
                                                     <FormLabel className="text-xs">Status</FormLabel>
                                                     <Select onValueChange={selectField.onChange} defaultValue={selectField.value}>
                                                         <FormControl>
