@@ -29,7 +29,7 @@ export function RecurringRecommendations({ accounts, onSuccess }: { accounts: { 
             </div>
             <div className="flex flex-col gap-3">
                 {recommendations.map((rec, index) => (
-                    <Card key={index} className="glass-card border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors shadow-[0_0_15px_rgba(124,58,237,0.1)]">
+                    <Card key={index} className="glass-card border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors shadow-glow-accent">
                         <CardContent className="p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                             <div className="flex items-center gap-4 flex-1">
                                 <div className="hidden md:flex flex-col items-center justify-center bg-background/50 rounded-xl px-4 py-2 border border-subtle min-w-[80px]">
@@ -60,7 +60,7 @@ export function RecurringRecommendations({ accounts, onSuccess }: { accounts: { 
                                         accountId: rec.account_id
                                     }}
                                 >
-                                    <Button className="bg-primary/20 hover:bg-primary/40 text-primary border border-primary/50 shadow-[0_0_10px_rgba(124,58,237,0.2)] transition-all whitespace-nowrap">
+                                    <Button className="bg-primary/20 hover:bg-primary/40 text-primary border border-primary/50 shadow-glow-accent transition-all whitespace-nowrap">
                                         Log It Now <ArrowRight className="w-4 h-4 ml-2" />
                                     </Button>
                                 </AddTransactionModal>

@@ -18,11 +18,11 @@ const Products = ({ products, onAccountAdded }: { products: Product[], onAccount
     <div className="glass-card rounded-2xl h-full flex flex-col p-6">
       <div className="flex flex-row items-start justify-between pb-4">
         <div>
-          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest flex items-center gap-2">
+          <h2 className="typo-section-label flex items-center gap-2">
             <Wallet className="w-4 h-4 text-primary" /> Total Balance
           </h2>
           <div className="mt-3 flex items-baseline gap-1">
-            <span className="text-4xl font-extrabold tracking-tighter">{formatCOPWithSymbol(totalBalance)}</span>
+            <span className="typo-amount-xl">{formatCOPWithSymbol(totalBalance)}</span>
             <span className="text-sm text-primary font-medium tracking-wide">COP</span>
           </div>
         </div>
@@ -33,7 +33,7 @@ const Products = ({ products, onAccountAdded }: { products: Product[], onAccount
 
       <div className="mt-auto space-y-3">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">My Accounts</h3>
+          <h3 className="typo-section-label">My Accounts</h3>
           {products.length > 0 && (
             <AddAccountModal onSuccess={onAccountAdded}>
               <Button variant="ghost" size="sm" className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground rounded-full hover:bg-surface-hover-strong gap-1" title="Add Account">
@@ -47,7 +47,7 @@ const Products = ({ products, onAccountAdded }: { products: Product[], onAccount
           <div className="flex flex-col items-center justify-center p-6 bg-surface-input border border-subtle rounded-xl text-center space-y-3">
             <p className="text-sm text-muted-foreground italic">You don't have any accounts yet.</p>
             <AddAccountModal onSuccess={onAccountAdded}>
-              <Button variant="outline" className="w-full border-primary/50 text-primary hover:bg-primary/20 shadow-[0_0_10px_rgba(212,255,0,0.15)] bg-transparent">
+              <Button variant="outline" className="w-full border-primary/50 text-primary hover:bg-primary/20 shadow-glow-sm bg-transparent">
                 <PlusCircle className="mr-2 h-4 w-4" /> Add First Account
               </Button>
             </AddAccountModal>

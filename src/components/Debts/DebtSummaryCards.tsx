@@ -13,24 +13,24 @@ export const DebtSummaryCards = ({ totalIOwe, totalOwedToMe }: DebtSummaryCardsP
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div className="glass-card rounded-2xl p-5">
         <div className="flex items-center gap-3 mb-3">
-          <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center">
-            <TrendingDown className="w-5 h-5 text-red-400" />
+          <div className="w-10 h-10 rounded-xl bg-danger/10 flex items-center justify-center">
+            <TrendingDown className="w-5 h-5 text-danger" />
           </div>
           <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">I Owe</span>
         </div>
-        <p className="text-2xl font-extrabold tracking-tight text-red-400">
+        <p className="typo-amount-md text-danger">
           {formatCOPWithSymbol(totalIOwe)}
         </p>
       </div>
 
       <div className="glass-card rounded-2xl p-5">
         <div className="flex items-center gap-3 mb-3">
-          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
-            <TrendingUp className="w-5 h-5 text-emerald-400" />
+          <div className="w-10 h-10 rounded-xl bg-success/10 flex items-center justify-center">
+            <TrendingUp className="w-5 h-5 text-success" />
           </div>
           <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Owed to Me</span>
         </div>
-        <p className="text-2xl font-extrabold tracking-tight text-emerald-400">
+        <p className="typo-amount-md text-success">
           {formatCOPWithSymbol(totalOwedToMe)}
         </p>
       </div>
@@ -42,7 +42,7 @@ export const DebtSummaryCards = ({ totalIOwe, totalOwedToMe }: DebtSummaryCardsP
           </div>
           <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Net Position</span>
         </div>
-        <p className={`text-2xl font-extrabold tracking-tight ${netPosition >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+        <p className={`typo-amount-md ${netPosition >= 0 ? "text-success" : "text-danger"}`}>
           {netPosition >= 0 ? "+" : ""}{formatCOPWithSymbol(Math.abs(netPosition))}
         </p>
       </div>

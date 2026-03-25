@@ -58,7 +58,7 @@ export const SettlementDialog = ({
           {/* Amount */}
           <div className="glass-card rounded-xl p-4 text-center">
             <p className="text-sm text-muted-foreground mb-1">Total Received</p>
-            <p className="text-3xl font-extrabold tracking-tight text-emerald-400">
+            <p className="text-3xl font-extrabold tracking-tight text-success">
               {formatCOPWithSymbol(totalAmount)}
             </p>
           </div>
@@ -107,7 +107,7 @@ export const SettlementDialog = ({
           <Button
             onClick={handleConfirm}
             disabled={isProcessing}
-            className="bg-emerald-600 text-white hover:bg-emerald-700 shadow-[0_0_15px_rgba(16,185,129,0.3)]"
+            className="bg-success text-success-foreground hover:bg-success/90 shadow-glow-success-lg"
           >
             {isProcessing ? (
               <>

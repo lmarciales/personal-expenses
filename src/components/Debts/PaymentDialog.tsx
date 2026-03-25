@@ -115,7 +115,7 @@ export const PaymentDialog = ({
           <Button
             onClick={handleConfirm}
             disabled={isProcessing}
-            className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_15px_rgba(212,255,0,0.3)]"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-glow-lg"
           >
             {isProcessing ? (
               <>

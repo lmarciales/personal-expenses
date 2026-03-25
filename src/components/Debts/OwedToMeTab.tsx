@@ -86,8 +86,8 @@ export const OwedToMeTab = ({ groups, accounts, onSettled }: OwedToMeTabProps) =
             {/* Person Header */}
             <div className="p-5 border-b border-subtle flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
-                  <User className="w-5 h-5 text-emerald-400" />
+                <div className="w-10 h-10 rounded-xl bg-success/10 flex items-center justify-center">
+                  <User className="w-5 h-5 text-success" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-foreground">{group.person}</h3>
@@ -98,7 +98,7 @@ export const OwedToMeTab = ({ groups, accounts, onSettled }: OwedToMeTabProps) =
               </div>
               <div className="text-right">
                 <p className="text-xs text-muted-foreground">Total Owed</p>
-                <p className="text-lg font-bold text-emerald-400">{formatCOPWithSymbol(group.total)}</p>
+                <p className="text-lg font-bold text-success">{formatCOPWithSymbol(group.total)}</p>
               </div>
             </div>
 
@@ -110,7 +110,7 @@ export const OwedToMeTab = ({ groups, accounts, onSettled }: OwedToMeTabProps) =
                 className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 {allSelected ? (
-                  <CheckSquare className="w-4 h-4 text-emerald-400" />
+                  <CheckSquare className="w-4 h-4 text-success" />
                 ) : (
                   <Square className="w-4 h-4" />
                 )}
@@ -134,12 +134,12 @@ export const OwedToMeTab = ({ groups, accounts, onSettled }: OwedToMeTabProps) =
                     type="button"
                     onClick={() => toggleSplit(group.person, item.splitId)}
                     className={`w-full px-5 py-3 flex items-center justify-between hover:bg-surface-hover transition-colors text-left ${
-                      isSelected ? "bg-emerald-500/5" : ""
+                      isSelected ? "bg-success/5" : ""
                     }`}
                   >
                     <div className="flex items-center gap-3">
                       {isSelected ? (
-                        <CheckSquare className="w-4 h-4 text-emerald-400 shrink-0" />
+                        <CheckSquare className="w-4 h-4 text-success shrink-0" />
                       ) : (
                         <Square className="w-4 h-4 text-muted-foreground shrink-0" />
                       )}
@@ -165,7 +165,7 @@ export const OwedToMeTab = ({ groups, accounts, onSettled }: OwedToMeTabProps) =
                 </div>
                 <Button
                   onClick={() => openSettlement(group)}
-                  className="bg-emerald-600 text-white hover:bg-emerald-700 shadow-[0_0_15px_rgba(16,185,129,0.3)]"
+                  className="bg-success text-success-foreground hover:bg-success/90 shadow-glow-success-lg"
                 >
                   Mark as Received
                 </Button>

@@ -28,12 +28,12 @@ const Sidebar = () => {
   ];
 
   return (
-    <aside className="sticky top-0 flex flex-col h-screen shrink-0 w-20 md:w-64 glass-panel border-r-0 z-10 transition-all duration-300">
+    <aside className="sticky top-0 hidden md:flex flex-col h-screen shrink-0 md:w-64 glass-sidebar z-10 transition-all duration-300">
       {/* Subtle Background Glow for Sidebar */}
       <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-primary/5 to-transparent -z-10 pointer-events-none" />
 
       <div className="flex items-center p-6 mb-4">
-        <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center mr-3 shadow-[0_0_15px_rgba(212,255,0,0.4)]">
+        <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center mr-3 shadow-glow-lg">
           <span className="font-bold text-primary-foreground text-xl">L</span>
         </div>
         <span className="font-bold text-2xl hidden md:inline tracking-tight">Lumina</span>
@@ -48,10 +48,10 @@ const Sidebar = () => {
           const isImplemented = ['/dashboard', '/debts'].includes(item.path);
           // Using a conditional rendering approach based on if the item is implemented 
           return isImplemented ? (
-            <Link key={item.path} to={item.path} className="block">
+            <Link key={item.path} to={item.path} className="block focus-ring rounded-xl">
               <span
                 className={`flex items-center w-full px-3 py-3 rounded-xl transition-all duration-200 group ${isActive
-                  ? "bg-primary text-primary-foreground shadow-[0_0_15px_rgba(212,255,0,0.15)] font-medium"
+                  ? "bg-primary text-primary-foreground shadow-glow font-medium"
                   : "text-muted-foreground hover:bg-surface-hover hover:text-foreground"
                   }`}
               >
@@ -63,8 +63,8 @@ const Sidebar = () => {
               </span>
             </Link>
           ) : (
-            <div key={item.path} className="block cursor-not-allowed opacity-50 relative group">
-              <span className="flex items-center w-full px-3 py-3 rounded-xl text-muted-foreground">
+            <div key={item.path} className="block cursor-not-allowed relative group">
+              <span className="flex items-center w-full px-3 py-3 rounded-xl text-muted-foreground/50">
                 <item.icon className="w-5 h-5 mr-3" />
                 <span className="hidden md:inline">{item.label}</span>
               </span>
@@ -81,7 +81,7 @@ const Sidebar = () => {
           General
         </div>
 
-        <div className="cursor-not-allowed opacity-50 relative group block">
+        <div className="cursor-not-allowed relative group block">
           <Button variant="ghost" disabled className="w-full justify-start rounded-xl text-muted-foreground hover:bg-surface-hover hover:text-foreground hover:shadow-none pointer-events-none">
             <Settings className="w-5 h-5 mr-3" />
             <span className="hidden md:inline">Settings</span>
@@ -91,7 +91,7 @@ const Sidebar = () => {
           </div>
         </div>
 
-        <div className="cursor-not-allowed opacity-50 relative group block">
+        <div className="cursor-not-allowed relative group block">
           <Button variant="ghost" disabled className="w-full justify-start rounded-xl text-muted-foreground hover:bg-surface-hover hover:text-foreground hover:shadow-none pointer-events-none">
             <User className="w-5 h-5 mr-3" />
             <span className="hidden md:inline">Profile</span>

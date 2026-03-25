@@ -43,7 +43,7 @@ const QuickTransfer = () => {
           <Button variant="outline" className="flex-1 rounded-xl bg-surface-overlay border-glass hover:bg-surface-hover-strong hover:text-foreground h-12 font-semibold">
             Request Money
           </Button>
-          <Button className="flex-1 rounded-xl shadow-[0_0_15px_rgba(212,255,0,0.3)] hover:shadow-[0_0_25px_rgba(212,255,0,0.5)] transition-shadow h-12 font-bold">
+          <Button className="flex-1 rounded-xl shadow-glow-lg hover:shadow-glow-xl transition-shadow h-12 font-bold">
             Send Money
           </Button>
         </div>

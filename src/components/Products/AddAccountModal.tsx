@@ -147,7 +147,7 @@ export function AddAccountModal({ onSuccess, children }: { onSuccess: () => void
                             <Button type="button" variant="ghost" onClick={() => setOpen(false)} className="hover:bg-surface-hover-strong border border-glass">
                                 Cancel
                             </Button>
-                            <Button type="submit" disabled={isSubmitting} className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_0_15px_rgba(124,58,237,0.5)]">
+                            <Button type="submit" disabled={isSubmitting} className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-glow-accent-lg">
                                 {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                                 Add Account
                             </Button>

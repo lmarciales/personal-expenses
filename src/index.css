@@ -61,6 +61,35 @@
     /* Glow tokens */
     --glow-primary-color: rgba(212, 255, 0, 0.08);
     --glow-secondary-color: rgba(124, 58, 237, 0.08);
+
+    /* Shadow glow tokens */
+    --glow-primary-shadow: rgba(101, 128, 0, 0.15);
+    --glow-primary-shadow-strong: rgba(101, 128, 0, 0.25);
+    --glow-primary-shadow-intense: rgba(101, 128, 0, 0.35);
+    --glow-accent-shadow: rgba(124, 58, 237, 0.1);
+    --glow-accent-shadow-strong: rgba(124, 58, 237, 0.3);
+    --glow-success-shadow: rgba(16, 185, 129, 0.15);
+    --glow-success-shadow-strong: rgba(16, 185, 129, 0.25);
+
+    /* Elevation shadows */
+    --shadow-float: 0 10px 40px rgba(0, 0, 0, 0.12);
+
+    /* Card shadows (light mode gets depth, dark stays flat) */
+    --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+    --card-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+
+    /* Sidebar */
+    --sidebar-bg: 240 6% 93%;
+    --sidebar-border: 240 6% 88%;
+
+    /* Semantic colors */
+    --success: 160 84% 39%;
+    --success-foreground: 0 0% 100%;
+    --danger: 0 72% 51%;
+    --danger-foreground: 0 0% 100%;
+    --warning: 32 95% 44%;
+    --warning-foreground: 0 0% 100%;
+    --income: 142 71% 45%;
   }
 
   /* Force dark mode styling across the app as default */
@@ -108,6 +137,35 @@
     /* Glow tokens */
     --glow-primary-color: rgba(212, 255, 0, 0.15);
     --glow-secondary-color: rgba(124, 58, 237, 0.15);
+
+    /* Shadow glow tokens */
+    --glow-primary-shadow: rgba(212, 255, 0, 0.15);
+    --glow-primary-shadow-strong: rgba(212, 255, 0, 0.3);
+    --glow-primary-shadow-intense: rgba(212, 255, 0, 0.5);
+    --glow-accent-shadow: rgba(124, 58, 237, 0.15);
+    --glow-accent-shadow-strong: rgba(124, 58, 237, 0.5);
+    --glow-success-shadow: rgba(16, 185, 129, 0.2);
+    --glow-success-shadow-strong: rgba(16, 185, 129, 0.3);
+
+    /* Elevation shadows */
+    --shadow-float: 0 10px 40px rgba(0, 0, 0, 0.5);
+
+    /* Card shadows */
+    --card-shadow: none;
+    --card-shadow-hover: 0 4px 20px rgba(0, 0, 0, 0.4);
+
+    /* Sidebar */
+    --sidebar-bg: 240 6% 7%;
+    --sidebar-border: 240 4% 14%;
+
+    /* Semantic colors */
+    --success: 160 84% 60%;
+    --success-foreground: 240 10% 3.9%;
+    --danger: 0 84% 65%;
+    --danger-foreground: 240 10% 3.9%;
+    --warning: 32 95% 64%;
+    --warning-foreground: 240 10% 3.9%;
+    --income: 142 71% 65%;
   }
 }
 
@@ -141,17 +199,57 @@
   /* For Firefox */
   * {
     scrollbar-width: thin;
-    scrollbar-color: rgba(var(--foreground), 0.1) transparent;
+    scrollbar-color: hsl(var(--foreground) / 0.1) transparent;
+  }
+}
+
+@layer components {
+  /* Typography utilities */
+  .typo-page-title {
+    @apply text-3xl font-extrabold tracking-tight;
+  }
+  .typo-page-subtitle {
+    @apply text-muted-foreground mt-1 text-sm;
+  }
+  .typo-section-label {
+    @apply text-xs font-semibold text-muted-foreground uppercase tracking-widest;
+  }
+  .typo-amount-xl {
+    @apply text-4xl font-extrabold tracking-tighter;
+  }
+  .typo-amount-lg {
+    @apply text-3xl font-extrabold tracking-tighter;
+  }
+  .typo-amount-md {
+    @apply text-2xl font-extrabold tracking-tight;
+  }
+  .typo-amount-sm {
+    @apply text-lg font-bold tracking-tight;
   }
 }
 
 @layer utilities {
   .glass-panel {
-    @apply bg-panel/60 backdrop-blur-xl border border-border/50 shadow-2xl;
+    @apply bg-panel/60 backdrop-blur-xl border border-border/50 shadow-2xl rounded-2xl;
   }
 
   .glass-card {
-    @apply bg-card/40 backdrop-blur-md border border-border/50;
+    @apply bg-card/40 backdrop-blur-md border border-border/50 rounded-2xl transition-all duration-300;
+    box-shadow: var(--card-shadow);
+  }
+
+  .glass-card:hover {
+    box-shadow: var(--card-shadow-hover);
+  }
+
+  .glass-sidebar {
+    @apply backdrop-blur-xl border-r shadow-xl;
+    background: hsl(var(--sidebar-bg) / 0.85);
+    border-color: hsl(var(--sidebar-border));
+  }
+
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background;
   }
 
   /* Utility for the glowing orbs behind panels */

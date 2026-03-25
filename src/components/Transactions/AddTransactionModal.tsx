@@ -242,7 +242,7 @@ export function AddTransactionModal({ accounts, onSuccess, initialData, editMode
                                                     </Button>
                                                 </FormControl>
                                             </PopoverTrigger>
-                                            <PopoverContent className="w-auto p-0 glass-panel border border-glass shadow-[0_10px_40px_rgba(0,0,0,0.8)]" align="start">
+                                            <PopoverContent className="w-auto p-0 glass-panel border border-glass shadow-float" align="start">
                                                 <Calendar
                                                     mode="single"
                                                     className="bg-background text-foreground"
@@ -497,7 +497,7 @@ export function AddTransactionModal({ accounts, onSuccess, initialData, editMode
                                         variant="destructive"
                                         onClick={onDelete}
                                         disabled={isDeleting || isSubmitting}
-                                        className="bg-red-500/20 text-red-400 hover:bg-red-500/30 border border-red-500/50"
+                                        className="bg-danger/20 text-danger hover:bg-danger/30 border border-danger/50"
                                     >
                                         {isDeleting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Trash2 className="w-4 h-4 mr-2" />}
                                         Delete
@@ -508,7 +508,7 @@ export function AddTransactionModal({ accounts, onSuccess, initialData, editMode
                                 <Button type="button" variant="ghost" onClick={() => setOpen(false)} className="hover:bg-surface-hover-strong border border-glass">
                                     Cancel
                                 </Button>
-                                <Button type="submit" disabled={isSubmitting || isDeleting} className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_0_15px_rgba(124,58,237,0.5)]">
+                                <Button type="submit" disabled={isSubmitting || isDeleting} className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-glow-accent-lg">
                                     {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                                     {editMode ? 'Save Changes' : 'Save Transaction'}
                                 </Button>

@@ -1,10 +1,12 @@
 import Sidebar from "@/components/Sidebar";
+import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { DebtSummaryCards } from "@/components/Debts/DebtSummaryCards";
 import { MyDebtsTab } from "@/components/Debts/MyDebtsTab";
 import { OwedToMeTab } from "@/components/Debts/OwedToMeTab";
 import { useDebtsData } from "@/hooks/useDebtsData";
 import { Button } from "@/components/ui/button";
-import { Loader2, Landmark, Users } from "lucide-react";
+import { Landmark, Users } from "lucide-react";
+import { DebtsSkeleton } from "@/components/ui/Skeleton";
 import { useState } from "react";
 
 type Tab = "my-debts" | "owed-to-me";
@@ -18,10 +20,13 @@ export const DebtsView = () => {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen bg-background items-center justify-center relative overflow-hidden">
+      <div className="flex h-screen bg-background text-foreground font-sans relative overflow-hidden">
         <div className="bg-glow top-[-10%] left-[-5%] opacity-50" />
         <div className="bg-glow-secondary bottom-[-10%] right-[-5%] opacity-30" />
-        <Loader2 className="w-12 h-12 text-primary animate-spin" />
+        <Sidebar />
+        <main className="flex-1 relative z-10 px-4 py-6 md:px-12 md:py-10 overflow-y-auto overflow-x-hidden">
+          <DebtsSkeleton />
+        </main>
       </div>
     );
   }
@@ -43,12 +48,13 @@ export const DebtsView = () => {
 
       <Sidebar />
 
-      <main className="flex-1 relative z-10 px-6 py-8 md:px-12 md:py-10 overflow-y-auto overflow-x-hidden">
-        <div className="max-w-7xl mx-auto space-y-8">
+      <MobileBottomNav />
+      <main className="flex-1 relative z-10 px-4 py-6 md:px-12 md:py-10 pb-20 md:pb-10 overflow-y-auto overflow-x-hidden">
+        <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
           {/* Header */}
           <header className="glass-card p-6 rounded-3xl shadow-xl">
-            <h1 className="text-3xl font-extrabold tracking-tight">Debts & Payments</h1>
-            <p className="text-muted-foreground mt-1">Track what you owe and what others owe you.</p>
+            <h1 className="typo-page-title">Debts & Payments</h1>
+            <p className="typo-page-subtitle">Track what you owe and what others owe you.</p>
           </header>
 
           {/* Summary Cards */}
@@ -63,7 +69,7 @@ export const DebtsView = () => {
               variant={activeTab === "my-debts" ? "default" : "outline"}
               onClick={() => setActiveTab("my-debts")}
               className={`rounded-full gap-2 ${activeTab === "my-debts"
-                ? "bg-primary text-primary-foreground shadow-[0_0_15px_rgba(212,255,0,0.3)]"
+                ? "bg-primary text-primary-foreground shadow-glow-lg"
                 : "bg-transparent border-border hover:bg-surface-hover"
               }`}
             >
@@ -79,7 +85,7 @@ export const DebtsView = () => {
               variant={activeTab === "owed-to-me" ? "default" : "outline"}
               onClick={() => setActiveTab("owed-to-me")}
               className={`rounded-full gap-2 ${activeTab === "owed-to-me"
-                ? "bg-primary text-primary-foreground shadow-[0_0_15px_rgba(212,255,0,0.3)]"
+                ? "bg-primary text-primary-foreground shadow-glow-lg"
                 : "bg-transparent border-border hover:bg-surface-hover"
               }`}
             >

@@ -106,7 +106,7 @@ export const MyDebtsTab = ({ groups, accounts, onSettled }: MyDebtsTabProps) => 
               </div>
               <div className="text-right">
                 <p className="text-xs text-muted-foreground">Total Pending</p>
-                <p className="text-lg font-bold text-red-400">{formatCOPWithSymbol(group.total)}</p>
+                <p className="text-lg font-bold text-danger">{formatCOPWithSymbol(group.total)}</p>
               </div>
             </div>
 
@@ -171,7 +171,7 @@ export const MyDebtsTab = ({ groups, accounts, onSettled }: MyDebtsTabProps) => 
                 </div>
                 <Button
                   onClick={() => openPayment(group)}
-                  className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_15px_rgba(212,255,0,0.3)]"
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-glow-lg"
                 >
                   Pay Selected
                 </Button>

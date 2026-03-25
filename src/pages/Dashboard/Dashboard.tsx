@@ -1,6 +1,7 @@
 import ExpenseChart from "@/components/ExpenseChart";
 import Products from "@/components/Products/Products";
 import Sidebar from "@/components/Sidebar";
+import { MobileBottomNav } from "@/components/MobileBottomNav";
 import SpendingOverview from "@/components/SpendingOverview";
 import Transactions from "@/components/Transactions/Transactions";
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,8 @@ import { useDashboardData } from "@/hooks/useDashboardData";
 import { AddTransactionModal } from "@/components/Transactions/AddTransactionModal";
 import { RecurringRecommendations } from "@/components/RecurringRecommendations";
 import { signOut } from "@/supabase/auth";
-import { Bell, LogOut, Monitor, Search, Loader2, Moon, Sun } from "lucide-react";
+import { Bell, LogOut, Monitor, Search, Moon, Sun } from "lucide-react";
+import { DashboardSkeleton } from "@/components/ui/Skeleton";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useTheme } from "@/hooks/useTheme";
@@ -35,11 +37,13 @@ export const Dashboard = () => {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen bg-background items-center justify-center relative overflow-hidden">
-        {/* Ambient Neon Glows */}
+      <div className="flex h-screen bg-background text-foreground font-sans relative overflow-hidden">
         <div className="bg-glow top-[-10%] left-[-5%] opacity-50"></div>
         <div className="bg-glow-secondary bottom-[-10%] right-[-5%] opacity-30"></div>
-        <Loader2 className="w-12 h-12 text-primary animate-spin" />
+        <Sidebar />
+        <main className="flex-1 relative z-10 px-4 py-6 md:px-12 md:py-10 overflow-y-auto overflow-x-hidden">
+          <DashboardSkeleton />
+        </main>
       </div>
     );
   }
@@ -62,20 +66,21 @@ export const Dashboard = () => {
 
       <Sidebar />
 
-      <main className="flex-1 relative z-10 px-6 py-8 md:px-12 md:py-10 overflow-y-auto overflow-x-hidden">
-        <div className="max-w-7xl mx-auto space-y-8">
+      <MobileBottomNav />
+      <main className="flex-1 relative z-10 px-4 py-6 md:px-12 md:py-10 pb-20 md:pb-10 overflow-y-auto overflow-x-hidden">
+        <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
 
           {/* Header */}
           <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 glass-card p-6 rounded-3xl shadow-xl">
             <div className="flex flex-col sm:flex-row sm:items-center gap-4">
               <div>
-                <h1 className="text-3xl font-extrabold tracking-tight">Dashboard Overview</h1>
-                <p className="text-muted-foreground mt-1">Monitor and control your financial health.</p>
+                <h1 className="typo-page-title">Dashboard Overview</h1>
+                <p className="typo-page-subtitle">Monitor and control your financial health.</p>
               </div>
               <div className="flex space-x-2">
                 {accounts.length > 0 ? (
                   <AddTransactionModal accounts={accounts} onSuccess={refetch}>
-                    <Button className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_0_15px_rgba(212,255,0,0.5)] transition-all">
+                    <Button className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-glow-xl transition-all">
                       + Add Transaction
                     </Button>
                   </AddTransactionModal>
@@ -107,18 +112,20 @@ export const Dashboard = () => {
                   {theme === "light" ? <Sun className="w-5 h-5" /> : theme === "dark" ? <Moon className="w-5 h-5" /> : <Monitor className="w-5 h-5" />}
                 </Button>
 
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="ghost" size="icon" className="rounded-full hover:bg-secondary relative">
-                      <Bell className="w-5 h-5" />
-                      <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-primary rounded-full animate-pulse"></span>
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-64 glass-panel border-border p-4" align="end">
-                    <h4 className="font-semibold text-sm mb-2 text-primary">Notifications</h4>
-                    <p className="text-sm text-muted-foreground">You have no new notifications.</p>
-                  </PopoverContent>
-                </Popover>
+                <div className="hidden sm:block">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="ghost" size="icon" className="rounded-full hover:bg-secondary relative">
+                        <Bell className="w-5 h-5" />
+                        <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-primary rounded-full animate-pulse"></span>
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-64 glass-panel border-border p-4" align="end">
+                      <h4 className="font-semibold text-sm mb-2 text-primary">Notifications</h4>
+                      <p className="text-sm text-muted-foreground">You have no new notifications.</p>
+                    </PopoverContent>
+                  </Popover>
+                </div>
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -141,17 +148,17 @@ export const Dashboard = () => {
 
           {/* Dashboard Grid placeholder - to be updated in the Scaffold phase */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-            <div className="md:col-span-6 transition-transform hover:-translate-y-1 duration-300">
+            <div className="md:col-span-6">
               <Products products={accounts} onAccountAdded={refetch} />
             </div>
-            <div className="md:col-span-6 transition-transform hover:-translate-y-1 duration-300">
+            <div className="md:col-span-6">
               <SpendingOverview totalExpense={totalExpense} categorySpending={categorySpending} />
             </div>
 
-            <div className="md:col-span-4 transition-transform hover:-translate-y-1 duration-300">
+            <div className="md:col-span-4">
               <Transactions transactions={filteredTransactions} accounts={accounts} onSuccess={refetch} />
             </div>
-            <div className="md:col-span-8 transition-transform hover:-translate-y-1 duration-300">
+            <div className="md:col-span-8">
               <ExpenseChart data={monthlyExpenses} />
             </div>
           </div>

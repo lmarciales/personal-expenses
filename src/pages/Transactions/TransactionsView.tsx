@@ -212,7 +212,7 @@ export function TransactionsView() {
                             <p>Loading transactions...</p>
                         </div>
                     ) : error ? (
-                        <div className="text-center py-20 text-red-500">
+                        <div className="text-center py-20 text-danger">
                             <p>Error loading transactions: {error}</p>
                         </div>
                     ) : transactions.length === 0 ? (
@@ -270,7 +270,7 @@ export function TransactionsView() {
                                         </div>
 
                                         <div className="flex flex-col items-start sm:items-end w-full sm:w-auto pl-11 sm:pl-0">
-                                            <div className={`font-bold text-base tracking-tight ${txn.type === 'expense' ? 'text-foreground' : 'text-emerald-400'}`}>
+                                            <div className={`font-bold text-base tracking-tight ${txn.type === 'expense' ? 'text-foreground' : 'text-success'}`}>
                                                 {txn.type === 'expense' ? '-' : '+'}
                                                 {formatCOPWithSymbol(Math.abs(txn.total_amount))}
                                             </div>
@@ -280,7 +280,7 @@ export function TransactionsView() {
                                                 <div className="mt-1.5 flex flex-wrap gap-1 md:justify-end">
                                                     {txn.transaction_splits.map(split => (
                                                         <div key={split.id} className="flex items-center text-[10px] bg-surface-hover px-2 py-1 rounded-sm border border-subtle gap-1.5">
-                                                            <span className={`font-semibold ${split.status === 'Settled' ? 'text-primary' : 'text-orange-400 animate-pulse'}`}>
+                                                            <span className={`font-semibold ${split.status === 'Settled' ? 'text-primary' : 'text-warning animate-pulse'}`}>
                                                                 {formatCOPWithSymbol(Math.abs(split.amount))}
                                                             </span>
                                                             <span className="uppercase text-[9px] opacity-50 ml-1">{split.assigned_to}</span>

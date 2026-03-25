@@ -118,7 +118,7 @@ export function CategoryMultiSelect({
                 </Button>
             </PopoverTrigger>
             <PopoverContent
-                className="w-[--radix-popover-trigger-width] p-0 glass-panel border-glass shadow-[0_10px_40px_rgba(0,0,0,0.8)]"
+                className="w-[--radix-popover-trigger-width] p-0 glass-panel border-glass shadow-float"
                 align="start"
             >
                 <div className="p-2 border-b border-glass">

@@ -25,11 +25,11 @@ const SpendingOverview = ({ totalExpense, categorySpending = [] }: SpendingOverv
     <div className="glass-card rounded-2xl h-full flex flex-col p-6">
       <div className="flex flex-row items-start justify-between pb-4">
         <div>
-          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest flex items-center gap-2">
+          <h2 className="typo-section-label flex items-center gap-2">
             <PieChart className="w-4 h-4 text-cyan-400" /> Spending Overview
           </h2>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-3xl font-extrabold tracking-tighter">{formatCOPWithSymbol(totalExpense)}</span>
+            <span className="typo-amount-lg">{formatCOPWithSymbol(totalExpense)}</span>
           </div>
         </div>
         <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground rounded-full hover:bg-surface-hover-strong">

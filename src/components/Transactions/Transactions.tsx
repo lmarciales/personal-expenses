@@ -1,4 +1,5 @@
 import { ArrowUpRight, Activity, CopyPlus } from "lucide-react";
+import { EmptyState } from "../ui/EmptyState";
 import { formatCOPWithSymbol } from "@/lib/currency";
 import { Button } from "../ui/button";
 import { AddTransactionModal } from "./AddTransactionModal";
@@ -18,9 +19,9 @@ const Transactions = ({ transactions, accounts, onSuccess }: { transactions: Tra
   const navigate = useNavigate();
 
   return (
-    <div className="glass-card rounded-2xl h-full flex flex-col p-6">
-      <div className="flex flex-row items-center justify-between pb-6">
-        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest flex items-center gap-2">
+    <div className="glass-card h-full flex flex-col p-6">
+      <div className="flex flex-row items-center justify-between pb-4">
+        <h2 className="typo-section-label flex items-center gap-2">
           <Activity className="w-4 h-4 text-primary" /> Recent Transactions
         </h2>
         <Button
@@ -33,64 +34,71 @@ const Transactions = ({ transactions, accounts, onSuccess }: { transactions: Tra
         </Button>
       </div>
 
-      <div className="flex-1 space-y-1">
+      <div className="flex-1 space-y-1 overflow-hidden">
         {transactions.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-48 text-center space-y-3 opacity-50">
-            <Activity className="w-8 h-8 text-muted-foreground" />
-            <p className="text-sm text-muted-foreground italic">No recent transactions found.</p>
-          </div>
+          <EmptyState
+            icon={Activity}
+            title="No recent transactions"
+            description="Your recent transactions will appear here."
+          />
         ) : (
           transactions.map((transaction) => (
-            <div key={transaction.id} className="flex items-center justify-between p-3 rounded-xl hover:bg-surface-hover transition-colors group cursor-pointer border border-transparent hover:border-subtle">
-              <div className="flex items-center space-x-3">
-                <div className="relative">
-                  <div className="w-10 h-10 rounded-full bg-surface-overlay border-2 border-background shadow-md flex items-center justify-center">
-                    <span className="text-sm font-bold text-muted-foreground">{transaction.name.charAt(0).toUpperCase()}</span>
-                  </div>
-                  {transaction.status === "Success" && (
-                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-primary border-2 border-background rounded-full"></div>
-                  )}
+            <div
+              key={transaction.id}
+              className="group relative flex items-center gap-3 p-3 rounded-xl hover:bg-surface-hover transition-colors cursor-pointer overflow-hidden"
+            >
+              {/* Avatar */}
+              <div className="relative shrink-0">
+                <div className="w-9 h-9 rounded-full bg-surface-overlay border-2 border-background shadow-sm flex items-center justify-center">
+                  <span className="text-xs font-bold text-muted-foreground">{transaction.name.charAt(0).toUpperCase()}</span>
                 </div>
-                <div>
-                  <div className="font-semibold text-sm group-hover:text-primary transition-colors">{transaction.name}</div>
-                  <div className="text-xs text-muted-foreground mt-0.5">{transaction.email}</div>
-                </div>
-              </div>
-              <div className="flex items-center space-x-4">
-                <div className="text-right">
-                  <div className={`font-bold text-sm tracking-tight ${transaction.type === 'income' ? 'text-green-400' : 'text-foreground'}`}>
-                    {transaction.type === 'income' ? '+' : transaction.type === 'expense' ? '-' : ''}{formatCOPWithSymbol(Math.abs(transaction.amount))}
-                  </div>
-                  <div
-                    className={`text-[10px] font-medium uppercase tracking-wider mt-1 ${transaction.status === "Success"
-                      ? "text-primary"
-                      : "text-orange-400 animate-pulse"
-                      }`}
-                  >
-                    {transaction.status}
-                  </div>
-                </div>
-
-                {accounts && onSuccess && (
-                  <div className="opacity-0 group-hover:opacity-100 transition-opacity translate-x-4 group-hover:translate-x-0 duration-200">
-                    <AddTransactionModal
-                      accounts={accounts}
-                      onSuccess={onSuccess}
-                      initialData={{
-                        payee: transaction.name,
-                        totalAmount: Math.abs(transaction.amount),
-                        accountId: transaction.account_id,
-                        type: transaction.type,
-                        isRecurring: false,
-                      }}
-                    >
-                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-surface-hover hover:bg-primary/20 hover:text-primary text-muted-foreground border border-transparent hover:border-primary/30">
-                        <CopyPlus className="w-4 h-4" />
-                      </Button>
-                    </AddTransactionModal>
-                  </div>
+                {transaction.status === "Success" && (
+                  <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-primary border-2 border-background rounded-full"></div>
                 )}
               </div>
+
+              {/* Info - truncated */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-semibold text-sm truncate group-hover:text-primary transition-colors">
+                    {transaction.name}
+                  </span>
+                  <span className={`shrink-0 font-bold text-sm tabular-nums ${transaction.type === 'income' ? 'text-income' : 'text-foreground'}`}>
+                    {transaction.type === 'income' ? '+' : transaction.type === 'expense' ? '-' : ''}{formatCOPWithSymbol(Math.abs(transaction.amount))}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-2 mt-0.5">
+                  <span className="text-xs text-muted-foreground truncate">{transaction.email}</span>
+                  <span
+                    className={`shrink-0 text-[10px] font-medium uppercase tracking-wider ${
+                      transaction.status === "Success" ? "text-primary" : "text-warning animate-pulse"
+                    }`}
+                  >
+                    {transaction.status}
+                  </span>
+                </div>
+              </div>
+
+              {/* Duplicate action - overlay on hover */}
+              {accounts && onSuccess && (
+                <div className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  <AddTransactionModal
+                    accounts={accounts}
+                    onSuccess={onSuccess}
+                    initialData={{
+                      payee: transaction.name,
+                      totalAmount: Math.abs(transaction.amount),
+                      accountId: transaction.account_id,
+                      type: transaction.type,
+                      isRecurring: false,
+                    }}
+                  >
+                    <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full bg-surface-hover-strong hover:bg-primary/20 hover:text-primary text-muted-foreground border border-glass">
+                      <CopyPlus className="w-3.5 h-3.5" />
+                    </Button>
+                  </AddTransactionModal>
+                </div>
+              )}
             </div>
           ))
         )}
