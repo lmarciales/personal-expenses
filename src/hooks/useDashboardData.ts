@@ -23,6 +23,12 @@ export interface DashboardData {
         status: "Success" | "Pending";
         type: "expense" | "income" | "transfer";
         account_id: string;
+        date: string;
+        notes: string | null;
+        is_recurring: boolean;
+        recurrence_interval: string | null;
+        transaction_splits: { id: string; amount: number; assigned_to: string; status: string }[];
+        transaction_categories: { category_id: string; categories: { id: string; name: string; color: string | null } }[];
     }[];
     totalBalance: number;
     totalIncome: number;
@@ -72,7 +78,12 @@ export function useDashboardData() {
             date,
             account_id,
             type,
-            accounts (name)
+            is_recurring,
+            recurrence_interval,
+            notes,
+            accounts (name),
+            transaction_splits (id, amount, assigned_to, status),
+            transaction_categories (category_id, categories (id, name, color))
           `)
                 .eq("user_id", userId)
                 .order("date", { ascending: false })
@@ -157,7 +168,7 @@ export function useDashboardData() {
             }));
 
             // Map Transactions for UI
-            const transactions = (transactionsData || []).map((txn) => ({
+            const transactions = (transactionsData || []).map((txn: any) => ({
                 id: txn.id,
                 name: txn.payee,
                 email: txn.accounts && !Array.isArray(txn.accounts) ? txn.accounts.name : "Unknown Account",
@@ -165,6 +176,12 @@ export function useDashboardData() {
                 status: "Success" as const,
                 type: (txn.type as "expense" | "income" | "transfer") || "expense",
                 account_id: txn.account_id,
+                date: txn.date,
+                notes: txn.notes || null,
+                is_recurring: txn.is_recurring || false,
+                recurrence_interval: txn.recurrence_interval || null,
+                transaction_splits: txn.transaction_splits || [],
+                transaction_categories: txn.transaction_categories || [],
             }));
 
             setData({
