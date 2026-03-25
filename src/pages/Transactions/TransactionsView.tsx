@@ -63,6 +63,11 @@ export function TransactionsView() {
 
     const { transactions, isLoading, error, refetch, hasMore, totalCount } = useTransactionsData(filters);
 
+    const [modalState, setModalState] = useState<{
+        mode: 'edit' | 'duplicate';
+        transaction: typeof transactions[number];
+    } | null>(null);
+
     const [accounts, setAccounts] = useState<{ id: string; name: string; balance: number }[]>([]);
     useEffect(() => {
         const fetchAccounts = async () => {
@@ -298,51 +303,15 @@ export function TransactionsView() {
                                                     </Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end" className="w-48 glass-panel border-border z-50">
-                                                    <AddTransactionModal
-                                                        accounts={accounts}
-                                                        onSuccess={refetch}
-                                                        editMode={true}
-                                                        transactionId={txn.id}
-                                                        initialData={{
-                                                            accountId: txn.account_id,
-                                                            date: new Date(txn.date).toISOString().split('T')[0],
-                                                            totalAmount: Math.abs(txn.total_amount),
-                                                            type: txn.type,
-                                                            payee: txn.payee,
-                                                            notes: txn.notes || "",
-                                                            isRecurring: txn.is_recurring || false,
-                                                            recurrenceInterval: txn.recurrence_interval as any,
-                                                            categoryIds: txn.transaction_categories?.map(tc => tc.category_id) || [],
-                                                            splits: txn.transaction_splits.map(s => ({
-                                                                amount: Math.abs(s.amount),
-                                                                assigned_to: s.assigned_to || "Me",
-                                                                status: s.status as any
-                                                            }))
-                                                        }}
-                                                    >
-                                                        <div className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full mb-1">
-                                                            <Pencil className="w-4 h-4 mr-2" />
-                                                            <span>Edit</span>
-                                                        </div>
-                                                    </AddTransactionModal>
+                                                    <DropdownMenuItem onSelect={() => setModalState({ mode: 'edit', transaction: txn })} className="cursor-pointer">
+                                                        <Pencil className="w-4 h-4 mr-2" />
+                                                        <span>Edit</span>
+                                                    </DropdownMenuItem>
 
-                                                    <AddTransactionModal
-                                                        accounts={accounts}
-                                                        onSuccess={refetch}
-                                                        initialData={{
-                                                            accountId: txn.account_id,
-                                                            totalAmount: Math.abs(txn.total_amount),
-                                                            type: txn.type,
-                                                            payee: txn.payee,
-                                                            isRecurring: false,
-                                                            categoryIds: txn.transaction_categories?.map(tc => tc.category_id) || [],
-                                                        }}
-                                                    >
-                                                        <div className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full">
-                                                            <CopyPlus className="w-4 h-4 mr-2" />
-                                                            <span>Duplicate</span>
-                                                        </div>
-                                                    </AddTransactionModal>
+                                                    <DropdownMenuItem onSelect={() => setModalState({ mode: 'duplicate', transaction: txn })} className="cursor-pointer">
+                                                        <CopyPlus className="w-4 h-4 mr-2" />
+                                                        <span>Duplicate</span>
+                                                    </DropdownMenuItem>
 
                                                     <DropdownMenuSeparator className="bg-border/50" />
 
@@ -371,6 +340,38 @@ export function TransactionsView() {
                         </>
                     )}
                 </div>
+
+                {/* Lifted modal for Edit/Duplicate — rendered outside DropdownMenu to avoid Radix focus conflicts */}
+                {modalState && (
+                    <AddTransactionModal
+                        accounts={accounts}
+                        onSuccess={() => { setModalState(null); refetch(); }}
+                        editMode={modalState.mode === 'edit'}
+                        transactionId={modalState.mode === 'edit' ? modalState.transaction.id : undefined}
+                        initialData={{
+                            accountId: modalState.transaction.account_id,
+                            date: modalState.mode === 'edit'
+                                ? new Date(modalState.transaction.date).toISOString().split('T')[0]
+                                : undefined,
+                            totalAmount: Math.abs(modalState.transaction.total_amount),
+                            type: modalState.transaction.type,
+                            payee: modalState.transaction.payee,
+                            notes: modalState.mode === 'edit' ? (modalState.transaction.notes || "") : undefined,
+                            isRecurring: modalState.mode === 'edit' ? (modalState.transaction.is_recurring || false) : false,
+                            recurrenceInterval: modalState.mode === 'edit' ? modalState.transaction.recurrence_interval as any : undefined,
+                            categoryIds: modalState.transaction.transaction_categories?.map(tc => tc.category_id) || [],
+                            splits: modalState.mode === 'edit'
+                                ? modalState.transaction.transaction_splits.map(s => ({
+                                    amount: Math.abs(s.amount),
+                                    assigned_to: s.assigned_to || "Me",
+                                    status: s.status as any,
+                                }))
+                                : undefined,
+                        }}
+                        open={true}
+                        onOpenChange={(isOpen) => { if (!isOpen) setModalState(null); }}
+                    />
+                )}
             </div>
         </div>
     );

@@ -58,11 +58,16 @@ interface AddTransactionModalProps {
     initialData?: Partial<FormValues>;
     editMode?: boolean;
     transactionId?: string;
-    children: React.ReactNode;
+    children?: React.ReactNode;
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
 }
 
-export function AddTransactionModal({ accounts, onSuccess, initialData, editMode, transactionId, children }: AddTransactionModalProps) {
-    const [open, setOpen] = useState(false);
+export function AddTransactionModal({ accounts, onSuccess, initialData, editMode, transactionId, children, open: controlledOpen, onOpenChange: controlledOnOpenChange }: AddTransactionModalProps) {
+    const [internalOpen, setInternalOpen] = useState(false);
+    const isControlled = controlledOpen !== undefined;
+    const open = isControlled ? controlledOpen : internalOpen;
+    const setOpen = isControlled ? (controlledOnOpenChange ?? (() => {})) : setInternalOpen;
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const { categories, createCategory } = useCategories();
@@ -184,7 +189,7 @@ export function AddTransactionModal({ accounts, onSuccess, initialData, editMode
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>{children}</DialogTrigger>
+            {children && <DialogTrigger asChild>{children}</DialogTrigger>}
             <DialogContent className="sm:max-w-[600px] glass-panel border-glass text-foreground max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle className="text-2xl font-bold">{editMode ? 'Edit Transaction' : 'Add Transaction'}</DialogTitle>
@@ -200,7 +205,7 @@ export function AddTransactionModal({ accounts, onSuccess, initialData, editMode
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>From Account</FormLabel>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <Select onValueChange={field.onChange} value={field.value}>
                                             <FormControl>
                                                 <SelectTrigger className="bg-surface-input border-glass">
                                                     <SelectValue placeholder="Select account" />
@@ -208,7 +213,7 @@ export function AddTransactionModal({ accounts, onSuccess, initialData, editMode
                                             </FormControl>
                                             <SelectContent className="glass-panel border-glass">
                                                 {accounts.map(acc => (
-                                                    <SelectItem key={acc.id} value={acc.id}>{acc.name} ({formatCOPWithSymbol(acc.balance)})</SelectItem>
+                                                    <SelectItem key={acc.id} value={acc.id}>{acc.name.trim()} ({formatCOPWithSymbol(acc.balance)})</SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>

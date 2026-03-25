@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { ArrowUpRight, Activity, CopyPlus, Pencil } from "lucide-react";
 import { EmptyState } from "../ui/EmptyState";
 import { formatCOPWithSymbol } from "@/lib/currency";
@@ -7,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 
@@ -28,6 +30,10 @@ export interface Transaction {
 
 const Transactions = ({ transactions, accounts, onSuccess }: { transactions: Transaction[], accounts?: any[], onSuccess?: () => void }) => {
   const navigate = useNavigate();
+  const [modalState, setModalState] = useState<{
+    mode: 'edit' | 'duplicate';
+    transaction: Transaction;
+  } | null>(null);
 
   return (
     <div className="glass-card h-full flex flex-col p-6">
@@ -95,59 +101,55 @@ const Transactions = ({ transactions, accounts, onSuccess }: { transactions: Tra
 
               {accounts && onSuccess && (
                 <DropdownMenuContent align="end" className="w-48 glass-panel border-border z-50">
-                  <AddTransactionModal
-                    accounts={accounts}
-                    onSuccess={onSuccess}
-                    editMode={true}
-                    transactionId={String(transaction.id)}
-                    initialData={{
-                      accountId: transaction.account_id,
-                      date: transaction.date ? new Date(transaction.date).toISOString().split('T')[0] : undefined,
-                      totalAmount: Math.abs(transaction.amount),
-                      type: transaction.type,
-                      payee: transaction.name,
-                      notes: transaction.notes || "",
-                      isRecurring: transaction.is_recurring || false,
-                      recurrenceInterval: transaction.recurrence_interval as any,
-                      categoryIds: transaction.transaction_categories?.map(tc => tc.category_id) || [],
-                      splits: transaction.transaction_splits?.length
-                        ? transaction.transaction_splits.map(s => ({
-                            amount: Math.abs(s.amount),
-                            assigned_to: s.assigned_to || "Me",
-                            status: s.status as any,
-                          }))
-                        : [{ amount: Math.abs(transaction.amount), assigned_to: "Me", status: "Settled" as const }],
-                    }}
-                  >
-                    <div className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground w-full mb-1">
-                      <Pencil className="w-4 h-4 mr-2" />
-                      <span>Edit</span>
-                    </div>
-                  </AddTransactionModal>
+                  <DropdownMenuItem onSelect={() => setModalState({ mode: 'edit', transaction })} className="cursor-pointer">
+                    <Pencil className="w-4 h-4 mr-2" />
+                    <span>Edit</span>
+                  </DropdownMenuItem>
 
-                  <AddTransactionModal
-                    accounts={accounts}
-                    onSuccess={onSuccess}
-                    initialData={{
-                      payee: transaction.name,
-                      totalAmount: Math.abs(transaction.amount),
-                      accountId: transaction.account_id,
-                      type: transaction.type,
-                      isRecurring: false,
-                      categoryIds: transaction.transaction_categories?.map(tc => tc.category_id) || [],
-                    }}
-                  >
-                    <div className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground w-full">
-                      <CopyPlus className="w-4 h-4 mr-2" />
-                      <span>Duplicate</span>
-                    </div>
-                  </AddTransactionModal>
+                  <DropdownMenuItem onSelect={() => setModalState({ mode: 'duplicate', transaction })} className="cursor-pointer">
+                    <CopyPlus className="w-4 h-4 mr-2" />
+                    <span>Duplicate</span>
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               )}
             </DropdownMenu>
           ))
         )}
       </div>
+
+      {/* Lifted modal for Edit/Duplicate — rendered outside DropdownMenu to avoid Radix focus conflicts */}
+      {accounts && onSuccess && modalState && (
+        <AddTransactionModal
+          accounts={accounts}
+          onSuccess={() => { setModalState(null); onSuccess(); }}
+          editMode={modalState.mode === 'edit'}
+          transactionId={modalState.mode === 'edit' ? String(modalState.transaction.id) : undefined}
+          initialData={{
+            accountId: modalState.transaction.account_id,
+            date: modalState.mode === 'edit' && modalState.transaction.date
+              ? new Date(modalState.transaction.date).toISOString().split('T')[0]
+              : undefined,
+            totalAmount: Math.abs(modalState.transaction.amount),
+            type: modalState.transaction.type,
+            payee: modalState.transaction.name,
+            notes: modalState.mode === 'edit' ? (modalState.transaction.notes || "") : undefined,
+            isRecurring: modalState.mode === 'edit' ? (modalState.transaction.is_recurring || false) : false,
+            recurrenceInterval: modalState.mode === 'edit' ? modalState.transaction.recurrence_interval as any : undefined,
+            categoryIds: modalState.transaction.transaction_categories?.map(tc => tc.category_id) || [],
+            splits: modalState.mode === 'edit'
+              ? (modalState.transaction.transaction_splits?.length
+                  ? modalState.transaction.transaction_splits.map(s => ({
+                      amount: Math.abs(s.amount),
+                      assigned_to: s.assigned_to || "Me",
+                      status: s.status as any,
+                    }))
+                  : [{ amount: Math.abs(modalState.transaction.amount), assigned_to: "Me", status: "Settled" as const }])
+              : undefined,
+          }}
+          open={true}
+          onOpenChange={(isOpen) => { if (!isOpen) setModalState(null); }}
+        />
+      )}
     </div>
   );
 };
