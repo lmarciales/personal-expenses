@@ -23,7 +23,7 @@ export function useDebtActions() {
         p_split_ids: splitIds,
         p_payment_amount: paymentAmount,
         p_target_account_id: targetAccountId,
-        p_source_account_id: sourceAccountId || null,
+        p_source_account_id: sourceAccountId || undefined,
         p_notes: notes || "",
       });
 
@@ -55,7 +55,7 @@ export function useDebtActions() {
         p_split_ids: splitIds,
         p_received_amount: receivedAmount,
         p_person_name: personName,
-        p_receiving_account_id: receivingAccountId || null,
+        p_receiving_account_id: receivingAccountId || undefined,
         p_notes: notes || "",
       });
 
