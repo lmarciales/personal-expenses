@@ -202,6 +202,80 @@ begin
 end;
 $$ language plpgsql security definer;
 
+-- Settle debts (atomic credit card payment flow)
+create or replace function settle_debts(
+  p_user_id uuid,
+  p_split_ids uuid[],
+  p_payment_amount numeric,
+  p_target_account_id uuid,
+  p_source_account_id uuid default null,
+  p_notes text default ''
+) returns text as $$
+declare
+  v_transaction_id uuid;
+  v_target_name text;
+begin
+  select name into v_target_name from accounts
+  where id = p_target_account_id and user_id = p_user_id;
+
+  update transaction_splits set status = 'Settled'
+  where id = any(p_split_ids) and user_id = p_user_id;
+
+  update accounts set balance = balance - p_payment_amount
+  where id = p_target_account_id and user_id = p_user_id;
+
+  if p_source_account_id is not null then
+    update accounts set balance = balance - p_payment_amount
+    where id = p_source_account_id and user_id = p_user_id;
+
+    insert into transactions (user_id, account_id, date, total_amount, payee, notes, type)
+    values (p_user_id, p_source_account_id, current_date, p_payment_amount,
+            'Payment - ' || coalesce(v_target_name, 'Credit Card'),
+            coalesce(nullif(p_notes, ''), 'Automatic payment from settle_debts'), 'transfer')
+    returning id into v_transaction_id;
+
+    insert into transaction_splits (transaction_id, user_id, amount, assigned_to, status)
+    values (v_transaction_id, p_user_id, p_payment_amount, 'Me', 'Settled');
+
+    return v_transaction_id::text;
+  end if;
+  return null;
+end;
+$$ language plpgsql security definer;
+
+-- Settle receivables (mark debts others owe as received)
+create or replace function settle_receivables(
+  p_user_id uuid,
+  p_split_ids uuid[],
+  p_received_amount numeric,
+  p_person_name text,
+  p_receiving_account_id uuid default null,
+  p_notes text default ''
+) returns text as $$
+declare
+  v_transaction_id uuid;
+begin
+  update transaction_splits set status = 'Settled'
+  where id = any(p_split_ids) and user_id = p_user_id;
+
+  if p_receiving_account_id is not null then
+    update accounts set balance = balance + p_received_amount
+    where id = p_receiving_account_id and user_id = p_user_id;
+
+    insert into transactions (user_id, account_id, date, total_amount, payee, notes, type)
+    values (p_user_id, p_receiving_account_id, current_date, p_received_amount,
+            'Debt Repayment - ' || p_person_name, coalesce(nullif(p_notes, ''), 'Automatic entry from settle_receivables'), 'income')
+    returning id into v_transaction_id;
+
+    insert into transaction_splits (transaction_id, user_id, amount, assigned_to, status)
+    values (v_transaction_id, p_user_id, p_received_amount, 'Me', 'Settled');
+
+    return v_transaction_id::text;
+  end if;
+  return null;
+end;
+$$ language plpgsql security definer;
+
 -- ============================================================
 -- Data Migration (run once on existing data)
 -- ============================================================

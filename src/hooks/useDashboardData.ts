@@ -2,6 +2,11 @@ import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/supabase/client";
 import type { CategorySpending } from "@/components/SpendingOverview";
 
+export interface MonthlyExpense {
+    name: string;
+    value: number;
+}
+
 export interface DashboardData {
     accounts: {
         id: string;
@@ -9,7 +14,6 @@ export interface DashboardData {
         balance: number;
         type: string;
         color: string;
-        lastDigits: string;
     }[];
     transactions: {
         id: string;
@@ -18,13 +22,13 @@ export interface DashboardData {
         amount: number;
         status: "Success" | "Pending";
         type: "expense" | "income" | "transfer";
-        image: string;
         account_id: string;
     }[];
     totalBalance: number;
     totalIncome: number;
     totalExpense: number;
     categorySpending: CategorySpending[];
+    monthlyExpenses: MonthlyExpense[];
     isLoading: boolean;
     error: string | null;
     refetch: () => Promise<void>;
@@ -38,6 +42,7 @@ export function useDashboardData() {
         totalIncome: 0,
         totalExpense: 0,
         categorySpending: [],
+        monthlyExpenses: [],
         isLoading: true,
         error: null,
     });
@@ -81,6 +86,7 @@ export function useDashboardData() {
                 .select(`
             id,
             total_amount,
+            date,
             type,
             transaction_categories(
               category_id,
@@ -119,8 +125,8 @@ export function useDashboardData() {
                 (sum: number, txn: any) => sum + Math.abs(txn.total_amount), 0
             );
 
-            // Map Accounts for the UI
-            const colors = [
+            // Map Accounts for the UI (use DB color or fallback)
+            const fallbackColors = [
                 "bg-primary text-primary-foreground",
                 "bg-blue-600 text-white",
                 "bg-purple-600 text-white",
@@ -132,22 +138,32 @@ export function useDashboardData() {
                 name: acc.name,
                 balance: acc.balance,
                 type: acc.type,
-                color: colors[idx % colors.length],
-                lastDigits: "****", // Placeholder since we don't store actual cards
+                color: acc.color || fallbackColors[idx % fallbackColors.length],
             }));
 
             const totalBalance = accounts.reduce((acc, curr) => acc + curr.balance, 0);
+
+            // Aggregate monthly expenses for chart
+            const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const monthlyMap = new Map<number, number>();
+            for (const txn of (expenseWithCategories || []) as any[]) {
+                const d = new Date(txn.date || txn.created_at);
+                const month = d.getMonth();
+                monthlyMap.set(month, (monthlyMap.get(month) || 0) + Math.abs(txn.total_amount));
+            }
+            const monthlyExpenses = MONTH_NAMES.map((name, idx) => ({
+                name,
+                value: monthlyMap.get(idx) || 0,
+            }));
 
             // Map Transactions for UI
             const transactions = (transactionsData || []).map((txn) => ({
                 id: txn.id,
                 name: txn.payee,
-                // Using account name as a proxy for "email" field in UI
                 email: txn.accounts && !Array.isArray(txn.accounts) ? txn.accounts.name : "Unknown Account",
-                amount: Math.abs(txn.total_amount), // Use absolute value, since amounts might be negative in DB
-                status: "Success" as const, // Assuming settled, later driven by transaction_splits
+                amount: Math.abs(txn.total_amount),
+                status: "Success" as const,
                 type: (txn.type as "expense" | "income" | "transfer") || "expense",
-                image: "https://github.com/shadcn.png", // Placeholder avatar
                 account_id: txn.account_id,
             }));
 
@@ -158,6 +174,7 @@ export function useDashboardData() {
                 totalIncome: Array.isArray(transactionsData) ? transactionsData.filter(t => t.type === 'income').reduce((a, b) => a + Math.abs(b.total_amount), 0) : 0,
                 totalExpense: allExpenseTotal,
                 categorySpending,
+                monthlyExpenses,
                 isLoading: false,
                 error: null,
             });

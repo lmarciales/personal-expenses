@@ -1,5 +1,6 @@
 import "./App.css";
 import { Dashboard } from "@/pages/Dashboard";
+import { DebtsView } from "@/pages/Debts";
 import { LoginForm } from "@/pages/Login";
 import { Profile } from "@/pages/Profile";
 import { TransactionsView } from "@/pages/Transactions";
@@ -29,6 +30,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/debts"
+          element={
+            <ProtectedRoute>
+              <DebtsView />
             </ProtectedRoute>
           }
         />

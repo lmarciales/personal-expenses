@@ -8,7 +8,7 @@ export interface Product {
   name: string;
   balance: number;
   color: string;
-  lastDigits: string;
+  type?: string;
 }
 
 const Products = ({ products, onAccountAdded }: { products: Product[], onAccountAdded: () => void }) => {
@@ -61,7 +61,7 @@ const Products = ({ products, onAccountAdded }: { products: Product[], onAccount
                 </div>
                 <div>
                   <div className="font-semibold text-sm group-hover:text-primary transition-colors">{product.name}</div>
-                  <div className="text-xs text-muted-foreground font-mono mt-0.5">**** {product.lastDigits}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">{product.type || "Account"}</div>
                 </div>
               </div>
               <div className="text-right">

@@ -20,8 +20,8 @@ const Sidebar = () => {
   const handleSignOut = () => signOut().then(() => navigate('/'));
   const navItems = [
     { icon: Home, label: "Overview", path: "/dashboard" },
+    { icon: CreditCard, label: "Debts", path: "/debts" },
     { icon: BarChart2, label: "Activity", path: "/activity" },
-    { icon: CreditCard, label: "Manage", path: "/manage" },
     { icon: LayoutDashboard, label: "Program", path: "/program" },
     { icon: Folder, label: "Folders", path: "/folders" },
     { icon: FileText, label: "Documents", path: "/documents" },
@@ -45,7 +45,7 @@ const Sidebar = () => {
         </div>
         {navItems.map((item) => {
           const isActive = location.pathname === item.path || (location.pathname === '/' && item.path === '/dashboard');
-          const isImplemented = item.path === '/dashboard';
+          const isImplemented = ['/dashboard', '/debts'].includes(item.path);
           // Using a conditional rendering approach based on if the item is implemented 
           return isImplemented ? (
             <Link key={item.path} to={item.path} className="block">

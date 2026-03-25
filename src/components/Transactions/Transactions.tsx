@@ -11,7 +11,6 @@ export interface Transaction {
   amount: number;
   status: "Success" | "Pending";
   type?: "expense" | "income" | "transfer";
-  image: string;
   account_id?: string;
 }
 
@@ -45,7 +44,9 @@ const Transactions = ({ transactions, accounts, onSuccess }: { transactions: Tra
             <div key={transaction.id} className="flex items-center justify-between p-3 rounded-xl hover:bg-surface-hover transition-colors group cursor-pointer border border-transparent hover:border-subtle">
               <div className="flex items-center space-x-3">
                 <div className="relative">
-                  <img src={transaction.image} alt={transaction.name} className="w-10 h-10 rounded-full border-2 border-background shadow-md opacity-90 group-hover:opacity-100 transition-opacity" />
+                  <div className="w-10 h-10 rounded-full bg-surface-overlay border-2 border-background shadow-md flex items-center justify-center">
+                    <span className="text-sm font-bold text-muted-foreground">{transaction.name.charAt(0).toUpperCase()}</span>
+                  </div>
                   {transaction.status === "Success" && (
                     <div className="absolute bottom-0 right-0 w-3 h-3 bg-primary border-2 border-background rounded-full"></div>
                   )}

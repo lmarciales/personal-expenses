@@ -279,6 +279,28 @@ export type Database = {
             }
             Returns: string
           }
+      settle_debts: {
+            Args: {
+              p_user_id: string
+              p_split_ids: string[]
+              p_payment_amount: number
+              p_target_account_id: string
+              p_source_account_id?: string
+              p_notes?: string
+            }
+            Returns: string | null
+          }
+      settle_receivables: {
+            Args: {
+              p_user_id: string
+              p_split_ids: string[]
+              p_received_amount: number
+              p_person_name: string
+              p_receiving_account_id?: string
+              p_notes?: string
+            }
+            Returns: string | null
+          }
       update_transaction_with_splits:
         | {
             Args: {

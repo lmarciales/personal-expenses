@@ -23,7 +23,7 @@ import {
 export const Dashboard = () => {
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
-  const { accounts, transactions, totalExpense, categorySpending, isLoading, error, refetch } = useDashboardData();
+  const { accounts, transactions, totalExpense, categorySpending, monthlyExpenses, isLoading, error, refetch } = useDashboardData();
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleSignOut = () => signOut().then(() => navigate("/"));
@@ -122,8 +122,8 @@ export const Dashboard = () => {
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <button className="w-10 h-10 rounded-full bg-secondary overflow-hidden border-2 border-transparent hover:border-primary transition-colors focus:outline-none ml-1">
-                      <img src="https://github.com/shadcn.png" alt="User" />
+                    <button className="w-10 h-10 rounded-full bg-primary/20 border-2 border-transparent hover:border-primary transition-colors focus:outline-none ml-1 flex items-center justify-center">
+                      <span className="text-sm font-bold text-primary">L</span>
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48 glass-panel rounded-xl mt-2 border-border">
@@ -152,7 +152,7 @@ export const Dashboard = () => {
               <Transactions transactions={filteredTransactions} accounts={accounts} onSuccess={refetch} />
             </div>
             <div className="md:col-span-8 transition-transform hover:-translate-y-1 duration-300">
-              <ExpenseChart />
+              <ExpenseChart data={monthlyExpenses} />
             </div>
           </div>
 
