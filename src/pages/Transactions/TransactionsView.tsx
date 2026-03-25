@@ -1,4 +1,4 @@
-import { X, Search, Filter, Activity, FileText, Calendar as CalendarIcon, Pencil, XCircle, CopyPlus, MoreHorizontal, Trash2 } from "lucide-react";
+import { X, Search, Filter, Activity, FileText, Calendar as CalendarIcon, Pencil, XCircle, CopyPlus, MoreVertical, Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useTransactionsData, TransactionFilters } from "@/hooks/useTransactionsData";
 import { useCategories } from "@/hooks/useCategories";
@@ -224,8 +224,8 @@ export function TransactionsView() {
                         <>
                             <div className="glass-card rounded-xl border border-subtle overflow-hidden">
                                 {transactions.map((txn, idx) => (
-                                    <div key={txn.id} className={cn("group flex flex-col sm:flex-row items-start sm:items-center justify-between py-2 px-4 hover:bg-surface-hover transition-colors gap-3", idx !== transactions.length - 1 && "border-b border-subtle")}>
-                                        <div className="flex items-start space-x-3 w-full sm:w-auto">
+                                    <div key={txn.id} className={cn("group flex flex-col sm:flex-row items-start sm:items-center py-2 px-4 hover:bg-surface-hover transition-colors gap-3", idx !== transactions.length - 1 && "border-b border-subtle")}>
+                                        <div className="flex items-start space-x-3 flex-1 min-w-0">
                                             <div className="relative mt-0.5">
                                                 <div className="w-8 h-8 rounded-full flex flex-col items-center justify-center border-2 border-background shadow-md opacity-90" style={{ backgroundColor: txn.accounts?.color || '#333' }}>
                                                     <span className="text-white font-bold text-[10px] tracking-tighter truncate w-full text-center px-1">
@@ -233,7 +233,7 @@ export function TransactionsView() {
                                                     </span>
                                                 </div>
                                             </div>
-                                            <div className="flex-1">
+                                            <div className="flex-1 min-w-0">
                                                 <div className="font-semibold text-sm flex items-center gap-2">
                                                     {txn.payee}
                                                     {txn.is_recurring && <span className="text-[9px] bg-primary/20 text-primary px-1.5 py-0.5 rounded-full uppercase font-bold tracking-wider">Recurring</span>}
@@ -269,7 +269,7 @@ export function TransactionsView() {
                                             </div>
                                         </div>
 
-                                        <div className="flex flex-col items-start sm:items-end w-full sm:w-auto pl-11 sm:pl-0">
+                                        <div className="flex flex-col items-start sm:items-end pl-11 sm:pl-0">
                                             <div className={`font-bold text-base tracking-tight ${txn.type === 'expense' ? 'text-foreground' : 'text-success'}`}>
                                                 {txn.type === 'expense' ? '-' : '+'}
                                                 {formatCOPWithSymbol(Math.abs(txn.total_amount))}
@@ -288,70 +288,70 @@ export function TransactionsView() {
                                                     ))}
                                                 </div>
                                             )}
+                                        </div>
 
-                                            <div className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity flex">
-                                                <DropdownMenu>
-                                                    <DropdownMenuTrigger asChild>
-                                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-surface-hover-strong">
-                                                            <MoreHorizontal className="w-4 h-4" />
-                                                        </Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent align="end" className="w-48 glass-panel border-border z-50">
-                                                        <AddTransactionModal
-                                                            accounts={accounts}
-                                                            onSuccess={refetch}
-                                                            initialData={{
-                                                                accountId: txn.account_id,
-                                                                totalAmount: Math.abs(txn.total_amount),
-                                                                type: txn.type,
-                                                                payee: txn.payee,
-                                                                isRecurring: false,
-                                                                categoryIds: txn.transaction_categories?.map(tc => tc.category_id) || [],
-                                                            }}
-                                                        >
-                                                            <div className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full mb-1">
-                                                                <CopyPlus className="w-4 h-4 mr-2" />
-                                                                <span>Duplicate</span>
-                                                            </div>
-                                                        </AddTransactionModal>
+                                        <div className="shrink-0 flex items-center self-center">
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-surface-hover-strong">
+                                                        <MoreVertical className="w-4 h-4" />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end" className="w-48 glass-panel border-border z-50">
+                                                    <AddTransactionModal
+                                                        accounts={accounts}
+                                                        onSuccess={refetch}
+                                                        editMode={true}
+                                                        transactionId={txn.id}
+                                                        initialData={{
+                                                            accountId: txn.account_id,
+                                                            date: new Date(txn.date).toISOString().split('T')[0],
+                                                            totalAmount: Math.abs(txn.total_amount),
+                                                            type: txn.type,
+                                                            payee: txn.payee,
+                                                            notes: txn.notes || "",
+                                                            isRecurring: txn.is_recurring || false,
+                                                            recurrenceInterval: txn.recurrence_interval as any,
+                                                            categoryIds: txn.transaction_categories?.map(tc => tc.category_id) || [],
+                                                            splits: txn.transaction_splits.map(s => ({
+                                                                amount: Math.abs(s.amount),
+                                                                assigned_to: s.assigned_to || "Me",
+                                                                status: s.status as any
+                                                            }))
+                                                        }}
+                                                    >
+                                                        <div className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full mb-1">
+                                                            <Pencil className="w-4 h-4 mr-2" />
+                                                            <span>Edit</span>
+                                                        </div>
+                                                    </AddTransactionModal>
 
-                                                        <AddTransactionModal
-                                                            accounts={accounts}
-                                                            onSuccess={refetch}
-                                                            editMode={true}
-                                                            transactionId={txn.id}
-                                                            initialData={{
-                                                                accountId: txn.account_id,
-                                                                date: new Date(txn.date).toISOString().split('T')[0],
-                                                                totalAmount: Math.abs(txn.total_amount),
-                                                                type: txn.type,
-                                                                payee: txn.payee,
-                                                                notes: txn.notes || "",
-                                                                isRecurring: txn.is_recurring || false,
-                                                                recurrenceInterval: txn.recurrence_interval as any,
-                                                                categoryIds: txn.transaction_categories?.map(tc => tc.category_id) || [],
-                                                                splits: txn.transaction_splits.map(s => ({
-                                                                    amount: Math.abs(s.amount),
-                                                                    assigned_to: s.assigned_to || "Me",
-                                                                    status: s.status as any
-                                                                }))
-                                                            }}
-                                                        >
-                                                            <div className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full">
-                                                                <Pencil className="w-4 h-4 mr-2" />
-                                                                <span>Edit</span>
-                                                            </div>
-                                                        </AddTransactionModal>
+                                                    <AddTransactionModal
+                                                        accounts={accounts}
+                                                        onSuccess={refetch}
+                                                        initialData={{
+                                                            accountId: txn.account_id,
+                                                            totalAmount: Math.abs(txn.total_amount),
+                                                            type: txn.type,
+                                                            payee: txn.payee,
+                                                            isRecurring: false,
+                                                            categoryIds: txn.transaction_categories?.map(tc => tc.category_id) || [],
+                                                        }}
+                                                    >
+                                                        <div className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full">
+                                                            <CopyPlus className="w-4 h-4 mr-2" />
+                                                            <span>Duplicate</span>
+                                                        </div>
+                                                    </AddTransactionModal>
 
-                                                        <DropdownMenuSeparator className="bg-border/50" />
+                                                    <DropdownMenuSeparator className="bg-border/50" />
 
-                                                        <DropdownMenuItem onClick={(e) => handleDelete(txn.id, e)} className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer">
-                                                            <Trash2 className="w-4 h-4 mr-2" />
-                                                            <span>Delete</span>
-                                                        </DropdownMenuItem>
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
-                                            </div>
+                                                    <DropdownMenuItem onClick={(e) => handleDelete(txn.id, e)} className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer">
+                                                        <Trash2 className="w-4 h-4 mr-2" />
+                                                        <span>Delete</span>
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
                                         </div>
                                     </div>
                                 ))}
