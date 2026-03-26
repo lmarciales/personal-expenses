@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Plus } from "lucide-react";
 import ExpenseChart from "@/components/ExpenseChart";
 import Products from "@/components/Products/Products";
@@ -5,12 +6,15 @@ import SpendingOverview from "@/components/SpendingOverview";
 import Transactions from "@/components/Transactions/Transactions";
 import { Button } from "@/components/ui/button";
 import { useDashboardData } from "@/hooks/useDashboardData";
+import { useExpenseChartData } from "@/hooks/useExpenseChartData";
 import { AddTransactionModal } from "@/components/Transactions/AddTransactionModal";
 import { RecurringRecommendations } from "@/components/RecurringRecommendations";
 import { DashboardSkeleton } from "@/components/ui/Skeleton";
 
 export const Dashboard = () => {
-  const { accounts, transactions, totalExpense, categorySpending, monthlyExpenses, isLoading, error, refetch } = useDashboardData();
+  const [chartYear, setChartYear] = useState(new Date().getFullYear());
+  const { accounts, transactions, totalExpense, categorySpending, isLoading, error, refetch } = useDashboardData();
+  const chartData = useExpenseChartData(chartYear);
 
   if (isLoading) {
     return <DashboardSkeleton />;
@@ -62,7 +66,12 @@ export const Dashboard = () => {
           <Transactions transactions={transactions} accounts={accounts} onSuccess={refetch} />
         </div>
         <div className="md:col-span-8">
-          <ExpenseChart data={monthlyExpenses} />
+          <ExpenseChart
+            data={chartData.monthlyExpenses}
+            availableYears={chartData.availableYears}
+            selectedYear={chartYear}
+            onYearChange={setChartYear}
+          />
         </div>
       </div>
     </>

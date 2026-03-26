@@ -4,6 +4,7 @@ import {
   CreditCard,
   Home,
   Receipt,
+  TrendingUp,
   Wallet,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
@@ -20,6 +21,7 @@ const navItems = [
   { icon: Home, label: "Overview", path: "/dashboard" },
   { icon: Wallet, label: "Accounts", path: "/accounts" },
   { icon: Receipt, label: "Transactions", path: "/transactions" },
+  { icon: TrendingUp, label: "Analytics", path: "/analytics" },
   { icon: CreditCard, label: "Debts", path: "/debts" },
 ];
 

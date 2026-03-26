@@ -1,5 +1,7 @@
-import { ArrowUpRight, BarChart3 } from "lucide-react";
+import { useState } from "react";
+import { ArrowUpRight, BarChart3, ChevronLeft, ChevronRight } from "lucide-react";
 import { Bar, BarChart, ResponsiveContainer, XAxis, Tooltip, Cell, YAxis } from "recharts";
+import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import { formatCOPWithSymbol, formatCOP } from "@/lib/currency";
 
@@ -10,24 +12,104 @@ export interface MonthlyExpense {
 
 interface ExpenseChartProps {
   data?: MonthlyExpense[];
+  availableYears?: number[];
+  selectedYear?: number;
+  onYearChange?: (year: number) => void;
 }
 
 const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 const defaultData: MonthlyExpense[] = MONTH_NAMES.map((name) => ({ name, value: 0 }));
 
-const ExpenseChart = ({ data: propData }: ExpenseChartProps) => {
+// Custom tooltip with formatted amount + month-over-month comparison
+const CustomTooltip = ({ active, payload, label, data }: any) => {
+  if (!active || !payload || !payload.length) return null;
+  const value = payload[0].value as number;
+  const monthIdx = MONTH_NAMES.indexOf(label);
+  let comparison = "";
+  if (monthIdx > 0 && data) {
+    const prevValue = data[monthIdx - 1]?.value;
+    if (prevValue > 0) {
+      const pctChange = Math.round(((value - prevValue) / prevValue) * 100);
+      const arrow = pctChange >= 0 ? "↑" : "↓";
+      comparison = ` · ${arrow} ${Math.abs(pctChange)}% vs ${MONTH_NAMES[monthIdx - 1]}`;
+    }
+  }
+  return (
+    <div
+      style={{
+        backgroundColor: 'var(--chart-tooltip-bg)',
+        backdropFilter: 'blur(12px)',
+        borderColor: 'var(--chart-tooltip-border)',
+        borderWidth: 1,
+        borderStyle: 'solid',
+        borderRadius: '12px',
+        color: 'var(--chart-tooltip-text)',
+        boxShadow: '0 10px 30px var(--chart-tooltip-shadow)',
+        padding: '10px 14px',
+      }}
+    >
+      <p style={{ fontWeight: 'bold', color: 'hsl(var(--primary))', margin: 0, fontSize: 14 }}>
+        {formatCOPWithSymbol(value)}
+      </p>
+      {comparison && (
+        <p style={{ margin: '4px 0 0', fontSize: 11, opacity: 0.7 }}>{comparison}</p>
+      )}
+    </div>
+  );
+};
+
+const ExpenseChart = ({ data: propData, availableYears, selectedYear, onYearChange }: ExpenseChartProps) => {
   const data = propData && propData.length > 0 ? propData : defaultData;
   const currentMonth = MONTH_NAMES[new Date().getMonth()];
+  const navigate = useNavigate();
+  const year = selectedYear ?? new Date().getFullYear();
+
+  const canGoLeft = availableYears && availableYears.length > 0 && year > Math.min(...availableYears);
+  const canGoRight = availableYears && availableYears.length > 0 && year < Math.max(...availableYears);
+
+  const handleBarClick = (barData: any) => {
+    if (!barData || !barData.name) return;
+    const monthIndex = MONTH_NAMES.indexOf(barData.name) + 1;
+    navigate(`/analytics?year=${year}&month=${monthIndex}`);
+  };
+
   return (
     <div className="glass-card rounded-2xl h-full flex flex-col p-6 relative z-0">
       <div className="flex flex-row items-center justify-between pb-4">
         <h2 className="typo-section-label flex items-center gap-2">
           <BarChart3 className="w-4 h-4 text-primary" /> Expense Analytics
         </h2>
-        <Button variant="ghost" size="sm" className="text-xs rounded-full hover:bg-surface-hover-strong text-muted-foreground hover:text-foreground opacity-50 cursor-not-allowed">
-          View Details <ArrowUpRight className="ml-1 h-3 w-3" />
-        </Button>
+        <div className="flex items-center gap-2">
+          {/* Year selector */}
+          {availableYears && availableYears.length > 0 && (
+            <div className="flex items-center gap-1 bg-surface-hover/50 rounded-lg px-2 py-1">
+              <button
+                onClick={() => canGoLeft && onYearChange?.(year - 1)}
+                disabled={!canGoLeft}
+                className="p-0.5 rounded hover:bg-surface-hover-strong transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+              >
+                <ChevronLeft className="w-3.5 h-3.5 text-muted-foreground" />
+              </button>
+              <span className="text-xs font-semibold text-foreground min-w-[36px] text-center">{year}</span>
+              <button
+                onClick={() => canGoRight && onYearChange?.(year + 1)}
+                disabled={!canGoRight}
+                className="p-0.5 rounded hover:bg-surface-hover-strong transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+              >
+                <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
+              </button>
+            </div>
+          )}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-xs rounded-full hover:bg-surface-hover-strong text-muted-foreground hover:text-foreground"
+            onClick={() => navigate(`/analytics?year=${year}`)}
+          >
+            View Details <ArrowUpRight className="ml-1 h-3 w-3" />
+          </Button>
+        </div>
       </div>
 
       {/* Stats card showing current month total */}
@@ -77,17 +159,15 @@ const ExpenseChart = ({ data: propData }: ExpenseChartProps) => {
             />
             <Tooltip
               cursor={{ fill: 'var(--chart-cursor)' }}
-              contentStyle={{
-                backgroundColor: 'var(--chart-tooltip-bg)',
-                backdropFilter: 'blur(12px)',
-                borderColor: 'var(--chart-tooltip-border)',
-                borderRadius: '12px',
-                color: 'var(--chart-tooltip-text)',
-                boxShadow: '0 10px 30px var(--chart-tooltip-shadow)'
-              }}
-              itemStyle={{ color: 'hsl(var(--primary))', fontWeight: 'bold' }}
+              content={<CustomTooltip data={data} />}
             />
-            <Bar dataKey="value" radius={[6, 6, 6, 6]} barSize={32}>
+            <Bar
+              dataKey="value"
+              radius={[6, 6, 6, 6]}
+              barSize={32}
+              onClick={handleBarClick}
+              cursor="pointer"
+            >
               {data.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}

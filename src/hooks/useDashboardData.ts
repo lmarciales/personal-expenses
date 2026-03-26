@@ -2,11 +2,6 @@ import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/supabase/client";
 import type { CategorySpending } from "@/components/SpendingOverview";
 
-export interface MonthlyExpense {
-    name: string;
-    value: number;
-}
-
 export interface DashboardData {
     accounts: {
         id: string;
@@ -34,7 +29,6 @@ export interface DashboardData {
     totalIncome: number;
     totalExpense: number;
     categorySpending: CategorySpending[];
-    monthlyExpenses: MonthlyExpense[];
     isLoading: boolean;
     error: string | null;
     refetch: () => Promise<void>;
@@ -48,7 +42,6 @@ export function useDashboardData() {
         totalIncome: 0,
         totalExpense: 0,
         categorySpending: [],
-        monthlyExpenses: [],
         isLoading: true,
         error: null,
     });
@@ -60,62 +53,50 @@ export function useDashboardData() {
             if (userError || !userData?.user) throw new Error("User not authenticated");
             const userId = userData.user.id;
 
-            // Fetch Accounts
-            const { data: accountsData, error: accountsError } = await supabase
-                .from("accounts")
-                .select("*")
-                .eq("user_id", userId);
+            const currentYear = new Date().getFullYear();
+            const startDate = `${currentYear}-01-01`;
+            const endDate = `${currentYear}-12-31`;
 
-            if (accountsError) throw accountsError;
+            // Fetch Accounts, Transactions (last 5), and current-year expenses in parallel
+            const [accountsResult, transactionsResult, expenseResult] = await Promise.all([
+                supabase
+                    .from("accounts")
+                    .select("*")
+                    .eq("user_id", userId),
+                supabase
+                    .from("transactions")
+                    .select(`
+                        id, payee, total_amount, date, account_id, type,
+                        is_recurring, recurrence_interval, notes,
+                        accounts (name),
+                        transaction_splits (id, amount, assigned_to, status),
+                        transaction_categories (category_id, categories (id, name, color))
+                    `)
+                    .eq("user_id", userId)
+                    .order("date", { ascending: false })
+                    .limit(5),
+                supabase
+                    .from("transactions")
+                    .select(`
+                        id, total_amount, date, type,
+                        transaction_categories(category_id, categories(id, name, color))
+                    `)
+                    .eq("user_id", userId)
+                    .eq("type", "expense")
+                    .gte("date", startDate)
+                    .lte("date", endDate),
+            ]);
 
-            // Fetch Transactions
-            const { data: transactionsData, error: transactionsError } = await supabase
-                .from("transactions")
-                .select(`
-            id,
-            payee,
-            total_amount,
-            date,
-            account_id,
-            type,
-            is_recurring,
-            recurrence_interval,
-            notes,
-            accounts (name),
-            transaction_splits (id, amount, assigned_to, status),
-            transaction_categories (category_id, categories (id, name, color))
-          `)
-                .eq("user_id", userId)
-                .order("date", { ascending: false })
-                .limit(5);
-
-            if (transactionsError) throw transactionsError;
-
-            // Fetch expense transactions with categories for spending breakdown
-            const { data: expenseWithCategories, error: expenseCatError } = await supabase
-                .from("transactions")
-                .select(`
-            id,
-            total_amount,
-            date,
-            type,
-            transaction_categories(
-              category_id,
-              categories(id, name, color)
-            )
-          `)
-                .eq("user_id", userId)
-                .eq("type", "expense");
-
-            if (expenseCatError) throw expenseCatError;
+            if (accountsResult.error) throw accountsResult.error;
+            if (transactionsResult.error) throw transactionsResult.error;
+            if (expenseResult.error) throw expenseResult.error;
 
             // Aggregate spending by category
             const categoryMap = new Map<string, { name: string; color: string | null; amount: number }>();
-            for (const txn of (expenseWithCategories || []) as any[]) {
+            for (const txn of (expenseResult.data || []) as any[]) {
                 const cats = txn.transaction_categories || [];
                 const amount = Math.abs(txn.total_amount);
                 if (cats.length === 0) continue;
-                // Distribute amount equally among categories
                 const perCat = amount / cats.length;
                 for (const tc of cats) {
                     const cat = tc.categories;
@@ -131,12 +112,11 @@ export function useDashboardData() {
             const categorySpending = Array.from(categoryMap.values())
                 .sort((a, b) => b.amount - a.amount);
 
-            // Total expense from all expense transactions (not just last 5)
-            const allExpenseTotal = (expenseWithCategories || []).reduce(
+            const allExpenseTotal = (expenseResult.data || []).reduce(
                 (sum: number, txn: any) => sum + Math.abs(txn.total_amount), 0
             );
 
-            // Map Accounts for the UI (use DB color or fallback)
+            // Map Accounts
             const fallbackColors = [
                 "bg-primary text-primary-foreground",
                 "bg-blue-600 text-white",
@@ -144,7 +124,7 @@ export function useDashboardData() {
                 "bg-cyan-600 text-white",
             ];
 
-            const accounts = (accountsData || []).map((acc, idx) => ({
+            const accounts = (accountsResult.data || []).map((acc, idx) => ({
                 id: acc.id,
                 name: acc.name,
                 balance: acc.balance,
@@ -154,21 +134,8 @@ export function useDashboardData() {
 
             const totalBalance = accounts.reduce((acc, curr) => acc + curr.balance, 0);
 
-            // Aggregate monthly expenses for chart
-            const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-            const monthlyMap = new Map<number, number>();
-            for (const txn of (expenseWithCategories || []) as any[]) {
-                const d = new Date(txn.date || txn.created_at);
-                const month = d.getMonth();
-                monthlyMap.set(month, (monthlyMap.get(month) || 0) + Math.abs(txn.total_amount));
-            }
-            const monthlyExpenses = MONTH_NAMES.map((name, idx) => ({
-                name,
-                value: monthlyMap.get(idx) || 0,
-            }));
-
             // Map Transactions for UI
-            const transactions = (transactionsData || []).map((txn: any) => ({
+            const transactions = (transactionsResult.data || []).map((txn: any) => ({
                 id: txn.id,
                 name: txn.payee,
                 email: txn.accounts && !Array.isArray(txn.accounts) ? txn.accounts.name : "Unknown Account",
@@ -188,10 +155,9 @@ export function useDashboardData() {
                 accounts,
                 transactions,
                 totalBalance,
-                totalIncome: Array.isArray(transactionsData) ? transactionsData.filter(t => t.type === 'income').reduce((a, b) => a + Math.abs(b.total_amount), 0) : 0,
+                totalIncome: Array.isArray(transactionsResult.data) ? transactionsResult.data.filter(t => t.type === 'income').reduce((a, b) => a + Math.abs(b.total_amount), 0) : 0,
                 totalExpense: allExpenseTotal,
                 categorySpending,
-                monthlyExpenses,
                 isLoading: false,
                 error: null,
             });

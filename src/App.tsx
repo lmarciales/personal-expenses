@@ -5,6 +5,7 @@ import { DebtsView } from "@/pages/Debts";
 import { LoginForm } from "@/pages/Login";
 import { Profile } from "@/pages/Profile";
 import { TransactionsView } from "@/pages/Transactions";
+import { AnalyticsView } from "@/pages/Analytics";
 import { AppLayout } from "@/components/Layout";
 import { AuthContext } from "@/store/authContext.tsx";
 import { SpeedInsights } from "@vercel/speed-insights/react";
@@ -31,6 +32,7 @@ function App() {
           <Route path="/accounts" element={<AccountsView />} />
           <Route path="/debts" element={<DebtsView />} />
           <Route path="/transactions" element={<TransactionsView />} />
+          <Route path="/analytics" element={<AnalyticsView />} />
           <Route path="/profile" element={<Profile />} />
         </Route>
       </Routes>

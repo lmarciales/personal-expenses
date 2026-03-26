@@ -2,7 +2,7 @@ import { X, Search, Filter, Activity, FileText, Calendar as CalendarIcon, Pencil
 import { useState, useEffect } from "react";
 import { useTransactionsData, TransactionFilters } from "@/hooks/useTransactionsData";
 import { useCategories } from "@/hooks/useCategories";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -24,17 +24,35 @@ import { formatCOPWithSymbol } from "@/lib/currency";
 
 export function TransactionsView() {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const { categories } = useCategories();
 
-    const [filters, setFilters] = useState<TransactionFilters>({
-        search: "",
-        categories: [],
-        startDate: undefined,
-        endDate: undefined,
-        limit: 20,
+    const [filters, setFilters] = useState<TransactionFilters>(() => {
+        const startParam = searchParams.get("startDate");
+        const endParam = searchParams.get("endDate");
+        // Parse as local date (YYYY-MM-DD) to avoid timezone offset issues
+        const parseLocal = (s: string) => { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d); };
+        return {
+            search: "",
+            categories: [],
+            startDate: startParam ? parseLocal(startParam) : undefined,
+            endDate: endParam ? parseLocal(endParam) : undefined,
+            limit: 20,
+        };
     });
 
-    const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+    const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
+        const startParam = searchParams.get("startDate");
+        const endParam = searchParams.get("endDate");
+        const parseLocal = (s: string) => { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d); };
+        if (startParam) {
+            return {
+                from: parseLocal(startParam),
+                to: endParam ? parseLocal(endParam) : undefined,
+            };
+        }
+        return undefined;
+    });
 
     // Sync local date state to filters
     useEffect(() => {

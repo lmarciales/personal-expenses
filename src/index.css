@@ -293,3 +293,10 @@
     pointer-events: none;
   }
 }
+
+/* Suppress browser focus outlines on Recharts SVG elements (outside @layer for higher specificity) */
+.recharts-wrapper svg:focus,
+.recharts-wrapper svg *:focus,
+.recharts-wrapper *:focus {
+  outline: none !important;
+}
