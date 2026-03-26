@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 import { AuthProvider } from "@/store/authContext.tsx";
+import { SidebarProvider } from "@/store/sidebarContext.tsx";
 import { ThemeProvider } from "@/theme/ThemeProvider.tsx";
 import { BrowserRouter } from "react-router-dom";
 
@@ -12,7 +13,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <BrowserRouter>
       <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
         <AuthProvider>
-          <App />
+          <SidebarProvider>
+            <App />
+          </SidebarProvider>
         </AuthProvider>
       </ThemeProvider>
     </BrowserRouter>

@@ -5,7 +5,7 @@ import { DebtsView } from "@/pages/Debts";
 import { LoginForm } from "@/pages/Login";
 import { Profile } from "@/pages/Profile";
 import { TransactionsView } from "@/pages/Transactions";
-import { ProtectedRoute } from "@/router/ProtectedRoute.tsx";
+import { AppLayout } from "@/components/Layout";
 import { AuthContext } from "@/store/authContext.tsx";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { useContext, useEffect } from "react";
@@ -26,46 +26,13 @@ function App() {
     <>
       <Routes>
         <Route index element={<LoginForm />} />
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/accounts"
-          element={
-            <ProtectedRoute>
-              <AccountsView />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/debts"
-          element={
-            <ProtectedRoute>
-              <DebtsView />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/transactions"
-          element={
-            <ProtectedRoute>
-              <TransactionsView />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          }
-        />
+        <Route element={<AppLayout />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/accounts" element={<AccountsView />} />
+          <Route path="/debts" element={<DebtsView />} />
+          <Route path="/transactions" element={<TransactionsView />} />
+          <Route path="/profile" element={<Profile />} />
+        </Route>
       </Routes>
       <SpeedInsights />
     </>
