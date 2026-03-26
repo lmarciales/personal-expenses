@@ -1,12 +1,12 @@
 import "./App.css";
+import { AppLayout } from "@/components/Layout";
 import { AccountsView } from "@/pages/Accounts";
+import { AnalyticsView } from "@/pages/Analytics";
 import { Dashboard } from "@/pages/Dashboard";
 import { DebtsView } from "@/pages/Debts";
 import { LoginForm } from "@/pages/Login";
 import { Profile } from "@/pages/Profile";
 import { TransactionsView } from "@/pages/Transactions";
-import { AnalyticsView } from "@/pages/Analytics";
-import { AppLayout } from "@/components/Layout";
 import { AuthContext } from "@/store/authContext.tsx";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { useContext, useEffect } from "react";
