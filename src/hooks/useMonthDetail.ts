@@ -60,7 +60,7 @@ export function useMonthDetail(year: number, month: number | null): MonthDetailD
                 id: txn.id,
                 payee: txn.payee,
                 amount: Math.abs(txn.total_amount),
-                type: txn.type,
+                type: txn.type ?? "expense",
             }));
 
             setData({

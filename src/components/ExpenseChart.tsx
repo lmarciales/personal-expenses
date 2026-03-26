@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { ArrowUpRight, BarChart3, ChevronLeft, ChevronRight } from "lucide-react";
 import { Bar, BarChart, ResponsiveContainer, XAxis, Tooltip, Cell, YAxis } from "recharts";
 import { useNavigate } from "react-router-dom";
