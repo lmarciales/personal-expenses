@@ -37,7 +37,7 @@ const SpendingOverview = ({ totalExpense, categorySpending = [] }: SpendingOverv
         </Button>
       </div>
 
-      <div className={`mt-auto space-y-5 ${!hasData ? 'opacity-50' : ''}`}>
+      <div className={`flex-1 flex flex-col space-y-5 min-h-0 ${!hasData ? 'opacity-50' : ''}`}>
         <div>
           {!hasData ? (
             <div className="flex justify-between text-xs font-medium text-muted-foreground mb-3 px-1">
@@ -49,22 +49,37 @@ const SpendingOverview = ({ totalExpense, categorySpending = [] }: SpendingOverv
             </div>
           )}
           <div className="h-3 w-full bg-surface-overlay rounded-full overflow-hidden flex border border-subtle">
-            {hasData && categorySpending.map((cat, idx) => {
-              const pct = (cat.amount / totalExpense) * 100;
-              const color = cat.color || DEFAULT_COLORS[idx % DEFAULT_COLORS.length];
+            {hasData && (() => {
+              const categorizedTotal = categorySpending.reduce((sum, cat) => sum + cat.amount, 0);
+              const uncategorized = totalExpense - categorizedTotal;
               return (
-                <div
-                  key={cat.name}
-                  className="h-full transition-all duration-500"
-                  style={{ width: `${pct}%`, backgroundColor: color }}
-                  title={`${cat.name}: ${formatCOPWithSymbol(cat.amount)}`}
-                />
+                <>
+                  {categorySpending.map((cat, idx) => {
+                    const pct = (cat.amount / totalExpense) * 100;
+                    const color = cat.color || DEFAULT_COLORS[idx % DEFAULT_COLORS.length];
+                    return (
+                      <div
+                        key={cat.name}
+                        className="h-full transition-all duration-500"
+                        style={{ width: `${pct}%`, backgroundColor: color }}
+                        title={`${cat.name}: ${formatCOPWithSymbol(cat.amount)}`}
+                      />
+                    );
+                  })}
+                  {uncategorized > 0 && (
+                    <div
+                      className="h-full transition-all duration-500"
+                      style={{ width: `${(uncategorized / totalExpense) * 100}%`, backgroundColor: '#374151' }}
+                      title={`Uncategorized: ${formatCOPWithSymbol(uncategorized)}`}
+                    />
+                  )}
+                </>
               );
-            })}
+            })()}
           </div>
         </div>
 
-        <div className="space-y-1.5 pt-2 max-h-[140px] overflow-y-auto">
+        <div className="space-y-1.5 pt-2 flex-1 overflow-y-auto min-h-0">
           {hasData ? (
             categorySpending.map((cat, idx) => {
               const color = cat.color || DEFAULT_COLORS[idx % DEFAULT_COLORS.length];
