@@ -8,6 +8,7 @@ import {
   LogOut,
   Settings,
   User,
+  Wallet,
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
@@ -20,6 +21,7 @@ const Sidebar = () => {
   const handleSignOut = () => signOut().then(() => navigate('/'));
   const navItems = [
     { icon: Home, label: "Overview", path: "/dashboard" },
+    { icon: Wallet, label: "Accounts", path: "/accounts" },
     { icon: CreditCard, label: "Debts", path: "/debts" },
     { icon: BarChart2, label: "Activity", path: "/activity" },
     { icon: LayoutDashboard, label: "Program", path: "/program" },
@@ -45,7 +47,7 @@ const Sidebar = () => {
         </div>
         {navItems.map((item) => {
           const isActive = location.pathname === item.path || (location.pathname === '/' && item.path === '/dashboard');
-          const isImplemented = ['/dashboard', '/debts'].includes(item.path);
+          const isImplemented = ['/dashboard', '/accounts', '/debts'].includes(item.path);
           // Using a conditional rendering approach based on if the item is implemented 
           return isImplemented ? (
             <Link key={item.path} to={item.path} className="block focus-ring rounded-xl">

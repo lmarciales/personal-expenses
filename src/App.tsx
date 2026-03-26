@@ -1,4 +1,5 @@
 import "./App.css";
+import { AccountsView } from "@/pages/Accounts";
 import { Dashboard } from "@/pages/Dashboard";
 import { DebtsView } from "@/pages/Debts";
 import { LoginForm } from "@/pages/Login";
@@ -30,6 +31,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/accounts"
+          element={
+            <ProtectedRoute>
+              <AccountsView />
             </ProtectedRoute>
           }
         />

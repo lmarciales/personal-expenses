@@ -1,9 +1,10 @@
-import { Home, CreditCard, LogOut } from "lucide-react";
+import { Home, CreditCard, LogOut, Wallet } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { signOut } from "@/supabase/auth";
 
 const navItems = [
   { icon: Home, label: "Overview", path: "/dashboard" },
+  { icon: Wallet, label: "Accounts", path: "/accounts" },
   { icon: CreditCard, label: "Debts", path: "/debts" },
 ];
 

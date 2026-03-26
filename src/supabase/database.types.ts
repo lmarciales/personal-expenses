@@ -279,28 +279,32 @@ export type Database = {
             }
             Returns: string
           }
+      delete_account_cascade: {
+        Args: { p_account_id: string; p_user_id: string }
+        Returns: undefined
+      }
       settle_debts: {
-            Args: {
-              p_user_id: string
-              p_split_ids: string[]
-              p_payment_amount: number
-              p_target_account_id: string
-              p_source_account_id?: string
-              p_notes?: string
-            }
-            Returns: string | null
-          }
+        Args: {
+          p_notes?: string
+          p_payment_amount: number
+          p_source_account_id?: string
+          p_split_ids: string[]
+          p_target_account_id: string
+          p_user_id: string
+        }
+        Returns: string
+      }
       settle_receivables: {
-            Args: {
-              p_user_id: string
-              p_split_ids: string[]
-              p_received_amount: number
-              p_person_name: string
-              p_receiving_account_id?: string
-              p_notes?: string
-            }
-            Returns: string | null
-          }
+        Args: {
+          p_notes?: string
+          p_person_name: string
+          p_received_amount: number
+          p_receiving_account_id?: string
+          p_split_ids: string[]
+          p_user_id: string
+        }
+        Returns: string
+      }
       update_transaction_with_splits:
         | {
             Args: {
