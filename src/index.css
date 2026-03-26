@@ -82,6 +82,10 @@
     --sidebar-bg: 240 6% 93%;
     --sidebar-border: 240 6% 88%;
 
+    /* Navbar */
+    --navbar-bg: 0 0% 100%;
+    --navbar-border: 240 6% 90%;
+
     /* Semantic colors */
     --success: 160 84% 39%;
     --success-foreground: 0 0% 100%;
@@ -157,6 +161,10 @@
     /* Sidebar */
     --sidebar-bg: 240 6% 7%;
     --sidebar-border: 240 4% 14%;
+
+    /* Navbar */
+    --navbar-bg: 240 10% 5%;
+    --navbar-border: 240 4% 14%;
 
     /* Semantic colors */
     --success: 160 84% 60%;
@@ -242,10 +250,22 @@
     box-shadow: var(--card-shadow-hover);
   }
 
-  .glass-sidebar {
-    @apply backdrop-blur-xl border-r shadow-xl;
-    background: hsl(var(--sidebar-bg) / 0.85);
+  .shell-sidebar {
+    @apply border-r;
+    background: hsl(var(--sidebar-bg));
     border-color: hsl(var(--sidebar-border));
+  }
+
+  .shell-navbar {
+    @apply border-b backdrop-blur-md;
+    background: hsl(var(--navbar-bg) / 0.8);
+    border-color: hsl(var(--navbar-border));
+  }
+
+  .shell-mobile-nav {
+    @apply border-t backdrop-blur-md;
+    background: hsl(var(--navbar-bg) / 0.9);
+    border-color: hsl(var(--navbar-border));
   }
 
   .focus-ring {

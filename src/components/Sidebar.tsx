@@ -1,114 +1,137 @@
 import {
-  BarChart2,
+  ChevronsLeft,
+  ChevronsRight,
   CreditCard,
-  FileText,
-  Folder,
   Home,
-  LayoutDashboard,
-  LogOut,
-  Settings,
-  User,
+  Receipt,
   Wallet,
 } from "lucide-react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Button } from "./ui/button";
-import { signOut } from "@/supabase/auth";
+import { useSidebar } from "@/store/sidebarContext";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "./ui/tooltip";
+
+const navItems = [
+  { icon: Home, label: "Overview", path: "/dashboard" },
+  { icon: Wallet, label: "Accounts", path: "/accounts" },
+  { icon: Receipt, label: "Transactions", path: "/transactions" },
+  { icon: CreditCard, label: "Debts", path: "/debts" },
+];
 
 const Sidebar = () => {
   const location = useLocation();
-  const navigate = useNavigate();
-
-  const handleSignOut = () => signOut().then(() => navigate('/'));
-  const navItems = [
-    { icon: Home, label: "Overview", path: "/dashboard" },
-    { icon: Wallet, label: "Accounts", path: "/accounts" },
-    { icon: CreditCard, label: "Debts", path: "/debts" },
-    { icon: BarChart2, label: "Activity", path: "/activity" },
-    { icon: LayoutDashboard, label: "Program", path: "/program" },
-    { icon: Folder, label: "Folders", path: "/folders" },
-    { icon: FileText, label: "Documents", path: "/documents" },
-  ];
+  const { collapsed, toggleCollapsed } = useSidebar();
 
   return (
-    <aside className="sticky top-0 hidden md:flex flex-col h-screen shrink-0 md:w-64 glass-sidebar z-10 transition-all duration-300">
-      {/* Subtle Background Glow for Sidebar */}
-      <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-primary/5 to-transparent -z-10 pointer-events-none" />
-
-      <div className="flex items-center p-6 mb-4">
-        <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center mr-3 shadow-glow-lg">
-          <span className="font-bold text-primary-foreground text-xl">L</span>
+    <TooltipProvider delayDuration={0}>
+      <aside
+        className={`sticky top-0 hidden md:flex flex-col h-screen shrink-0 shell-sidebar z-10 transition-[width] duration-300 ease-in-out ${
+          collapsed ? "w-[72px]" : "w-64"
+        }`}
+      >
+        {/* Branding */}
+        <div className={`flex items-center p-6 mb-4 ${collapsed ? "justify-center" : ""}`}>
+          <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-glow-lg shrink-0">
+            <span className="font-bold text-primary-foreground text-xl">L</span>
+          </div>
+          {!collapsed && (
+            <span className="font-bold text-2xl tracking-tight ml-3 whitespace-nowrap overflow-hidden">
+              Lumina
+            </span>
+          )}
         </div>
-        <span className="font-bold text-2xl hidden md:inline tracking-tight">Lumina</span>
-      </div>
 
-      <nav className="flex-1 px-4 py-4 space-y-2 overflow-y-auto">
-        <div className="mb-4 hidden md:block text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2">
-          Main Menu
-        </div>
-        {navItems.map((item) => {
-          const isActive = location.pathname === item.path || (location.pathname === '/' && item.path === '/dashboard');
-          const isImplemented = ['/dashboard', '/accounts', '/debts'].includes(item.path);
-          // Using a conditional rendering approach based on if the item is implemented 
-          return isImplemented ? (
-            <Link key={item.path} to={item.path} className="block focus-ring rounded-xl">
-              <span
-                className={`flex items-center w-full px-3 py-3 rounded-xl transition-all duration-200 group ${isActive
-                  ? "bg-primary text-primary-foreground shadow-glow font-medium"
-                  : "text-muted-foreground hover:bg-surface-hover hover:text-foreground"
-                  }`}
-              >
-                <item.icon
-                  className={`w-5 h-5 mr-3 transition-transform group-hover:scale-110 ${isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-primary"
-                    }`}
-                />
-                <span className="hidden md:inline">{item.label}</span>
-              </span>
-            </Link>
-          ) : (
-            <div key={item.path} className="block cursor-not-allowed relative group">
-              <span className="flex items-center w-full px-3 py-3 rounded-xl text-muted-foreground/50">
-                <item.icon className="w-5 h-5 mr-3" />
-                <span className="hidden md:inline">{item.label}</span>
-              </span>
-              <div className="absolute inset-0 hidden group-hover:flex items-center justify-center bg-surface-overlay-heavy backdrop-blur-sm rounded-xl">
-                <span className="text-[10px] font-bold text-primary uppercase tracking-wider backdrop-blur-md px-2 py-0.5 rounded-sm border border-primary/30">Soon</span>
-              </div>
+        {/* Navigation */}
+        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+          {!collapsed && (
+            <div className="mb-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3">
+              Main Menu
             </div>
-          );
-        })}
-      </nav>
+          )}
+          {navItems.map((item) => {
+            const isActive =
+              location.pathname === item.path ||
+              (location.pathname === "/" && item.path === "/dashboard");
 
-      <div className="p-4 mt-auto space-y-2">
-        <div className="mb-2 hidden md:block text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2">
-          General
+            const linkContent = (
+              <Link key={item.path} to={item.path} className="block focus-ring rounded-xl">
+                <span
+                  className={`flex items-center w-full px-3 py-3 rounded-xl transition-all duration-200 group ${
+                    collapsed ? "justify-center" : ""
+                  } ${
+                    isActive
+                      ? "bg-primary text-primary-foreground shadow-glow font-medium"
+                      : "text-muted-foreground hover:bg-surface-hover hover:text-foreground"
+                  }`}
+                >
+                  <item.icon
+                    className={`w-5 h-5 shrink-0 transition-transform group-hover:scale-110 ${
+                      isActive
+                        ? "text-primary-foreground"
+                        : "text-muted-foreground group-hover:text-primary"
+                    }`}
+                  />
+                  {!collapsed && (
+                    <span className="ml-3 whitespace-nowrap overflow-hidden">
+                      {item.label}
+                    </span>
+                  )}
+                </span>
+              </Link>
+            );
+
+            if (collapsed) {
+              return (
+                <Tooltip key={item.path}>
+                  <TooltipTrigger asChild>{linkContent}</TooltipTrigger>
+                  <TooltipContent side="right" className="font-medium">
+                    {item.label}
+                  </TooltipContent>
+                </Tooltip>
+              );
+            }
+
+            return linkContent;
+          })}
+        </nav>
+
+        {/* Bottom Section */}
+        <div className="p-3 mt-auto space-y-1">
+          {/* Collapse Toggle */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                onClick={toggleCollapsed}
+                className={`w-full rounded-xl text-muted-foreground hover:bg-surface-hover hover:text-foreground ${
+                  collapsed ? "justify-center px-0" : "justify-start"
+                }`}
+              >
+                {collapsed ? (
+                  <ChevronsRight className="w-5 h-5 shrink-0" />
+                ) : (
+                  <>
+                    <ChevronsLeft className="w-5 h-5 shrink-0" />
+                    <span className="ml-3 whitespace-nowrap overflow-hidden">Collapse</span>
+                  </>
+                )}
+              </Button>
+            </TooltipTrigger>
+            {collapsed && (
+              <TooltipContent side="right" className="font-medium">
+                Expand sidebar
+              </TooltipContent>
+            )}
+          </Tooltip>
+
         </div>
-
-        <div className="cursor-not-allowed relative group block">
-          <Button variant="ghost" disabled className="w-full justify-start rounded-xl text-muted-foreground hover:bg-surface-hover hover:text-foreground hover:shadow-none pointer-events-none">
-            <Settings className="w-5 h-5 mr-3" />
-            <span className="hidden md:inline">Settings</span>
-          </Button>
-          <div className="absolute inset-0 hidden group-hover:flex items-center justify-center bg-surface-overlay-heavy backdrop-blur-sm rounded-xl">
-            <span className="text-[10px] font-bold text-primary uppercase tracking-wider backdrop-blur-md px-2 py-0.5 rounded-sm border border-primary/30">Soon</span>
-          </div>
-        </div>
-
-        <div className="cursor-not-allowed relative group block">
-          <Button variant="ghost" disabled className="w-full justify-start rounded-xl text-muted-foreground hover:bg-surface-hover hover:text-foreground hover:shadow-none pointer-events-none">
-            <User className="w-5 h-5 mr-3" />
-            <span className="hidden md:inline">Profile</span>
-          </Button>
-          <div className="absolute inset-0 hidden group-hover:flex items-center justify-center bg-surface-overlay-heavy backdrop-blur-sm rounded-xl">
-            <span className="text-[10px] font-bold text-primary uppercase tracking-wider backdrop-blur-md px-2 py-0.5 rounded-sm border border-primary/30">Soon</span>
-          </div>
-        </div>
-
-        <Button variant="ghost" onClick={handleSignOut} className="w-full justify-start rounded-xl text-destructive hover:bg-destructive/10 hover:text-destructive hover:shadow-none mt-4">
-          <LogOut className="w-5 h-5 mr-3" />
-          <span className="hidden md:inline">Log out</span>
-        </Button>
-      </div>
-    </aside>
+      </aside>
+    </TooltipProvider>
   );
 };
 

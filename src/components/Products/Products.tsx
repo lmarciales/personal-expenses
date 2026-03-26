@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CreditCard, MoreVertical, Wallet, PlusCircle, ArrowUpRight, Pencil, Trash2, Loader2 } from "lucide-react";
+import { CreditCard, MoreVertical, Wallet, Plus, ArrowUpRight, Pencil, Trash2, Loader2 } from "lucide-react";
 import { Button } from "../ui/button";
 import { AddAccountModal } from "./AddAccountModal";
 import { formatCOPWithSymbol } from "@/lib/currency";
@@ -104,7 +104,7 @@ const Products = ({ products, onAccountAdded }: { products: Product[], onAccount
                 </Button>
                 <AddAccountModal onSuccess={onAccountAdded}>
                   <Button variant="ghost" size="sm" className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground rounded-full hover:bg-surface-hover-strong gap-1" title="Add Account">
-                    <PlusCircle className="h-3.5 w-3.5" />
+                    <Plus className="h-3.5 w-3.5" />
                     <span className="hidden sm:inline">Add</span>
                   </Button>
                 </AddAccountModal>
@@ -117,7 +117,7 @@ const Products = ({ products, onAccountAdded }: { products: Product[], onAccount
             <p className="text-sm text-muted-foreground italic">You don't have any accounts yet.</p>
             <AddAccountModal onSuccess={onAccountAdded}>
               <Button variant="outline" className="w-full border-primary/50 text-primary hover:bg-primary/20 shadow-glow-sm bg-transparent">
-                <PlusCircle className="mr-2 h-4 w-4" /> Add First Account
+                <Plus className="mr-2 h-4 w-4" /> Add First Account
               </Button>
             </AddAccountModal>
           </div>

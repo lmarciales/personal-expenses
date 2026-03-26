@@ -1,21 +1,18 @@
-import { Home, CreditCard, LogOut, Wallet } from "lucide-react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { signOut } from "@/supabase/auth";
+import { Home, CreditCard, Wallet, Receipt } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 
 const navItems = [
   { icon: Home, label: "Overview", path: "/dashboard" },
   { icon: Wallet, label: "Accounts", path: "/accounts" },
+  { icon: Receipt, label: "Transactions", path: "/transactions" },
   { icon: CreditCard, label: "Debts", path: "/debts" },
 ];
 
 export const MobileBottomNav = () => {
   const location = useLocation();
-  const navigate = useNavigate();
-
-  const handleSignOut = () => signOut().then(() => navigate("/"));
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden glass-sidebar border-t border-border/50 px-2 py-2">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden shell-mobile-nav px-2 py-2">
       <div className="flex items-center justify-around">
         {navItems.map((item) => {
           const isActive =
@@ -25,7 +22,7 @@ export const MobileBottomNav = () => {
             <Link
               key={item.path}
               to={item.path}
-              className={`flex flex-col items-center gap-1 px-4 py-1.5 rounded-xl transition-colors focus-ring ${
+              className={`flex flex-col items-center gap-1 px-3 py-1.5 rounded-xl transition-colors focus-ring ${
                 isActive
                   ? "text-primary"
                   : "text-muted-foreground hover:text-foreground"
@@ -36,14 +33,6 @@ export const MobileBottomNav = () => {
             </Link>
           );
         })}
-        <button
-          type="button"
-          onClick={handleSignOut}
-          className="flex flex-col items-center gap-1 px-4 py-1.5 rounded-xl text-muted-foreground hover:text-destructive transition-colors focus-ring"
-        >
-          <LogOut className="w-5 h-5" />
-          <span className="text-[10px] font-medium">Log out</span>
-        </button>
       </div>
     </nav>
   );

@@ -1,36 +1,124 @@
-import { signOut } from "@/supabase/auth";
-import { LogOut, User } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "../ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
+import { Bell, LogOut, Monitor, Moon, Plus, Sun } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { AddTransactionModal } from "@/components/Transactions/AddTransactionModal";
+import { useTheme } from "@/hooks/useTheme";
+import { signOut } from "@/supabase/auth";
+import { supabase } from "@/supabase/client";
 
-const Navbar = () => {
+export default function Navbar() {
   const navigate = useNavigate();
+  const { theme, setTheme } = useTheme();
+
+  const [accounts, setAccounts] = useState<{ id: string; name: string; balance: number }[]>([]);
+
+  useEffect(() => {
+    const fetchAccounts = async () => {
+      const { data } = await supabase.from("accounts").select("id, name, balance");
+      if (data) setAccounts(data);
+    };
+    fetchAccounts();
+
+    const handleRefresh = () => fetchAccounts();
+    window.addEventListener("transaction-added", handleRefresh);
+    return () => window.removeEventListener("transaction-added", handleRefresh);
+  }, []);
 
   const handleSignOut = () => signOut().then(() => navigate("/"));
 
-  return (
-    <nav className="border-b">
-      <div className="container flex items-center justify-between px-4 py-2 mx-auto">
-        <h1 className="text-lg font-semibold">Personal Expenses Dashboard</h1>
-        <div className="flex items-center space-x-4">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label="Open user menu">
-                <User className="w-5 h-5" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => handleSignOut()}>
-                <LogOut className="w-4 h-4 mr-2" />
-                <span>Cerrar sesión</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </div>
-    </nav>
-  );
-};
+  const handleTransactionSuccess = () => {
+    window.dispatchEvent(new Event("transaction-added"));
+  };
 
-export default Navbar;
+  const cycleTheme = () => {
+    if (theme === "dark") setTheme("light");
+    else if (theme === "light") setTheme("system");
+    else setTheme("dark");
+  };
+
+  return (
+    <header className="sticky top-0 z-20 shell-navbar px-4 md:px-8 h-14 flex items-center justify-end shrink-0">
+      <div className="flex items-center gap-2">
+        {/* Add Transaction */}
+        {accounts.length > 0 ? (
+          <AddTransactionModal accounts={accounts} onSuccess={handleTransactionSuccess}>
+            <Button
+              size="sm"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-glow transition-all"
+            >
+              <Plus className="w-4 h-4 md:mr-1.5" />
+              <span className="hidden md:inline">Add Transaction</span>
+            </Button>
+          </AddTransactionModal>
+        ) : (
+          <Button
+            size="sm"
+            disabled
+            className="bg-primary/50 text-primary-foreground/50 cursor-not-allowed"
+          >
+            <Plus className="w-4 h-4 md:mr-1.5" />
+            <span className="hidden md:inline">Add Transaction</span>
+          </Button>
+        )}
+
+        {/* Theme Toggle */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="rounded-full hover:bg-secondary"
+          onClick={cycleTheme}
+        >
+          {theme === "light" ? (
+            <Sun className="w-5 h-5" />
+          ) : theme === "dark" ? (
+            <Moon className="w-5 h-5" />
+          ) : (
+            <Monitor className="w-5 h-5" />
+          )}
+        </Button>
+
+        {/* Notifications */}
+        <div className="hidden sm:block">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="ghost" size="icon" className="rounded-full hover:bg-secondary relative">
+                <Bell className="w-5 h-5" />
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-primary rounded-full animate-pulse" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-64 glass-panel border-border p-4" align="end">
+              <h4 className="font-semibold text-sm mb-2 text-primary">Notifications</h4>
+              <p className="text-sm text-muted-foreground">You have no new notifications.</p>
+            </PopoverContent>
+          </Popover>
+        </div>
+
+        {/* User Dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="w-9 h-9 rounded-full bg-primary/20 border-2 border-transparent hover:border-primary transition-colors focus:outline-none ml-1 flex items-center justify-center">
+              <span className="text-sm font-bold text-primary">L</span>
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48 glass-panel rounded-xl mt-2 border-border">
+            <DropdownMenuItem
+              onClick={handleSignOut}
+              className="text-destructive focus:bg-destructive/10 focus:text-destructive rounded-lg cursor-pointer"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              <span>Log out</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </header>
+  );
+}
