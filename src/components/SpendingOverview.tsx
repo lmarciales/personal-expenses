@@ -49,33 +49,18 @@ const SpendingOverview = ({ totalExpense, categorySpending = [] }: SpendingOverv
             </div>
           )}
           <div className="h-3 w-full bg-surface-overlay rounded-full overflow-hidden flex border border-subtle">
-            {hasData && (() => {
-              const categorizedTotal = categorySpending.reduce((sum, cat) => sum + cat.amount, 0);
-              const uncategorized = totalExpense - categorizedTotal;
+            {hasData && categorySpending.map((cat, idx) => {
+              const pct = (cat.amount / totalExpense) * 100;
+              const color = cat.color || DEFAULT_COLORS[idx % DEFAULT_COLORS.length];
               return (
-                <>
-                  {categorySpending.map((cat, idx) => {
-                    const pct = (cat.amount / totalExpense) * 100;
-                    const color = cat.color || DEFAULT_COLORS[idx % DEFAULT_COLORS.length];
-                    return (
-                      <div
-                        key={cat.name}
-                        className="h-full transition-all duration-500"
-                        style={{ width: `${pct}%`, backgroundColor: color }}
-                        title={`${cat.name}: ${formatCOPWithSymbol(cat.amount)}`}
-                      />
-                    );
-                  })}
-                  {uncategorized > 0 && (
-                    <div
-                      className="h-full transition-all duration-500"
-                      style={{ width: `${(uncategorized / totalExpense) * 100}%`, backgroundColor: '#374151' }}
-                      title={`Uncategorized: ${formatCOPWithSymbol(uncategorized)}`}
-                    />
-                  )}
-                </>
+                <div
+                  key={cat.name}
+                  className="h-full transition-all duration-500"
+                  style={{ width: `${pct}%`, backgroundColor: color }}
+                  title={`${cat.name}: ${formatCOPWithSymbol(cat.amount)}`}
+                />
               );
-            })()}
+            })}
           </div>
         </div>
 

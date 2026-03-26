@@ -148,10 +148,10 @@ export const Dashboard = () => {
 
           {/* Dashboard Grid placeholder - to be updated in the Scaffold phase */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-            <div className="md:col-span-6">
+            <div className="md:col-span-6 flex flex-col md:h-[420px]">
               <Products products={accounts} onAccountAdded={refetch} />
             </div>
-            <div className="md:col-span-6">
+            <div className="md:col-span-6 flex flex-col md:h-[420px]">
               <SpendingOverview totalExpense={totalExpense} categorySpending={categorySpending} />
             </div>
 
