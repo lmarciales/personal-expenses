@@ -1,5 +1,6 @@
 import { formatCOPWithSymbol } from "@/lib/currency";
 import { MoreVertical, PieChart } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "./ui/button";
 
 export interface CategorySpending {
@@ -27,6 +28,7 @@ const DEFAULT_COLORS = [
 ];
 
 const SpendingOverview = ({ totalExpense, categorySpending = [] }: SpendingOverviewProps) => {
+  const { t } = useTranslation("dashboard");
   const hasData = categorySpending.length > 0 && totalExpense > 0;
 
   return (
@@ -34,7 +36,7 @@ const SpendingOverview = ({ totalExpense, categorySpending = [] }: SpendingOverv
       <div className="flex flex-row items-start justify-between pb-4">
         <div>
           <h2 className="typo-section-label flex items-center gap-2">
-            <PieChart className="w-4 h-4 text-cyan-400" /> Spending Overview
+            <PieChart className="w-4 h-4 text-cyan-400" /> {t("spending.title")}
           </h2>
           <div className="mt-3 flex items-baseline gap-2">
             <span className="typo-amount-lg">{formatCOPWithSymbol(totalExpense)}</span>
@@ -53,11 +55,11 @@ const SpendingOverview = ({ totalExpense, categorySpending = [] }: SpendingOverv
         <div>
           {!hasData ? (
             <div className="flex justify-between text-xs font-medium text-muted-foreground mb-3 px-1">
-              <span className="italic">No category data</span>
+              <span className="italic">{t("spending.noCategoryData")}</span>
             </div>
           ) : (
             <div className="flex justify-between text-xs font-medium text-muted-foreground mb-3 px-1">
-              <span>{categorySpending.length} categories</span>
+              <span>{t("spending.categories", { count: categorySpending.length })}</span>
             </div>
           )}
           <div className="h-3 w-full bg-surface-overlay rounded-full overflow-hidden flex border border-subtle">
@@ -100,7 +102,7 @@ const SpendingOverview = ({ totalExpense, categorySpending = [] }: SpendingOverv
             <div className="flex items-center justify-between text-sm p-2 rounded-lg hover:bg-surface-hover transition-colors">
               <div className="flex items-center">
                 <div className="w-3 h-3 rounded-full bg-surface-indicator mr-3" />
-                <span className="font-medium text-foreground">Uncategorized</span>
+                <span className="font-medium text-foreground">{t("spending.uncategorized")}</span>
               </div>
               <span className="font-semibold text-muted-foreground">{formatCOPWithSymbol(0)}</span>
             </div>

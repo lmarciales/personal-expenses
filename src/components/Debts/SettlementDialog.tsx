@@ -13,6 +13,7 @@ import type { SimpleAccount } from "@/hooks/useDebtsData";
 import { formatCOPWithSymbol } from "@/lib/currency";
 import { ArrowRight, Info, Loader2 } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface SettlementDialogProps {
   open: boolean;
@@ -33,6 +34,7 @@ export const SettlementDialog = ({
   accounts,
   onSuccess,
 }: SettlementDialogProps) => {
+  const { t } = useTranslation("debts");
   const { settleReceivables, isProcessing } = useDebtActions();
   const [receivingAccountId, setReceivingAccountId] = useState<string>("");
 
@@ -54,39 +56,37 @@ export const SettlementDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="glass-panel border-border sm:max-w-[480px]">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold">Mark as Received</DialogTitle>
+          <DialogTitle className="text-xl font-bold">{t("settlement.title")}</DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            Settle {selectedSplitIds.length} item{selectedSplitIds.length !== 1 ? "s" : ""} from{" "}
-            <span className="text-foreground font-semibold">{personName}</span>
+            {t("settlement.settleItems", { count: selectedSplitIds.length, from: personName })}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-5 py-4">
           {/* Amount */}
           <div className="glass-card rounded-xl p-4 text-center">
-            <p className="text-sm text-muted-foreground mb-1">Total Received</p>
+            <p className="text-sm text-muted-foreground mb-1">{t("settlement.totalReceived")}</p>
             <p className="text-3xl font-extrabold tracking-tight text-success">{formatCOPWithSymbol(totalAmount)}</p>
           </div>
 
           {/* Info */}
           <div className="flex items-start gap-2 text-sm text-muted-foreground">
             <Info className="w-4 h-4 mt-0.5 shrink-0 text-primary" />
-            <span>
-              This will mark all selected splits as <span className="text-foreground font-medium">Settled</span>.
-            </span>
+            <span>{t("settlement.description")}</span>
           </div>
 
           {/* Optional receiving account */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">
-              Received into account <span className="text-muted-foreground font-normal">(optional)</span>
+              {t("settlement.receivedIntoAccount")}{" "}
+              <span className="text-muted-foreground font-normal">{t("settlement.optional")}</span>
             </label>
             <Select value={receivingAccountId} onValueChange={setReceivingAccountId}>
               <SelectTrigger className="bg-surface-input border-subtle">
-                <SelectValue placeholder="No account (just mark settled)" />
+                <SelectValue placeholder={t("settlement.noAccount")} />
               </SelectTrigger>
               <SelectContent className="glass-panel border-border">
-                <SelectItem value="none">No account</SelectItem>
+                <SelectItem value="none">{t("settlement.noAccountShort")}</SelectItem>
                 {accounts.map((acc) => (
                   <SelectItem key={acc.id} value={acc.id}>
                     {acc.name} ({formatCOPWithSymbol(acc.balance)})
@@ -98,8 +98,10 @@ export const SettlementDialog = ({
               <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1 pl-1">
                 <ArrowRight className="w-3 h-3" />
                 <span>
-                  {receivingAccount.name} balance will increase by {formatCOPWithSymbol(totalAmount)} and an income
-                  transaction will be auto-created.
+                  {t("settlement.balanceIncreaseInfo", {
+                    account: receivingAccount.name,
+                    amount: formatCOPWithSymbol(totalAmount),
+                  })}
                 </span>
               </div>
             )}
@@ -113,7 +115,7 @@ export const SettlementDialog = ({
             disabled={isProcessing}
             className="border-border"
           >
-            Cancel
+            {t("common:actions.cancel")}
           </Button>
           <Button
             onClick={handleConfirm}
@@ -123,10 +125,10 @@ export const SettlementDialog = ({
             {isProcessing ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Processing...
+                {t("settlement.processing")}
               </>
             ) : (
-              "Confirm Received"
+              t("settlement.confirm")
             )}
           </Button>
         </DialogFooter>

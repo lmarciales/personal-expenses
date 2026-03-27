@@ -1,3 +1,4 @@
+import { LanguageToggle } from "@/components/LanguageToggle";
 import { Button } from "@/components/ui/button.tsx";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card.tsx";
 import { Input } from "@/components/ui/input.tsx";
@@ -6,22 +7,26 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { updatePassword } from "@/supabase/auth.ts";
 import { supabase } from "@/supabase/client.ts";
 import { zodResolver } from "@hookform/resolvers/zod";
+import type { TFunction } from "i18next";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { Navigate, useNavigate } from "react-router-dom";
 import { z } from "zod";
 
-const ResetPasswordSchema = z
-  .object({
-    password: z.string().min(8, "Contraseña es demasiado corta"),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Las contraseñas no coinciden",
-    path: ["confirmPassword"],
-  });
+const createResetPasswordSchema = (t: TFunction) =>
+  z
+    .object({
+      password: z.string().min(8, t("validation:passwordTooShort")),
+      confirmPassword: z.string(),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: t("validation:passwordsMismatch"),
+      path: ["confirmPassword"],
+    });
 
 export const ResetPassword = () => {
+  const { t } = useTranslation(["auth", "validation"]);
   const navigate = useNavigate();
   const [sessionStatus, setSessionStatus] = useState<"loading" | "valid" | "invalid">("loading");
 
@@ -50,28 +55,29 @@ export const ResetPassword = () => {
     };
   }, []);
 
-  const form = useForm<z.infer<typeof ResetPasswordSchema>>({
-    resolver: zodResolver(ResetPasswordSchema),
+  const schema = createResetPasswordSchema(t);
+  const form = useForm<z.infer<typeof schema>>({
+    resolver: zodResolver(schema),
     defaultValues: {
       password: "",
       confirmPassword: "",
     },
   });
 
-  const onSubmit = (data: z.infer<typeof ResetPasswordSchema>) => {
+  const onSubmit = (data: z.infer<typeof schema>) => {
     const { password } = data;
     updatePassword(password)
       .then(() => navigate("/dashboard"))
       .catch((error) => {
         console.error(error);
-        form.setError("root", { message: "No se pudo restablecer la contraseña" });
+        form.setError("root", { message: t("auth:resetPassword.error") });
       });
   };
 
   if (sessionStatus === "loading") {
     return (
       <main className="grid place-items-center h-screen">
-        <p>Verificando...</p>
+        <p>{t("auth:resetPassword.verifying")}</p>
       </main>
     );
   }
@@ -81,13 +87,16 @@ export const ResetPassword = () => {
   }
 
   return (
-    <main className="grid place-items-center h-screen">
+    <main className="grid place-items-center h-screen relative">
+      <div className="absolute top-4 right-4">
+        <LanguageToggle />
+      </div>
       <Card className="glass-card w-full max-w-sm">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <CardHeader>
-              <CardTitle className="text-2xl">Restablecer contraseña</CardTitle>
-              <CardDescription>Ingresa tu nueva contraseña.</CardDescription>
+              <CardTitle className="text-2xl">{t("auth:resetPassword.title")}</CardTitle>
+              <CardDescription>{t("auth:resetPassword.description")}</CardDescription>
             </CardHeader>
             <CardContent className="grid gap-4">
               <div className="grid gap-2">
@@ -96,7 +105,7 @@ export const ResetPassword = () => {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Nueva contraseña</FormLabel>
+                      <FormLabel>{t("auth:resetPassword.newPassword")}</FormLabel>
                       <FormControl>
                         <Input {...field} type="password" />
                       </FormControl>
@@ -111,7 +120,7 @@ export const ResetPassword = () => {
                   name="confirmPassword"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Confirmar contraseña</FormLabel>
+                      <FormLabel>{t("auth:resetPassword.confirmPassword")}</FormLabel>
                       <FormControl>
                         <Input {...field} type="password" />
                       </FormControl>
@@ -126,7 +135,7 @@ export const ResetPassword = () => {
             </CardContent>
             <CardFooter>
               <Button className="w-full" type="submit">
-                Restablecer contraseña
+                {t("auth:resetPassword.submit")}
               </Button>
             </CardFooter>
           </form>

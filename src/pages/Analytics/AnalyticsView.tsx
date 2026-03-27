@@ -6,6 +6,7 @@ import { useAnalyticsData } from "@/hooks/useAnalyticsData";
 import { formatCOP, formatCOPWithSymbol } from "@/lib/currency";
 import { ChevronLeft, ChevronRight, TrendingUp } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
@@ -47,6 +48,7 @@ const ExpenseTooltip = ({ active, payload, label, data }: any) => {
 };
 
 export const AnalyticsView = () => {
+  const { t } = useTranslation("analytics");
   const [searchParams, setSearchParams] = useSearchParams();
   const [year, setYear] = useState(() => {
     const p = searchParams.get("year");
@@ -101,7 +103,7 @@ export const AnalyticsView = () => {
   if (analytics.isLoading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="animate-pulse text-muted-foreground">Loading analytics...</div>
+        <div className="animate-pulse text-muted-foreground">{t("loading")}</div>
       </div>
     );
   }
@@ -109,7 +111,7 @@ export const AnalyticsView = () => {
   if (analytics.error) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center flex-col gap-4 text-center">
-        <h2 className="text-2xl font-bold text-destructive">Error Loading Analytics</h2>
+        <h2 className="text-2xl font-bold text-destructive">{t("error.title")}</h2>
         <p className="text-muted-foreground">{analytics.error}</p>
       </div>
     );
@@ -122,9 +124,9 @@ export const AnalyticsView = () => {
         <div>
           <h1 className="typo-page-title flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-primary" />
-            Expense Analytics
+            {t("header.title")}
           </h1>
-          <p className="typo-page-subtitle">Track your spending patterns and financial health</p>
+          <p className="typo-page-subtitle">{t("header.subtitle")}</p>
         </div>
         {/* Year selector */}
         <div className="flex items-center gap-2 bg-surface-hover/50 rounded-xl px-3 py-2">
@@ -161,8 +163,8 @@ export const AnalyticsView = () => {
       {/* Monthly Expenses Bar Chart */}
       <div className="glass-card rounded-2xl p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-foreground">Monthly Expenses</h3>
-          <span className="text-[11px] text-muted-foreground">Click a month for details</span>
+          <h3 className="text-sm font-semibold text-foreground">{t("monthlyExpenses")}</h3>
+          <span className="text-[11px] text-muted-foreground">{t("clickMonthForDetails")}</span>
         </div>
         <div className="h-[280px] w-full">
           <ResponsiveContainer width="100%" height="100%">

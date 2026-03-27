@@ -1,0 +1,83 @@
+{
+  "header": {
+    "title": "Accounts",
+    "subtitle": "Manage all your financial accounts."
+  },
+  "error": {
+    "title": "Error Loading Accounts"
+  },
+  "addAccount": "Add Account",
+  "totalBalance": "Total Balance",
+  "filteredBalance": "Filtered Balance",
+  "search": "Search accounts...",
+  "allTypes": "All Types",
+  "sort": {
+    "balanceHighToLow": "Balance: High to Low",
+    "balanceLowToHigh": "Balance: Low to High",
+    "nameAZ": "Name: A to Z",
+    "nameZA": "Name: Z to A",
+    "typeAZ": "Type: A to Z",
+    "newestFirst": "Newest First",
+    "oldestFirst": "Oldest First"
+  },
+  "showing": "Showing",
+  "of": "of",
+  "totalAccounts": "Total Accounts",
+  "byType": "By Type",
+  "empty": {
+    "title": "No accounts yet",
+    "description": "Add your first account to start tracking your finances.",
+    "addFirst": "Add First Account"
+  },
+  "emptyFiltered": {
+    "title": "No accounts found",
+    "description": "Try adjusting your search or filters."
+  },
+  "card": {
+    "balance": "Balance",
+    "transactions": "transactions",
+    "since": "Since"
+  },
+  "deleteConfirm": {
+    "withTransactions": "\"{{name}}\" has {{count}} linked transaction(s). Deleting it will also remove all associated transactions. Are you sure?",
+    "simple": "Are you sure you want to delete \"{{name}}\"?"
+  },
+  "toast": {
+    "deleteError": "Could not delete account"
+  },
+  "products": {
+    "totalBalance": "Total Balance",
+    "myAccounts": "My Accounts",
+    "manageAccounts": "Manage Accounts",
+    "noAccounts": "You don't have any accounts yet.",
+    "addFirst": "Add First Account",
+    "moreAccounts_one": "{{count}} more account",
+    "moreAccounts_other": "{{count}} more accounts",
+    "account": "Account"
+  },
+  "modal": {
+    "editTitle": "Edit Account",
+    "addTitle": "Add New Account",
+    "name": "Account Name",
+    "namePlaceholder": "e.g. Chase Checking",
+    "type": "Account Type",
+    "selectType": "Select type",
+    "balance": "Balance",
+    "initialBalance": "Initial Balance",
+    "addAccount": "Add Account"
+  },
+  "modalToast": {
+    "updateError": "Could not update account",
+    "createError": "Could not add account"
+  },
+  "detail": {
+    "title": "Account Details",
+    "currentBalance": "Current Balance",
+    "income": "Income",
+    "expenses": "Expenses",
+    "transactions": "Transactions",
+    "recentTransactions": "Recent Transactions",
+    "noTransactions": "No transactions yet for this account.",
+    "created": "Created"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "header": {
+    "title": "Resumen general",
+    "subtitle": "Monitorea y controla tu salud financiera."
+  },
+  "error": {
+    "title": "Error al cargar el resumen",
+    "retry": "Reintentar"
+  },
+  "spending": {
+    "title": "Resumen de gastos",
+    "noCategoryData": "Sin datos de categoría",
+    "uncategorized": "Sin categoría",
+    "categories_one": "{{count}} categoría",
+    "categories_other": "{{count}} categorías"
+  },
+  "expenseChart": {
+    "title": "Analítica de gastos",
+    "viewDetails": "Ver detalles",
+    "expenses": "gastos"
+  },
+  "recurring": {
+    "title": "Próximos pagos recurrentes",
+    "bill": "Factura",
+    "lastPaid": "Último pago:",
+    "logItNow": "Registrar ahora"
+  }
+}

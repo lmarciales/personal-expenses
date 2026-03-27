@@ -1,18 +1,20 @@
 import { useAuth } from "@/hooks/useAuth";
 import { CreditCard, Home, Receipt, Shield, TrendingUp, Wallet } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router-dom";
 
-const navItems = [
-  { icon: Home, label: "Overview", path: "/dashboard" },
-  { icon: Wallet, label: "Accounts", path: "/accounts" },
-  { icon: Receipt, label: "Transactions", path: "/transactions" },
-  { icon: TrendingUp, label: "Analytics", path: "/analytics" },
-  { icon: CreditCard, label: "Debts", path: "/debts" },
-];
-
 export const MobileBottomNav = () => {
+  const { t } = useTranslation();
   const location = useLocation();
   const { userRole } = useAuth();
+
+  const navItems = [
+    { icon: Home, label: t("nav.overview"), path: "/dashboard" },
+    { icon: Wallet, label: t("nav.accounts"), path: "/accounts" },
+    { icon: Receipt, label: t("nav.transactions"), path: "/transactions" },
+    { icon: TrendingUp, label: t("nav.analytics"), path: "/analytics" },
+    { icon: CreditCard, label: t("nav.debts"), path: "/debts" },
+  ];
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden shell-mobile-nav px-2 py-2">
@@ -43,7 +45,7 @@ export const MobileBottomNav = () => {
                 }`}
               >
                 <Shield className={`w-5 h-5 ${isActive ? "text-primary" : ""}`} />
-                <span className="text-[10px] font-medium">Admin</span>
+                <span className="text-[10px] font-medium">{t("nav.admin")}</span>
               </Link>
             );
           })()}

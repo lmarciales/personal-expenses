@@ -1,0 +1,19 @@
+{
+  "title": "Admin Dashboard",
+  "loadError": "Could not load users.",
+  "updateRoleError": "Could not update role.",
+  "columns": {
+    "email": "Email",
+    "role": "Role",
+    "emailConfirmed": "Email Confirmed",
+    "registered": "Registered"
+  },
+  "roles": {
+    "user": "user",
+    "admin": "admin"
+  },
+  "confirmed": {
+    "yes": "Yes",
+    "no": "No"
+  }
+}

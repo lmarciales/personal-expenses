@@ -1,3 +1,4 @@
+import { LanguageToggle } from "@/components/LanguageToggle";
 import { AddTransactionModal } from "@/components/Transactions/AddTransactionModal";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,12 +14,14 @@ import { signOut } from "@/supabase/auth";
 import { supabase } from "@/supabase/client";
 import { Bell, LogOut, Monitor, Moon, Plus, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   const navigate = useNavigate();
   const { session } = useAuth();
   const { theme, setTheme } = useTheme();
+  const { t } = useTranslation();
 
   const [accounts, setAccounts] = useState<{ id: string; name: string; balance: number }[]>([]);
 
@@ -58,15 +61,18 @@ export default function Navbar() {
               className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-glow transition-all"
             >
               <Plus className="w-4 h-4 md:mr-1.5" />
-              <span className="hidden md:inline">Add Transaction</span>
+              <span className="hidden md:inline">{t("navbar.addTransaction")}</span>
             </Button>
           </AddTransactionModal>
         ) : (
           <Button size="sm" disabled className="bg-primary/50 text-primary-foreground/50 cursor-not-allowed">
             <Plus className="w-4 h-4 md:mr-1.5" />
-            <span className="hidden md:inline">Add Transaction</span>
+            <span className="hidden md:inline">{t("navbar.addTransaction")}</span>
           </Button>
         )}
+
+        {/* Language Toggle */}
+        <LanguageToggle />
 
         {/* Theme Toggle */}
         <Button variant="ghost" size="icon" className="rounded-full hover:bg-secondary" onClick={cycleTheme}>
@@ -89,8 +95,8 @@ export default function Navbar() {
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-64 glass-panel border-border p-4" align="end">
-              <h4 className="font-semibold text-sm mb-2 text-primary">Notifications</h4>
-              <p className="text-sm text-muted-foreground">You have no new notifications.</p>
+              <h4 className="font-semibold text-sm mb-2 text-primary">{t("navbar.notifications")}</h4>
+              <p className="text-sm text-muted-foreground">{t("navbar.noNotifications")}</p>
             </PopoverContent>
           </Popover>
         </div>
@@ -108,7 +114,7 @@ export default function Navbar() {
               className="text-destructive focus:bg-destructive/10 focus:text-destructive rounded-lg cursor-pointer"
             >
               <LogOut className="w-4 h-4 mr-2" />
-              <span>Cerrar sesión</span>
+              <span>{t("navbar.signOut")}</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

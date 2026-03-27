@@ -1,0 +1,19 @@
+{
+  "title": "Panel de administración",
+  "loadError": "No se pudieron cargar los usuarios.",
+  "updateRoleError": "No se pudo actualizar el rol.",
+  "columns": {
+    "email": "Correo",
+    "role": "Rol",
+    "emailConfirmed": "Correo confirmado",
+    "registered": "Registrado"
+  },
+  "roles": {
+    "user": "usuario",
+    "admin": "administrador"
+  },
+  "confirmed": {
+    "yes": "Sí",
+    "no": "No"
+  }
+}

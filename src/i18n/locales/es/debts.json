@@ -1,0 +1,66 @@
+{
+  "header": {
+    "title": "Deudas y pagos",
+    "subtitle": "Rastrea lo que debes y lo que te deben."
+  },
+  "error": {
+    "title": "Error al cargar las deudas"
+  },
+  "tabs": {
+    "myDebts": "Mis deudas",
+    "owedToMe": "Me deben"
+  },
+  "summary": {
+    "iOwe": "Yo debo",
+    "owedToMe": "Me deben",
+    "netPosition": "Posición neta"
+  },
+  "myDebts": {
+    "empty": "No tienes deudas pendientes",
+    "emptyDescription": "Todos tus pagos están al día. ¡Estás al corriente!",
+    "pendingItems_one": "{{count}} elemento pendiente",
+    "pendingItems_other": "{{count}} elementos pendientes",
+    "totalPending": "Total pendiente",
+    "selectedInfo_one": "{{count}} seleccionado · {{amount}}",
+    "selectedInfo_other": "{{count}} seleccionados · {{amount}}",
+    "paySelected": "Pagar seleccionados"
+  },
+  "owedToMe": {
+    "empty": "Nadie te debe dinero",
+    "emptyDescription": "Todas las cuentas por cobrar están liquidadas.",
+    "pendingItems_one": "{{count}} elemento pendiente",
+    "pendingItems_other": "{{count}} elementos pendientes",
+    "totalOwed": "Total por cobrar",
+    "selectedInfo_one": "{{count}} seleccionado · {{amount}}",
+    "selectedInfo_other": "{{count}} seleccionados · {{amount}}",
+    "markAsReceived": "Marcar como recibido"
+  },
+  "payment": {
+    "title": "Confirmar pago",
+    "settleItems_one": "Liquidar {{count}} elemento en {{account}}",
+    "settleItems_other": "Liquidar {{count}} elementos en {{account}}",
+    "totalPayment": "Pago total",
+    "description": "Esto marcará todas las divisiones seleccionadas como <bold>Liquidado</bold> y reducirá el saldo de <bold>{{account}}</bold> en <bold>{{amount}}</bold>.",
+    "payFromAccount": "Pagar desde cuenta",
+    "optional": "(opcional)",
+    "noSourceAccount": "Sin cuenta de origen (solo liquidar)",
+    "noSourceAccountShort": "Sin cuenta de origen",
+    "balanceDecreaseInfo": "El saldo de <bold>{{account}}</bold> disminuirá en <bold>{{amount}}</bold> y se creará una transacción de transferencia automáticamente.",
+    "processing": "Procesando...",
+    "confirm": "Confirmar pago"
+  },
+  "settlement": {
+    "title": "Marcar como recibido",
+    "settleItems_one": "Liquidar {{count}} elemento de {{from}}",
+    "settleItems_other": "Liquidar {{count}} elementos de {{from}}",
+    "totalReceived": "Total recibido",
+    "description": "Esto marcará todas las divisiones seleccionadas como <bold>Liquidado</bold>.",
+    "receivedIntoAccount": "Recibido en cuenta",
+    "optional": "(opcional)",
+    "noAccount": "Sin cuenta (solo marcar como liquidado)",
+    "noAccountShort": "Sin cuenta",
+    "balanceIncreaseInfo": "El saldo de <bold>{{account}}</bold> aumentará en <bold>{{amount}}</bold> y se creará una transacción de ingreso automáticamente.",
+    "processing": "Procesando...",
+    "confirm": "Confirmar recibido"
+  }
+}

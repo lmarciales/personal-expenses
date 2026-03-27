@@ -1,5 +1,6 @@
 import type { MonthlyData } from "@/hooks/useAnalyticsData";
 import { formatCOP, formatCOPWithSymbol } from "@/lib/currency";
+import { useTranslation } from "react-i18next";
 import { Bar, BarChart, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 interface IncomeExpenseChartProps {
@@ -10,7 +11,7 @@ interface IncomeExpenseChartProps {
 
 const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({ active, payload, label, t }: any) => {
   if (!active || !payload || !payload.length) return null;
   const income = payload.find((p: any) => p.dataKey === "income")?.value || 0;
   const expenses = payload.find((p: any) => p.dataKey === "expenses")?.value || 0;
@@ -30,10 +31,14 @@ const CustomTooltip = ({ active, payload, label }: any) => {
       }}
     >
       <p style={{ fontWeight: 600, margin: "0 0 6px", fontSize: 13 }}>{label}</p>
-      <p style={{ margin: "2px 0", fontSize: 12, color: "#22c55e" }}>Income: {formatCOPWithSymbol(income)}</p>
-      <p style={{ margin: "2px 0", fontSize: 12, color: "#ef4444" }}>Expenses: {formatCOPWithSymbol(expenses)}</p>
+      <p style={{ margin: "2px 0", fontSize: 12, color: "#22c55e" }}>
+        {t("incomeVsExpenses.incomeLabel")}: {formatCOPWithSymbol(income)}
+      </p>
+      <p style={{ margin: "2px 0", fontSize: 12, color: "#ef4444" }}>
+        {t("incomeVsExpenses.expensesLabel")}: {formatCOPWithSymbol(expenses)}
+      </p>
       <p style={{ margin: "6px 0 0", fontSize: 12, fontWeight: 600, color: net >= 0 ? "#22c55e" : "#ef4444" }}>
-        Net: {net >= 0 ? "+ " : "- "}
+        {t("incomeVsExpenses.netLabel")}: {net >= 0 ? "+ " : "- "}
         {formatCOPWithSymbol(Math.abs(net))}
       </p>
     </div>
@@ -41,6 +46,8 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export function IncomeExpenseChart({ monthlyExpenses, monthlyIncome, onMonthClick }: IncomeExpenseChartProps) {
+  const { t } = useTranslation("analytics");
+
   const chartData = MONTH_NAMES.map((name, idx) => ({
     name,
     income: monthlyIncome[idx]?.value || 0,
@@ -55,7 +62,7 @@ export function IncomeExpenseChart({ monthlyExpenses, monthlyIncome, onMonthClic
 
   return (
     <div className="glass-card rounded-2xl p-6">
-      <h3 className="text-sm font-semibold text-foreground mb-4">Income vs Expenses</h3>
+      <h3 className="text-sm font-semibold text-foreground mb-4">{t("incomeVsExpenses.title")}</h3>
       <div className="h-[280px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
@@ -67,10 +74,14 @@ export function IncomeExpenseChart({ monthlyExpenses, monthlyIncome, onMonthClic
               axisLine={false}
               tickFormatter={(value) => formatCOP(value)}
             />
-            <Tooltip content={<CustomTooltip />} cursor={{ fill: "var(--chart-cursor)" }} />
+            <Tooltip content={<CustomTooltip t={t} />} cursor={{ fill: "var(--chart-cursor)" }} />
             <Legend
               wrapperStyle={{ fontSize: 11, paddingTop: 12 }}
-              formatter={(value: string) => <span className="text-muted-foreground capitalize">{value}</span>}
+              formatter={(value: string) => (
+                <span className="text-muted-foreground capitalize">
+                  {value === "income" ? t("incomeVsExpenses.income") : t("incomeVsExpenses.expenses")}
+                </span>
+              )}
             />
             <Bar
               dataKey="income"

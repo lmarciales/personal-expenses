@@ -14,6 +14,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { useCategories } from "@/hooks/useCategories";
 import { type TransactionFilters, useTransactionsData } from "@/hooks/useTransactionsData";
 import { formatCOPWithSymbol } from "@/lib/currency";
+import { getDateLocale } from "@/lib/dateFnsLocale";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/supabase/client";
 import { format } from "date-fns";
@@ -32,10 +33,12 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { DateRange } from "react-day-picker";
+import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 
 export function TransactionsView() {
+  const { t } = useTranslation("transactions");
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { categories } = useCategories();
@@ -116,7 +119,7 @@ export function TransactionsView() {
 
   const handleDelete = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!confirm("Are you sure you want to delete this transaction?")) return;
+    if (!confirm(t("deleteConfirm"))) return;
 
     try {
       const { error } = await supabase.from("transactions").delete().eq("id", id);
@@ -124,7 +127,7 @@ export function TransactionsView() {
       refetch();
     } catch (err) {
       console.error("Failed to delete transaction", err);
-      toast.error("No se pudo eliminar la transacción");
+      toast.error(t("toast.deleteError"));
     }
   };
 
@@ -133,8 +136,8 @@ export function TransactionsView() {
       {/* Header */}
       <div className="flex items-center justify-between pb-6 border-b border-glass">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">All Transactions</h1>
-          <p className="text-muted-foreground text-sm mt-1">View, filter, and manage your full transaction history.</p>
+          <h1 className="text-2xl font-bold tracking-tight">{t("header.title")}</h1>
+          <p className="text-muted-foreground text-sm mt-1">{t("header.subtitle")}</p>
         </div>
         <Button
           variant="ghost"
@@ -151,7 +154,7 @@ export function TransactionsView() {
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search payees or notes..."
+            placeholder={t("search")}
             className="pl-9 bg-surface-hover border-glass"
             value={filters.search}
             onChange={(e) => setFilters((prev) => ({ ...prev, search: e.target.value, limit: 20 }))}
@@ -162,7 +165,7 @@ export function TransactionsView() {
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="border-glass bg-surface-hover hidden sm:flex">
                 <Filter className="h-4 w-4 mr-2" />
-                Categories {filters.categories.length > 0 && `(${filters.categories.length})`}
+                {t("categories")} {filters.categories.length > 0 && `(${filters.categories.length})`}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56 border-glass bg-background/95 backdrop-blur z-50">
@@ -205,13 +208,14 @@ export function TransactionsView() {
                 {dateRange?.from ? (
                   dateRange.to ? (
                     <>
-                      {format(dateRange.from, "LLL dd, y")} - {format(dateRange.to, "LLL dd, y")}
+                      {format(dateRange.from, "LLL dd, y", { locale: getDateLocale() })} -{" "}
+                      {format(dateRange.to, "LLL dd, y", { locale: getDateLocale() })}
                     </>
                   ) : (
-                    format(dateRange.from, "LLL dd, y")
+                    format(dateRange.from, "LLL dd, y", { locale: getDateLocale() })
                   )
                 ) : (
-                  <span>Pick a date range</span>
+                  <span>{t("pickDateRange")}</span>
                 )}
               </Button>
             </PopoverTrigger>
@@ -237,7 +241,7 @@ export function TransactionsView() {
               className="text-muted-foreground hover:text-foreground hover:bg-surface-hover-strong"
             >
               <XCircle className="h-4 w-4 mr-2" />
-              Clear
+              {t("common:actions.clear")}
             </Button>
           )}
         </div>
@@ -247,13 +251,13 @@ export function TransactionsView() {
       <div className="flex-1 space-y-3">
         {!isLoading && !error && transactions.length > 0 && (
           <div className="text-xs font-medium text-muted-foreground mb-4 pl-1">
-            Showing {transactions.length} of {totalCount} transactions
+            {t("showing", { shown: transactions.length, total: totalCount })}
           </div>
         )}
 
         {isLoading && transactions.length === 0 ? (
           <div className="text-center py-20 text-muted-foreground animate-pulse">
-            <p>Loading transactions...</p>
+            <p>{t("empty.loading")}</p>
           </div>
         ) : error ? (
           <div className="text-center py-20 text-danger">
@@ -262,7 +266,7 @@ export function TransactionsView() {
         ) : transactions.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-48 text-center space-y-3 opacity-50">
             <Activity className="w-8 h-8 text-muted-foreground" />
-            <p className="text-sm text-muted-foreground italic">No transactions match your filters.</p>
+            <p className="text-sm text-muted-foreground italic">{t("empty.title")}</p>
           </div>
         ) : (
           <>
@@ -291,7 +295,7 @@ export function TransactionsView() {
                         {txn.payee}
                         {txn.is_recurring && (
                           <span className="text-[9px] bg-primary/20 text-primary px-1.5 py-0.5 rounded-full uppercase font-bold tracking-wider">
-                            Recurring
+                            {t("recurring")}
                           </span>
                         )}
                       </div>
@@ -381,7 +385,7 @@ export function TransactionsView() {
                           className="cursor-pointer"
                         >
                           <Pencil className="w-4 h-4 mr-2" />
-                          <span>Edit</span>
+                          <span>{t("common:actions.edit")}</span>
                         </DropdownMenuItem>
 
                         <DropdownMenuItem
@@ -389,7 +393,7 @@ export function TransactionsView() {
                           className="cursor-pointer"
                         >
                           <CopyPlus className="w-4 h-4 mr-2" />
-                          <span>Duplicate</span>
+                          <span>{t("common:actions.duplicate")}</span>
                         </DropdownMenuItem>
 
                         <DropdownMenuSeparator className="bg-border/50" />
@@ -399,7 +403,7 @@ export function TransactionsView() {
                           className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer"
                         >
                           <Trash2 className="w-4 h-4 mr-2" />
-                          <span>Delete</span>
+                          <span>{t("common:actions.delete")}</span>
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -415,7 +419,7 @@ export function TransactionsView() {
                   onClick={() => setFilters((prev) => ({ ...prev, limit: (prev.limit || 20) + 20 }))}
                   disabled={isLoading}
                 >
-                  {isLoading ? "Loading..." : "Load More"}
+                  {isLoading ? t("empty.loading") : t("common:actions.loadMore")}
                 </Button>
               </div>
             )}

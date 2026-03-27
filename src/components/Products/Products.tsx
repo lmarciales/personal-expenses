@@ -2,6 +2,7 @@ import { formatCOPWithSymbol } from "@/lib/currency";
 import { supabase } from "@/supabase/client";
 import { ArrowUpRight, CreditCard, Loader2, MoreVertical, Pencil, Plus, Trash2, Wallet } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
@@ -17,6 +18,7 @@ export interface Product {
 }
 
 const Products = ({ products, onAccountAdded }: { products: Product[]; onAccountAdded: () => void }) => {
+  const { t } = useTranslation("accounts");
   const navigate = useNavigate();
   const totalBalance = products.reduce((sum, p) => sum + p.balance, 0);
 
@@ -40,8 +42,8 @@ const Products = ({ products, onAccountAdded }: { products: Product[]; onAccount
       const txCount = count || 0;
       const message =
         txCount > 0
-          ? `"${product.name}" has ${txCount} linked transaction${txCount !== 1 ? "s" : ""}. Deleting it will also remove all associated transactions. Are you sure?`
-          : `Are you sure you want to delete "${product.name}"?`;
+          ? t("deleteConfirm.withTransactions", { name: product.name, count: txCount })
+          : t("deleteConfirm.simple", { name: product.name });
 
       if (!window.confirm(message)) return;
 
@@ -56,7 +58,7 @@ const Products = ({ products, onAccountAdded }: { products: Product[]; onAccount
       onAccountAdded();
     } catch (error) {
       console.error("Failed to delete account", error);
-      toast.error("No se pudo eliminar la cuenta");
+      toast.error(t("toast.deleteError"));
     } finally {
       setDeletingId(null);
     }
@@ -67,7 +69,7 @@ const Products = ({ products, onAccountAdded }: { products: Product[]; onAccount
       <div className="flex flex-row items-start justify-between pb-4">
         <div>
           <h2 className="typo-section-label flex items-center gap-2">
-            <Wallet className="w-4 h-4 text-primary" /> Total Balance
+            <Wallet className="w-4 h-4 text-primary" /> {t("products.totalBalance")}
           </h2>
           <div className="mt-3 flex items-baseline gap-1">
             <span className="typo-amount-xl">{formatCOPWithSymbol(totalBalance)}</span>
@@ -79,7 +81,7 @@ const Products = ({ products, onAccountAdded }: { products: Product[]; onAccount
           size="icon"
           className="h-8 w-8 text-muted-foreground hover:text-foreground rounded-full hover:bg-surface-hover-strong"
           onClick={() => navigate("/accounts")}
-          title="Manage Accounts"
+          title={t("products.manageAccounts")}
         >
           <MoreVertical className="h-4 w-4" />
         </Button>
@@ -87,7 +89,7 @@ const Products = ({ products, onAccountAdded }: { products: Product[]; onAccount
 
       <div className="mt-auto space-y-3">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="typo-section-label">My Accounts</h3>
+          <h3 className="typo-section-label">{t("products.myAccounts")}</h3>
           <div className="flex items-center gap-1">
             {products.length > 0 && (
               <>
@@ -97,17 +99,17 @@ const Products = ({ products, onAccountAdded }: { products: Product[]; onAccount
                   className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground rounded-full hover:bg-surface-hover-strong"
                   onClick={() => navigate("/accounts")}
                 >
-                  View All <ArrowUpRight className="ml-1 h-3 w-3" />
+                  {t("common:actions.viewAll")} <ArrowUpRight className="ml-1 h-3 w-3" />
                 </Button>
                 <AddAccountModal onSuccess={onAccountAdded}>
                   <Button
                     variant="ghost"
                     size="sm"
                     className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground rounded-full hover:bg-surface-hover-strong gap-1"
-                    title="Add Account"
+                    title={t("addAccount")}
                   >
                     <Plus className="h-3.5 w-3.5" />
-                    <span className="hidden sm:inline">Add</span>
+                    <span className="hidden sm:inline">{t("common:actions.add")}</span>
                   </Button>
                 </AddAccountModal>
               </>
@@ -116,13 +118,13 @@ const Products = ({ products, onAccountAdded }: { products: Product[]; onAccount
         </div>
         {products.length === 0 ? (
           <div className="flex flex-col items-center justify-center p-6 bg-surface-input border border-subtle rounded-xl text-center space-y-3">
-            <p className="text-sm text-muted-foreground italic">You don't have any accounts yet.</p>
+            <p className="text-sm text-muted-foreground italic">{t("products.noAccounts")}</p>
             <AddAccountModal onSuccess={onAccountAdded}>
               <Button
                 variant="outline"
                 className="w-full border-primary/50 text-primary hover:bg-primary/20 shadow-glow-sm bg-transparent"
               >
-                <Plus className="mr-2 h-4 w-4" /> Add First Account
+                <Plus className="mr-2 h-4 w-4" /> {t("products.addFirst")}
               </Button>
             </AddAccountModal>
           </div>
@@ -142,7 +144,9 @@ const Products = ({ products, onAccountAdded }: { products: Product[]; onAccount
                         <div className="font-semibold text-sm group-hover:text-primary transition-colors">
                           {product.name}
                         </div>
-                        <div className="text-xs text-muted-foreground mt-0.5">{product.type || "Account"}</div>
+                        <div className="text-xs text-muted-foreground mt-0.5">
+                          {product.type || t("products.account")}
+                        </div>
                       </div>
                     </div>
                     <div className="text-right">
@@ -153,7 +157,7 @@ const Products = ({ products, onAccountAdded }: { products: Product[]; onAccount
                 <DropdownMenuContent align="end" className="w-44 glass-panel border-border z-50">
                   <DropdownMenuItem onSelect={() => setEditState({ product })} className="cursor-pointer">
                     <Pencil className="w-4 h-4 mr-2" />
-                    Edit
+                    {t("common:actions.edit")}
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onSelect={() => handleDelete(product)}
@@ -164,7 +168,7 @@ const Products = ({ products, onAccountAdded }: { products: Product[]; onAccount
                     ) : (
                       <Trash2 className="w-4 h-4 mr-2" />
                     )}
-                    Delete
+                    {t("common:actions.delete")}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -174,7 +178,7 @@ const Products = ({ products, onAccountAdded }: { products: Product[]; onAccount
                 onClick={() => navigate("/accounts")}
                 className="w-full text-center text-xs text-muted-foreground hover:text-primary transition-colors py-1.5 cursor-pointer"
               >
-                +{products.length - 3} more account{products.length - 3 !== 1 ? "s" : ""}
+                {t("products.moreAccounts", { count: products.length - 3 })}
               </button>
             )}
           </>

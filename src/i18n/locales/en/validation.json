@@ -1,0 +1,19 @@
+{
+  "emailInvalid": "Invalid email",
+  "emailTooShort": "Email is too short",
+  "passwordTooShort": "Password is too short",
+  "passwordsMismatch": "Passwords do not match",
+  "nameRequired": "Name is required",
+  "balanceRequired": "Balance is required",
+  "typeRequired": "Type is required",
+  "accountRequired": "Please select an account",
+  "dateRequired": "Date is required",
+  "amountRequired": "Amount is required",
+  "amountPositive": "Amount must be positive",
+  "amountGreaterThanZero": "Amount must be greater than 0",
+  "payeeRequired": "Payee is required",
+  "recurrenceRequired": "Recurrence interval required",
+  "splitsSumMismatch": "Splits must sum up to the total amount",
+  "splitsRequired": "At least one split is required",
+  "assigneeRequired": "Assignee is required"
+}

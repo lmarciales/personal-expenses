@@ -6,10 +6,12 @@ import { Button } from "@/components/ui/button";
 import { useDebtsData } from "@/hooks/useDebtsData";
 import { Landmark, Users } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 type Tab = "my-debts" | "owed-to-me";
 
 export const DebtsView = () => {
+  const { t } = useTranslation("debts");
   const { myDebts, owedToMe, accounts, isLoading, error, refetch } = useDebtsData();
   const [activeTab, setActiveTab] = useState<Tab>("my-debts");
 
@@ -23,10 +25,10 @@ export const DebtsView = () => {
   if (error) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center flex-col gap-4 text-center">
-        <h2 className="text-2xl font-bold text-destructive">Error Loading Debts</h2>
+        <h2 className="text-2xl font-bold text-destructive">{t("error.title")}</h2>
         <p className="text-muted-foreground">{error}</p>
         <Button variant="outline" onClick={() => window.location.reload()}>
-          Try Again
+          {t("common:actions.tryAgain")}
         </Button>
       </div>
     );
@@ -36,8 +38,8 @@ export const DebtsView = () => {
     <>
       {/* Header */}
       <header className="glass-card p-6 rounded-3xl shadow-xl">
-        <h1 className="typo-page-title">Debts & Payments</h1>
-        <p className="typo-page-subtitle">Track what you owe and what others owe you.</p>
+        <h1 className="typo-page-title">{t("header.title")}</h1>
+        <p className="typo-page-subtitle">{t("header.subtitle")}</p>
       </header>
 
       {/* Summary Cards */}
@@ -55,7 +57,7 @@ export const DebtsView = () => {
           }`}
         >
           <Landmark className="w-4 h-4" />
-          My Debts
+          {t("tabs.myDebts")}
           {myDebts.length > 0 && (
             <span className="ml-1 text-xs bg-background/20 px-2 py-0.5 rounded-full">
               {myDebts.reduce((sum, g) => sum + g.items.length, 0)}
@@ -72,7 +74,7 @@ export const DebtsView = () => {
           }`}
         >
           <Users className="w-4 h-4" />
-          Owed to Me
+          {t("tabs.owedToMe")}
           {owedToMe.length > 0 && (
             <span className="ml-1 text-xs bg-background/20 px-2 py-0.5 rounded-full">
               {owedToMe.reduce((sum, g) => sum + g.items.length, 0)}

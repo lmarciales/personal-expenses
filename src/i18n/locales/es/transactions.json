@@ -1,0 +1,69 @@
+{
+  "header": {
+    "title": "Todas las transacciones",
+    "subtitle": "Visualiza, filtra y gestiona todo tu historial de transacciones."
+  },
+  "search": "Buscar beneficiarios o notas...",
+  "categories": "Categorías",
+  "pickDateRange": "Seleccionar rango de fechas",
+  "showing": "Mostrando {{shown}} de {{total}} transacciones",
+  "recurring": "Recurrente",
+  "deleteConfirm": "¿Estás seguro de que deseas eliminar esta transacción?",
+  "clickMonthForDetails": "Haz clic en un mes para más detalles",
+  "toast": {
+    "deleteError": "No se pudo eliminar la transacción"
+  },
+  "recent": {
+    "title": "Transacciones recientes",
+    "empty": "Sin transacciones recientes",
+    "emptyDescription": "Tus transacciones recientes aparecerán aquí."
+  },
+  "status": {
+    "success": "Exitosa",
+    "pending": "Pendiente"
+  },
+  "modal": {
+    "addTitle": "Agregar transacción",
+    "editTitle": "Editar transacción",
+    "account": "Cuenta",
+    "selectAccount": "Seleccionar cuenta",
+    "date": "Fecha",
+    "pickDate": "Seleccionar fecha",
+    "type": "Tipo",
+    "expense": "Gasto",
+    "income": "Ingreso",
+    "transfer": "Transferencia",
+    "amount": "Monto",
+    "payee": "Beneficiario",
+    "payeePlaceholder": "¿A quién se le pagó?",
+    "category": "Categoría",
+    "selectCategory": "Seleccionar categoría",
+    "notes": "Notas",
+    "notesPlaceholder": "Notas opcionales...",
+    "recurringTransaction": "Transacción recurrente",
+    "recurrenceInterval": "Intervalo de recurrencia",
+    "monthly": "Mensual",
+    "yearly": "Anual",
+    "weekly": "Semanal",
+    "splits": "Divisiones",
+    "addSplit": "Agregar división",
+    "splitAssignee": "Asignado",
+    "splitAmount": "Monto",
+    "splitStatus": "Estado",
+    "settled": "Liquidado",
+    "pendingReceival": "Por cobrar",
+    "pendingPayment": "Por pagar",
+    "ignored": "Ignorado",
+    "me": "Yo",
+    "deleteConfirm": "¿Estás seguro de que deseas eliminar esta transacción? Esta acción no se puede deshacer.",
+    "addTransaction": "Agregar transacción",
+    "saveChanges": "Guardar cambios"
+  },
+  "modalToast": {
+    "saveError": "No se pudo guardar la transacción"
+  },
+  "empty": {
+    "title": "No hay transacciones que coincidan con tus filtros.",
+    "loading": "Cargando transacciones..."
+  }
+}

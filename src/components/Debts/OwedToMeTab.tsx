@@ -1,9 +1,11 @@
 import { Button } from "@/components/ui/button";
 import type { PersonDebtGroup, SimpleAccount } from "@/hooks/useDebtsData";
 import { formatCOPWithSymbol } from "@/lib/currency";
+import { getDateLocale } from "@/lib/dateFnsLocale";
 import { format } from "date-fns";
 import { CheckSquare, PartyPopper, Square, User } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { SettlementDialog } from "./SettlementDialog";
 
 interface OwedToMeTabProps {
@@ -13,6 +15,7 @@ interface OwedToMeTabProps {
 }
 
 export const OwedToMeTab = ({ groups, accounts, onSettled }: OwedToMeTabProps) => {
+  const { t } = useTranslation("debts");
   const [selectedSplits, setSelectedSplits] = useState<Map<string, Set<string>>>(new Map());
   const [settlementDialog, setSettlementDialog] = useState<{
     open: boolean;
@@ -25,8 +28,8 @@ export const OwedToMeTab = ({ groups, accounts, onSettled }: OwedToMeTabProps) =
     return (
       <div className="glass-card rounded-2xl p-12 text-center">
         <PartyPopper className="w-12 h-12 text-primary mx-auto mb-4 opacity-60" />
-        <h3 className="text-lg font-semibold mb-2">Nobody owes you money</h3>
-        <p className="text-muted-foreground text-sm">All receivables are settled.</p>
+        <h3 className="text-lg font-semibold mb-2">{t("owedToMe.empty")}</h3>
+        <p className="text-muted-foreground text-sm">{t("owedToMe.emptyDescription")}</p>
       </div>
     );
   }
@@ -92,12 +95,12 @@ export const OwedToMeTab = ({ groups, accounts, onSettled }: OwedToMeTabProps) =
                 <div>
                   <h3 className="font-semibold text-foreground">{group.person}</h3>
                   <p className="text-xs text-muted-foreground">
-                    {group.items.length} pending item{group.items.length !== 1 ? "s" : ""}
+                    {t("owedToMe.pendingItems", { count: group.items.length })}
                   </p>
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-xs text-muted-foreground">Total Owed</p>
+                <p className="text-xs text-muted-foreground">{t("owedToMe.totalOwed")}</p>
                 <p className="text-lg font-bold text-success">{formatCOPWithSymbol(group.total)}</p>
               </div>
             </div>
@@ -110,12 +113,11 @@ export const OwedToMeTab = ({ groups, accounts, onSettled }: OwedToMeTabProps) =
                 className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 {allSelected ? <CheckSquare className="w-4 h-4 text-success" /> : <Square className="w-4 h-4" />}
-                Select All
+                {t("common:actions.selectAll")}
               </button>
               {selected.size > 0 && (
                 <span className="text-xs text-muted-foreground">
-                  {selected.size} selected &middot;{" "}
-                  <span className="text-foreground font-semibold">{formatCOPWithSymbol(selectedTotal)}</span>
+                  {t("owedToMe.selectedInfo", { count: selected.size, amount: formatCOPWithSymbol(selectedTotal) })}
                 </span>
               )}
             </div>
@@ -142,7 +144,8 @@ export const OwedToMeTab = ({ groups, accounts, onSettled }: OwedToMeTabProps) =
                       <div>
                         <p className="text-sm font-medium text-foreground">{item.payee}</p>
                         <p className="text-xs text-muted-foreground">
-                          {format(new Date(item.date), "MMM d, yyyy")} &middot; {item.accountName}
+                          {format(new Date(item.date), "MMM d, yyyy", { locale: getDateLocale() })} &middot;{" "}
+                          {item.accountName}
                         </p>
                       </div>
                     </div>
@@ -156,15 +159,13 @@ export const OwedToMeTab = ({ groups, accounts, onSettled }: OwedToMeTabProps) =
             {selected.size > 0 && (
               <div className="p-4 border-t border-subtle bg-surface-overlay/50 flex items-center justify-between">
                 <div className="text-sm text-muted-foreground">
-                  <span className="text-foreground font-semibold">{selected.size}</span> item
-                  {selected.size !== 1 ? "s" : ""} &middot;{" "}
-                  <span className="text-foreground font-bold">{formatCOPWithSymbol(selectedTotal)}</span>
+                  {t("owedToMe.selectedInfo", { count: selected.size, amount: formatCOPWithSymbol(selectedTotal) })}
                 </div>
                 <Button
                   onClick={() => openSettlement(group)}
                   className="bg-success text-success-foreground hover:bg-success/90 shadow-glow-success-lg"
                 >
-                  Mark as Received
+                  {t("owedToMe.markAsReceived")}
                 </Button>
               </div>
             )}

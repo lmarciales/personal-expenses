@@ -1,0 +1,69 @@
+{
+  "header": {
+    "title": "All Transactions",
+    "subtitle": "View, filter, and manage your full transaction history."
+  },
+  "search": "Search payees or notes...",
+  "categories": "Categories",
+  "pickDateRange": "Pick a date range",
+  "showing": "Showing {{shown}} of {{total}} transactions",
+  "recurring": "Recurring",
+  "deleteConfirm": "Are you sure you want to delete this transaction?",
+  "clickMonthForDetails": "Click a month for details",
+  "toast": {
+    "deleteError": "Could not delete transaction"
+  },
+  "recent": {
+    "title": "Recent Transactions",
+    "empty": "No recent transactions",
+    "emptyDescription": "Your recent transactions will appear here."
+  },
+  "status": {
+    "success": "Success",
+    "pending": "Pending"
+  },
+  "modal": {
+    "addTitle": "Add Transaction",
+    "editTitle": "Edit Transaction",
+    "account": "Account",
+    "selectAccount": "Select account",
+    "date": "Date",
+    "pickDate": "Pick a date",
+    "type": "Type",
+    "expense": "Expense",
+    "income": "Income",
+    "transfer": "Transfer",
+    "amount": "Amount",
+    "payee": "Payee",
+    "payeePlaceholder": "Who was paid?",
+    "category": "Category",
+    "selectCategory": "Select category",
+    "notes": "Notes",
+    "notesPlaceholder": "Optional notes...",
+    "recurringTransaction": "Recurring transaction",
+    "recurrenceInterval": "Recurrence interval",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "weekly": "Weekly",
+    "splits": "Splits",
+    "addSplit": "Add Split",
+    "splitAssignee": "Assignee",
+    "splitAmount": "Amount",
+    "splitStatus": "Status",
+    "settled": "Settled",
+    "pendingReceival": "Pending Receival",
+    "pendingPayment": "Pending Payment",
+    "ignored": "Ignored",
+    "me": "Me",
+    "deleteConfirm": "Are you sure you want to delete this transaction? This action cannot be undone.",
+    "addTransaction": "Add Transaction",
+    "saveChanges": "Save Changes"
+  },
+  "modalToast": {
+    "saveError": "Could not save transaction"
+  },
+  "empty": {
+    "title": "No transactions match your filters.",
+    "loading": "Loading transactions..."
+  }
+}

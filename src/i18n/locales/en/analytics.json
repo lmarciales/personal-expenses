@@ -1,0 +1,53 @@
+{
+  "header": {
+    "title": "Expense Analytics",
+    "subtitle": "Track your spending patterns and financial health"
+  },
+  "error": {
+    "title": "Error Loading Analytics"
+  },
+  "loading": "Loading analytics...",
+  "kpi": {
+    "totalExpenses": "Total Expenses",
+    "totalIncome": "Total Income",
+    "netCashFlow": "Net Cash Flow",
+    "avgMonthlySpend": "Avg Monthly Spend",
+    "positiveCashFlow": "Positive — saving money",
+    "negativeCashFlow": "Negative — spending more than earning",
+    "firstYearOfData": "First year of data",
+    "vsLastYear": "vs last year",
+    "basedOnMonths_one": "Based on {{count}} month of data",
+    "basedOnMonths_other": "Based on {{count}} months of data"
+  },
+  "trends": {
+    "title": "Spending Trends",
+    "highestMonth": "Highest Month",
+    "lowestMonth": "Lowest Month",
+    "monthOverMonth": "Month-over-Month",
+    "savingsRate": "Savings Rate",
+    "noData": "No data",
+    "notEnoughData": "Not enough data",
+    "vsPreviousMonth": "vs previous month",
+    "savingsFormula": "(income − expenses) / income"
+  },
+  "incomeVsExpenses": {
+    "title": "Income vs Expenses",
+    "income": "income",
+    "expenses": "expenses",
+    "incomeLabel": "Income",
+    "expensesLabel": "Expenses",
+    "netLabel": "Net"
+  },
+  "monthDetail": {
+    "detail": "— Detail",
+    "expenses": "Expenses",
+    "income": "Income",
+    "netFlow": "Net Flow",
+    "topTransactions": "Top Transactions",
+    "viewAllTransactions": "View all {{month}} transactions →"
+  },
+  "monthlyExpenses": "Monthly Expenses",
+  "clickMonthForDetails": "Click a month for details",
+  "incomeVsExpensesSection": "Income vs Expenses",
+  "spendingTrendsSection": "Spending Trends"
+}

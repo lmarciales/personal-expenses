@@ -26,9 +26,11 @@ import {
 } from "lucide-react";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 export const AccountsView = () => {
+  const { t } = useTranslation("accounts");
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<"balance" | "name" | "type" | "created_at">("balance");
@@ -61,8 +63,8 @@ export const AccountsView = () => {
       const txCount = count || 0;
       const message =
         txCount > 0
-          ? `"${account.name}" has ${txCount} linked transaction${txCount !== 1 ? "s" : ""}. Deleting it will also remove all associated transactions. Are you sure?`
-          : `Are you sure you want to delete "${account.name}"?`;
+          ? t("deleteConfirm.withTransactions", { name: account.name, count: txCount })
+          : t("deleteConfirm.simple", { name: account.name });
 
       if (!window.confirm(message)) return;
 
@@ -77,7 +79,7 @@ export const AccountsView = () => {
       refetch();
     } catch (error) {
       console.error("Failed to delete account", error);
-      toast.error("No se pudo eliminar la cuenta");
+      toast.error(t("toast.deleteError"));
     } finally {
       setDeletingId(null);
     }
@@ -94,10 +96,10 @@ export const AccountsView = () => {
   if (error) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center flex-col gap-4 text-center">
-        <h2 className="text-2xl font-bold text-destructive">Error Loading Accounts</h2>
+        <h2 className="text-2xl font-bold text-destructive">{t("error.title")}</h2>
         <p className="text-muted-foreground">{error}</p>
         <Button variant="outline" onClick={() => window.location.reload()}>
-          Try Again
+          {t("common:actions.tryAgain")}
         </Button>
       </div>
     );
@@ -108,13 +110,13 @@ export const AccountsView = () => {
       {/* Header */}
       <header className="glass-card p-6 rounded-3xl shadow-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="typo-page-title">Accounts</h1>
-          <p className="typo-page-subtitle">Manage all your financial accounts.</p>
+          <h1 className="typo-page-title">{t("header.title")}</h1>
+          <p className="typo-page-subtitle">{t("header.subtitle")}</p>
         </div>
         <AddAccountModal onSuccess={refetch}>
           <Button className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-glow-xl transition-all">
             <Plus className="w-4 h-4 mr-2" />
-            Add Account
+            {t("addAccount")}
           </Button>
         </AddAccountModal>
       </header>
@@ -127,12 +129,14 @@ export const AccountsView = () => {
               <Wallet className="w-5 h-5 text-primary" />
             </div>
             <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-              {isFiltered ? "Filtered Balance" : "Total Balance"}
+              {isFiltered ? t("filteredBalance") : t("totalBalance")}
             </span>
           </div>
           <p className="typo-amount-md">{formatCOPWithSymbol(isFiltered ? filteredBalance : totalBalance)}</p>
           {isFiltered && (
-            <p className="text-xs text-muted-foreground mt-1">of {formatCOPWithSymbol(totalBalance)} total</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              {t("of")} {formatCOPWithSymbol(totalBalance)}
+            </p>
           )}
         </div>
 
@@ -142,11 +146,15 @@ export const AccountsView = () => {
               <Hash className="w-5 h-5 text-primary" />
             </div>
             <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-              {isFiltered ? "Showing" : "Total Accounts"}
+              {isFiltered ? t("showing") : t("totalAccounts")}
             </span>
           </div>
           <p className="typo-amount-md">{isFiltered ? accounts.length : totalAccounts}</p>
-          {isFiltered && <p className="text-xs text-muted-foreground mt-1">of {totalAccounts} accounts</p>}
+          {isFiltered && (
+            <p className="text-xs text-muted-foreground mt-1">
+              {t("of")} {totalAccounts}
+            </p>
+          )}
         </div>
 
         <div className="glass-card rounded-2xl p-5">
@@ -154,7 +162,7 @@ export const AccountsView = () => {
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
               <Layers className="w-5 h-5 text-primary" />
             </div>
-            <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">By Type</span>
+            <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">{t("byType")}</span>
           </div>
           <p className="text-sm font-medium text-foreground">{typeBreakdown || "—"}</p>
         </div>
@@ -166,7 +174,7 @@ export const AccountsView = () => {
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" />
           <input
             type="text"
-            placeholder="Search accounts..."
+            placeholder={t("search")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full bg-secondary/50 border border-border rounded-full pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary transition-all placeholder:text-muted-foreground"
@@ -178,10 +186,10 @@ export const AccountsView = () => {
           onValueChange={(v) => setTypeFilter(v === "all" ? [] : [v])}
         >
           <SelectTrigger className="w-full sm:w-44 bg-secondary/50 border-border rounded-full">
-            <SelectValue placeholder="All Types" />
+            <SelectValue placeholder={t("allTypes")} />
           </SelectTrigger>
           <SelectContent className="glass-panel border-glass">
-            <SelectItem value="all">All Types</SelectItem>
+            <SelectItem value="all">{t("allTypes")}</SelectItem>
             {accountTypes.map((t) => (
               <SelectItem key={t.name} value={t.name}>
                 {t.name}
@@ -205,13 +213,13 @@ export const AccountsView = () => {
             </div>
           </SelectTrigger>
           <SelectContent className="glass-panel border-glass">
-            <SelectItem value="balance-desc">Balance: High to Low</SelectItem>
-            <SelectItem value="balance-asc">Balance: Low to High</SelectItem>
-            <SelectItem value="name-asc">Name: A to Z</SelectItem>
-            <SelectItem value="name-desc">Name: Z to A</SelectItem>
-            <SelectItem value="type-asc">Type: A to Z</SelectItem>
-            <SelectItem value="created_at-desc">Newest First</SelectItem>
-            <SelectItem value="created_at-asc">Oldest First</SelectItem>
+            <SelectItem value="balance-desc">{t("sort.balanceHighToLow")}</SelectItem>
+            <SelectItem value="balance-asc">{t("sort.balanceLowToHigh")}</SelectItem>
+            <SelectItem value="name-asc">{t("sort.nameAZ")}</SelectItem>
+            <SelectItem value="name-desc">{t("sort.nameZA")}</SelectItem>
+            <SelectItem value="type-asc">{t("sort.typeAZ")}</SelectItem>
+            <SelectItem value="created_at-desc">{t("sort.newestFirst")}</SelectItem>
+            <SelectItem value="created_at-asc">{t("sort.oldestFirst")}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -227,18 +235,14 @@ export const AccountsView = () => {
         <div className="glass-card rounded-2xl p-8">
           <EmptyState
             icon={Wallet}
-            title={search || typeFilter.length > 0 ? "No accounts found" : "No accounts yet"}
-            description={
-              search || typeFilter.length > 0
-                ? "Try adjusting your search or filters."
-                : "Add your first account to start tracking your finances."
-            }
+            title={search || typeFilter.length > 0 ? t("emptyFiltered.title") : t("empty.title")}
+            description={search || typeFilter.length > 0 ? t("emptyFiltered.description") : t("empty.description")}
             action={
               !search && typeFilter.length === 0 ? (
                 <AddAccountModal onSuccess={refetch}>
                   <Button className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-glow-xl">
                     <Plus className="w-4 h-4 mr-2" />
-                    Add First Account
+                    {t("empty.addFirst")}
                   </Button>
                 </AddAccountModal>
               ) : undefined
@@ -268,7 +272,7 @@ export const AccountsView = () => {
                   <DropdownMenuContent align="end" className="w-44 glass-panel border-border z-50">
                     <DropdownMenuItem onSelect={() => setEditState({ account })} className="cursor-pointer">
                       <Pencil className="w-4 h-4 mr-2" />
-                      Edit
+                      {t("common:actions.edit")}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onSelect={() => handleDelete(account)}
@@ -279,7 +283,7 @@ export const AccountsView = () => {
                       ) : (
                         <Trash2 className="w-4 h-4 mr-2" />
                       )}
-                      Delete
+                      {t("common:actions.delete")}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -300,13 +304,15 @@ export const AccountsView = () => {
 
               <div className="flex items-end justify-between">
                 <div>
-                  <p className="text-xs text-muted-foreground mb-0.5">Balance</p>
+                  <p className="text-xs text-muted-foreground mb-0.5">{t("card.balance")}</p>
                   <p className="text-lg font-bold tabular-nums">{formatCOPWithSymbol(account.balance)}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-xs text-muted-foreground">{account.transactionCount} transactions</p>
+                  <p className="text-xs text-muted-foreground">
+                    {account.transactionCount} {t("card.transactions")}
+                  </p>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Since{" "}
+                    {t("card.since")}{" "}
                     {new Date(account.created_at).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
                   </p>
                 </div>

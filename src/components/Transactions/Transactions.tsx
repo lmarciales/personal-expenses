@@ -1,6 +1,7 @@
 import { formatCOPWithSymbol } from "@/lib/currency";
 import { Activity, ArrowUpRight, CopyPlus, Pencil } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { EmptyState } from "../ui/EmptyState";
 import { Button } from "../ui/button";
@@ -28,6 +29,7 @@ const Transactions = ({
   accounts,
   onSuccess,
 }: { transactions: Transaction[]; accounts?: any[]; onSuccess?: () => void }) => {
+  const { t } = useTranslation("transactions");
   const navigate = useNavigate();
   const [modalState, setModalState] = useState<{
     mode: "edit" | "duplicate";
@@ -38,7 +40,7 @@ const Transactions = ({
     <div className="glass-card h-full flex flex-col p-6">
       <div className="flex flex-row items-center justify-between pb-4">
         <h2 className="typo-section-label flex items-center gap-2">
-          <Activity className="w-4 h-4 text-primary" /> Recent Transactions
+          <Activity className="w-4 h-4 text-primary" /> {t("recent.title")}
         </h2>
         <Button
           variant="ghost"
@@ -46,17 +48,13 @@ const Transactions = ({
           className="text-xs rounded-full hover:bg-surface-hover-strong text-muted-foreground hover:text-foreground"
           onClick={() => navigate("/transactions")}
         >
-          View All <ArrowUpRight className="ml-1 h-3 w-3" />
+          {t("common:actions.viewAll")} <ArrowUpRight className="ml-1 h-3 w-3" />
         </Button>
       </div>
 
       <div className="flex-1 space-y-1 overflow-hidden">
         {transactions.length === 0 ? (
-          <EmptyState
-            icon={Activity}
-            title="No recent transactions"
-            description="Your recent transactions will appear here."
-          />
+          <EmptyState icon={Activity} title={t("recent.empty")} description={t("recent.emptyDescription")} />
         ) : (
           transactions.map((transaction) => (
             <DropdownMenu key={transaction.id}>
@@ -94,7 +92,7 @@ const Transactions = ({
                           transaction.status === "Success" ? "text-primary" : "text-warning animate-pulse"
                         }`}
                       >
-                        {transaction.status}
+                        {transaction.status === "Success" ? t("status.success") : t("status.pending")}
                       </span>
                     </div>
                   </div>
@@ -108,7 +106,7 @@ const Transactions = ({
                     className="cursor-pointer"
                   >
                     <Pencil className="w-4 h-4 mr-2" />
-                    <span>Edit</span>
+                    <span>{t("common:actions.edit")}</span>
                   </DropdownMenuItem>
 
                   <DropdownMenuItem
@@ -116,7 +114,7 @@ const Transactions = ({
                     className="cursor-pointer"
                   >
                     <CopyPlus className="w-4 h-4 mr-2" />
-                    <span>Duplicate</span>
+                    <span>{t("common:actions.duplicate")}</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               )}

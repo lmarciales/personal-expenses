@@ -1,0 +1,83 @@
+{
+  "header": {
+    "title": "Cuentas",
+    "subtitle": "Administra todas tus cuentas financieras."
+  },
+  "error": {
+    "title": "Error al cargar las cuentas"
+  },
+  "addAccount": "Agregar cuenta",
+  "totalBalance": "Saldo total",
+  "filteredBalance": "Saldo filtrado",
+  "search": "Buscar cuentas...",
+  "allTypes": "Todos los tipos",
+  "sort": {
+    "balanceHighToLow": "Saldo: Mayor a menor",
+    "balanceLowToHigh": "Saldo: Menor a mayor",
+    "nameAZ": "Nombre: A a Z",
+    "nameZA": "Nombre: Z a A",
+    "typeAZ": "Tipo: A a Z",
+    "newestFirst": "Más recientes",
+    "oldestFirst": "Más antiguos"
+  },
+  "showing": "Mostrando",
+  "of": "de",
+  "totalAccounts": "cuentas en total",
+  "byType": "Por tipo",
+  "empty": {
+    "title": "Aún no tienes cuentas",
+    "description": "Agrega tu primera cuenta para empezar a rastrear tus finanzas.",
+    "addFirst": "Agregar primera cuenta"
+  },
+  "emptyFiltered": {
+    "title": "No se encontraron cuentas",
+    "description": "Intenta ajustar tu búsqueda o filtros."
+  },
+  "card": {
+    "balance": "Saldo",
+    "transactions": "transacciones",
+    "since": "Desde"
+  },
+  "deleteConfirm": {
+    "withTransactions": "\"{{name}}\" tiene {{count}} transacción(es) vinculada(s). Al eliminarla también se eliminarán todas las transacciones asociadas. ¿Estás seguro?",
+    "simple": "¿Estás seguro de que deseas eliminar \"{{name}}\"?"
+  },
+  "toast": {
+    "deleteError": "No se pudo eliminar la cuenta"
+  },
+  "products": {
+    "totalBalance": "Saldo total",
+    "myAccounts": "Mis cuentas",
+    "manageAccounts": "Administrar cuentas",
+    "noAccounts": "Aún no tienes cuentas.",
+    "addFirst": "Agregar primera cuenta",
+    "moreAccounts_one": "{{count}} cuenta más",
+    "moreAccounts_other": "{{count}} cuentas más",
+    "account": "Cuenta"
+  },
+  "modal": {
+    "editTitle": "Editar cuenta",
+    "addTitle": "Agregar nueva cuenta",
+    "name": "Nombre de la cuenta",
+    "namePlaceholder": "Ej: Cuenta de ahorros",
+    "type": "Tipo de cuenta",
+    "selectType": "Seleccionar tipo",
+    "balance": "Saldo",
+    "initialBalance": "Saldo inicial",
+    "addAccount": "Agregar cuenta"
+  },
+  "modalToast": {
+    "updateError": "No se pudo actualizar la cuenta",
+    "createError": "No se pudo agregar la cuenta"
+  },
+  "detail": {
+    "title": "Detalle de la cuenta",
+    "currentBalance": "Saldo actual",
+    "income": "Ingresos",
+    "expenses": "Gastos",
+    "transactions": "Transacciones",
+    "recentTransactions": "Transacciones recientes",
+    "noTransactions": "Aún no hay transacciones para esta cuenta.",
+    "created": "Creada"
+  }
+}

@@ -1,22 +1,24 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useSidebar } from "@/store/sidebarContext";
 import { ChevronsLeft, ChevronsRight, CreditCard, Home, Receipt, Shield, TrendingUp, Wallet } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "./ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 
-const navItems = [
-  { icon: Home, label: "Overview", path: "/dashboard" },
-  { icon: Wallet, label: "Accounts", path: "/accounts" },
-  { icon: Receipt, label: "Transactions", path: "/transactions" },
-  { icon: TrendingUp, label: "Analytics", path: "/analytics" },
-  { icon: CreditCard, label: "Debts", path: "/debts" },
-];
-
 const Sidebar = () => {
+  const { t } = useTranslation();
   const location = useLocation();
   const { collapsed, toggleCollapsed } = useSidebar();
   const { userRole } = useAuth();
+
+  const navItems = [
+    { icon: Home, label: t("nav.overview"), path: "/dashboard" },
+    { icon: Wallet, label: t("nav.accounts"), path: "/accounts" },
+    { icon: Receipt, label: t("nav.transactions"), path: "/transactions" },
+    { icon: TrendingUp, label: t("nav.analytics"), path: "/analytics" },
+    { icon: CreditCard, label: t("nav.debts"), path: "/debts" },
+  ];
 
   return (
     <TooltipProvider delayDuration={0}>
@@ -39,7 +41,7 @@ const Sidebar = () => {
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
           {!collapsed && (
             <div className="mb-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3">
-              Main Menu
+              {t("sidebar.mainMenu")}
             </div>
           )}
           {navItems.map((item) => {
@@ -84,7 +86,7 @@ const Sidebar = () => {
             <>
               {!collapsed && (
                 <div className="mt-6 mb-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3">
-                  Admin
+                  {t("sidebar.administration")}
                 </div>
               )}
               {(() => {
@@ -105,7 +107,7 @@ const Sidebar = () => {
                           isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-primary"
                         }`}
                       />
-                      {!collapsed && <span className="ml-3 whitespace-nowrap overflow-hidden">Administración</span>}
+                      {!collapsed && <span className="ml-3 whitespace-nowrap overflow-hidden">{t("nav.admin")}</span>}
                     </span>
                   </Link>
                 );
@@ -115,7 +117,7 @@ const Sidebar = () => {
                     <Tooltip>
                       <TooltipTrigger asChild>{linkContent}</TooltipTrigger>
                       <TooltipContent side="right" className="font-medium">
-                        Administración
+                        {t("nav.admin")}
                       </TooltipContent>
                     </Tooltip>
                   );
@@ -143,14 +145,14 @@ const Sidebar = () => {
                 ) : (
                   <>
                     <ChevronsLeft className="w-5 h-5 shrink-0" />
-                    <span className="ml-3 whitespace-nowrap overflow-hidden">Collapse</span>
+                    <span className="ml-3 whitespace-nowrap overflow-hidden">{t("sidebar.collapse")}</span>
                   </>
                 )}
               </Button>
             </TooltipTrigger>
             {collapsed && (
               <TooltipContent side="right" className="font-medium">
-                Expand sidebar
+                {t("sidebar.expandSidebar")}
               </TooltipContent>
             )}
           </Tooltip>

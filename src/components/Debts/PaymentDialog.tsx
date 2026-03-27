@@ -13,6 +13,7 @@ import type { SimpleAccount } from "@/hooks/useDebtsData";
 import { formatCOPWithSymbol } from "@/lib/currency";
 import { ArrowRight, Info, Loader2 } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface PaymentDialogProps {
   open: boolean;
@@ -33,6 +34,7 @@ export const PaymentDialog = ({
   accounts,
   onSuccess,
 }: PaymentDialogProps) => {
+  const { t } = useTranslation("debts");
   const { settleDebts, isProcessing } = useDebtActions();
   const [sourceAccountId, setSourceAccountId] = useState<string>("");
 
@@ -51,17 +53,16 @@ export const PaymentDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="glass-panel border-border sm:max-w-[480px]">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold">Confirm Payment</DialogTitle>
+          <DialogTitle className="text-xl font-bold">{t("payment.title")}</DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            Settle {selectedSplitIds.length} item{selectedSplitIds.length !== 1 ? "s" : ""} on{" "}
-            <span className="text-foreground font-semibold">{targetAccount.name}</span>
+            {t("payment.settleItems", { count: selectedSplitIds.length, account: targetAccount.name })}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-5 py-4">
           {/* Payment amount */}
           <div className="glass-card rounded-xl p-4 text-center">
-            <p className="text-sm text-muted-foreground mb-1">Total Payment</p>
+            <p className="text-sm text-muted-foreground mb-1">{t("payment.totalPayment")}</p>
             <p className="text-3xl font-extrabold tracking-tight text-primary">{formatCOPWithSymbol(totalAmount)}</p>
           </div>
 
@@ -70,9 +71,7 @@ export const PaymentDialog = ({
             <div className="flex items-start gap-2 text-sm text-muted-foreground">
               <Info className="w-4 h-4 mt-0.5 shrink-0 text-primary" />
               <span>
-                This will mark all selected splits as <span className="text-foreground font-medium">Settled</span> and
-                reduce <span className="text-foreground font-medium">{targetAccount.name}</span> balance by{" "}
-                <span className="text-foreground font-medium">{formatCOPWithSymbol(totalAmount)}</span>.
+                {t("payment.description", { account: targetAccount.name, amount: formatCOPWithSymbol(totalAmount) })}
               </span>
             </div>
           </div>
@@ -80,14 +79,15 @@ export const PaymentDialog = ({
           {/* Optional source account */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">
-              Pay from account <span className="text-muted-foreground font-normal">(optional)</span>
+              {t("payment.payFromAccount")}{" "}
+              <span className="text-muted-foreground font-normal">{t("payment.optional")}</span>
             </label>
             <Select value={sourceAccountId} onValueChange={setSourceAccountId}>
               <SelectTrigger className="bg-surface-input border-subtle">
-                <SelectValue placeholder="No source account (just settle)" />
+                <SelectValue placeholder={t("payment.noSourceAccount")} />
               </SelectTrigger>
               <SelectContent className="glass-panel border-border">
-                <SelectItem value="none">No source account</SelectItem>
+                <SelectItem value="none">{t("payment.noSourceAccountShort")}</SelectItem>
                 {availableAccounts.map((acc) => (
                   <SelectItem key={acc.id} value={acc.id}>
                     {acc.name} ({formatCOPWithSymbol(acc.balance)})
@@ -99,8 +99,10 @@ export const PaymentDialog = ({
               <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1 pl-1">
                 <ArrowRight className="w-3 h-3" />
                 <span>
-                  {sourceAccount.name} balance will decrease by {formatCOPWithSymbol(totalAmount)} and a transfer
-                  transaction will be auto-created.
+                  {t("payment.balanceDecreaseInfo", {
+                    account: sourceAccount.name,
+                    amount: formatCOPWithSymbol(totalAmount),
+                  })}
                 </span>
               </div>
             )}
@@ -114,7 +116,7 @@ export const PaymentDialog = ({
             disabled={isProcessing}
             className="border-border"
           >
-            Cancel
+            {t("common:actions.cancel")}
           </Button>
           <Button
             onClick={handleConfirm}
@@ -124,10 +126,10 @@ export const PaymentDialog = ({
             {isProcessing ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Processing...
+                {t("payment.processing")}
               </>
             ) : (
-              "Confirm Payment"
+              t("payment.confirm")
             )}
           </Button>
         </DialogFooter>

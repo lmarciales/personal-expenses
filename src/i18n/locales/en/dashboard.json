@@ -1,0 +1,28 @@
+{
+  "header": {
+    "title": "Dashboard Overview",
+    "subtitle": "Monitor and control your financial health."
+  },
+  "error": {
+    "title": "Error Loading Dashboard",
+    "retry": "Try Again"
+  },
+  "spending": {
+    "title": "Spending Overview",
+    "noCategoryData": "No category data",
+    "uncategorized": "Uncategorized",
+    "categories_one": "{{count}} category",
+    "categories_other": "{{count}} categories"
+  },
+  "expenseChart": {
+    "title": "Expense Analytics",
+    "viewDetails": "View Details",
+    "expenses": "expenses"
+  },
+  "recurring": {
+    "title": "Upcoming Recurring Bills",
+    "bill": "Bill",
+    "lastPaid": "Last Paid:",
+    "logItNow": "Log It Now"
+  }
+}

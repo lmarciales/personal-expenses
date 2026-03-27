@@ -1,0 +1,70 @@
+{
+  "nav": {
+    "overview": "Overview",
+    "accounts": "Accounts",
+    "transactions": "Transactions",
+    "analytics": "Analytics",
+    "debts": "Debts",
+    "admin": "Admin",
+    "profile": "Profile"
+  },
+  "sidebar": {
+    "mainMenu": "Main Menu",
+    "administration": "Administration",
+    "collapse": "Collapse",
+    "expandSidebar": "Expand sidebar"
+  },
+  "navbar": {
+    "addTransaction": "Add Transaction",
+    "notifications": "Notifications",
+    "noNotifications": "You have no new notifications.",
+    "signOut": "Sign out"
+  },
+  "actions": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "saveChanges": "Save Changes",
+    "delete": "Delete",
+    "edit": "Edit",
+    "tryAgain": "Try Again",
+    "viewAll": "View All",
+    "add": "Add",
+    "close": "Close",
+    "clear": "Clear",
+    "confirm": "Confirm",
+    "selectAll": "Select All",
+    "duplicate": "Duplicate",
+    "loadMore": "Load More"
+  },
+  "loading": "Loading...",
+  "error": "Error",
+  "genericError": "An error occurred. Please try again.",
+  "months": {
+    "january": "January",
+    "february": "February",
+    "march": "March",
+    "april": "April",
+    "may": "May",
+    "june": "June",
+    "july": "July",
+    "august": "August",
+    "september": "September",
+    "october": "October",
+    "november": "November",
+    "december": "December"
+  },
+  "monthsShort": {
+    "jan": "Jan",
+    "feb": "Feb",
+    "mar": "Mar",
+    "apr": "Apr",
+    "may": "May",
+    "jun": "Jun",
+    "jul": "Jul",
+    "aug": "Aug",
+    "sep": "Sep",
+    "oct": "Oct",
+    "nov": "Nov",
+    "dec": "Dec"
+  }
+}

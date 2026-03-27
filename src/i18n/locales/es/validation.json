@@ -1,0 +1,19 @@
+{
+  "emailInvalid": "Correo inválido",
+  "emailTooShort": "Correo es demasiado corto",
+  "passwordTooShort": "Contraseña es demasiado corta",
+  "passwordsMismatch": "Las contraseñas no coinciden",
+  "nameRequired": "El nombre es obligatorio",
+  "balanceRequired": "El saldo es obligatorio",
+  "typeRequired": "El tipo es obligatorio",
+  "accountRequired": "Selecciona una cuenta",
+  "dateRequired": "La fecha es obligatoria",
+  "amountRequired": "El monto es obligatorio",
+  "amountPositive": "El monto debe ser positivo",
+  "amountGreaterThanZero": "El monto debe ser mayor a 0",
+  "payeeRequired": "El beneficiario es obligatorio",
+  "recurrenceRequired": "El intervalo de recurrencia es obligatorio",
+  "splitsSumMismatch": "Las divisiones deben sumar el monto total",
+  "splitsRequired": "Se requiere al menos una división",
+  "assigneeRequired": "El asignado es obligatorio"
+}

@@ -10,61 +10,68 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { useCategories } from "@/hooks/useCategories";
 import { formatCOPWithSymbol } from "@/lib/currency";
+import { getDateLocale } from "@/lib/dateFnsLocale";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
+import type { TFunction } from "i18next";
 import { CalendarIcon, Loader2, PlusCircle, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import * as z from "zod";
 
-const splitSchema = z.object({
-  amount: z
-    .number({ required_error: "Amount is required", invalid_type_error: "Amount is required" })
-    .min(0, "Amount must be positive"),
-  assigned_to: z.string().min(1, "Assignee is required"),
-  status: z.enum(["Settled", "Pending Receival", "Pending Payment", "Ignored"]),
-});
+const createSplitSchema = (t: TFunction) =>
+  z.object({
+    amount: z
+      .number({ required_error: t("validation:amountRequired"), invalid_type_error: t("validation:amountRequired") })
+      .min(0, t("validation:amountPositive")),
+    assigned_to: z.string().min(1, t("validation:assigneeRequired")),
+    status: z.enum(["Settled", "Pending Receival", "Pending Payment", "Ignored"]),
+  });
 
-const formSchema = z
-  .object({
-    accountId: z.string().uuid("Please select an account"),
-    date: z.string().min(1, "Date is required"),
-    totalAmount: z
-      .number({ required_error: "Amount is required", invalid_type_error: "Amount is required" })
-      .min(0.01, "Amount must be greater than 0"),
-    payee: z.string().min(1, "Payee is required"),
-    notes: z.string().optional(),
-    type: z.enum(["expense", "income", "transfer"]).default("expense"),
-    isRecurring: z.boolean().default(false),
-    recurrenceInterval: z.enum(["Monthly", "Yearly", "Weekly"]).optional().nullable(),
-    categoryIds: z.array(z.string()).default([]),
-    splits: z.array(splitSchema).min(1, "At least one split is required"),
-  })
-  .refine(
-    (data) => {
-      if (data.isRecurring && !data.recurrenceInterval) return false;
-      return true;
-    },
-    {
-      message: "Recurrence interval required",
-      path: ["recurrenceInterval"],
-    },
-  )
-  .refine(
-    (data) => {
-      const totalSplits = data.splits.reduce((acc, curr) => acc + curr.amount, 0);
-      return Math.abs(totalSplits - data.totalAmount) < 0.01;
-    },
-    {
-      message: "Splits must sum up to the total amount",
-      path: ["splits"],
-    },
-  );
+const createFormSchema = (t: TFunction) => {
+  const splitSchema = createSplitSchema(t);
+  return z
+    .object({
+      accountId: z.string().uuid(t("validation:accountRequired")),
+      date: z.string().min(1, t("validation:dateRequired")),
+      totalAmount: z
+        .number({ required_error: t("validation:amountRequired"), invalid_type_error: t("validation:amountRequired") })
+        .min(0.01, t("validation:amountGreaterThanZero")),
+      payee: z.string().min(1, t("validation:payeeRequired")),
+      notes: z.string().optional(),
+      type: z.enum(["expense", "income", "transfer"]).default("expense"),
+      isRecurring: z.boolean().default(false),
+      recurrenceInterval: z.enum(["Monthly", "Yearly", "Weekly"]).optional().nullable(),
+      categoryIds: z.array(z.string()).default([]),
+      splits: z.array(splitSchema).min(1, t("validation:splitsRequired")),
+    })
+    .refine(
+      (data) => {
+        if (data.isRecurring && !data.recurrenceInterval) return false;
+        return true;
+      },
+      {
+        message: t("validation:recurrenceRequired"),
+        path: ["recurrenceInterval"],
+      },
+    )
+    .refine(
+      (data) => {
+        const totalSplits = data.splits.reduce((acc, curr) => acc + curr.amount, 0);
+        return Math.abs(totalSplits - data.totalAmount) < 0.01;
+      },
+      {
+        message: t("validation:splitsSumMismatch"),
+        path: ["splits"],
+      },
+    );
+};
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<ReturnType<typeof createFormSchema>>;
 
 interface AddTransactionModalProps {
   accounts: { id: string; name: string; balance: number }[];
@@ -87,6 +94,7 @@ export function AddTransactionModal({
   open: controlledOpen,
   onOpenChange: controlledOnOpenChange,
 }: AddTransactionModalProps) {
+  const { t } = useTranslation(["transactions", "validation"]);
   const [internalOpen, setInternalOpen] = useState(false);
   const isControlled = controlledOpen !== undefined;
   const open = isControlled ? controlledOpen : internalOpen;
@@ -96,7 +104,7 @@ export function AddTransactionModal({
   const { categories, createCategory } = useCategories();
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(createFormSchema(t)),
     defaultValues: {
       accountId: initialData?.accountId || (accounts.length > 0 ? accounts[0].id : ""),
       date: initialData?.date || format(new Date(), "yyyy-MM-dd"),
@@ -184,7 +192,7 @@ export function AddTransactionModal({
       onSuccess();
     } catch (err) {
       console.error("Error saving transaction:", err);
-      toast.error("No se pudo guardar la transacción");
+      toast.error(t("transactions:modalToast.saveError"));
     } finally {
       setIsSubmitting(false);
     }
@@ -192,9 +200,7 @@ export function AddTransactionModal({
 
   const onDelete = async () => {
     if (!transactionId) return;
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this transaction? This action cannot be undone.",
-    );
+    const confirmDelete = window.confirm(t("transactions:modal.deleteConfirm"));
     if (!confirmDelete) return;
 
     setIsDeleting(true);
@@ -206,7 +212,7 @@ export function AddTransactionModal({
       onSuccess();
     } catch (err) {
       console.error("Error deleting transaction:", err);
-      toast.error("No se pudo eliminar la transacción");
+      toast.error(t("transactions:toast.deleteError"));
     } finally {
       setIsDeleting(false);
     }
@@ -217,7 +223,9 @@ export function AddTransactionModal({
       {children && <DialogTrigger asChild>{children}</DialogTrigger>}
       <DialogContent className="sm:max-w-[600px] glass-panel border-glass text-foreground max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold">{editMode ? "Edit Transaction" : "Add Transaction"}</DialogTitle>
+          <DialogTitle className="text-2xl font-bold">
+            {editMode ? t("transactions:modal.editTitle") : t("transactions:modal.addTitle")}
+          </DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
@@ -228,11 +236,11 @@ export function AddTransactionModal({
                 name="accountId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>From Account</FormLabel>
+                    <FormLabel>{t("transactions:modal.account")}</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger className="bg-surface-input border-glass">
-                          <SelectValue placeholder="Select account" />
+                          <SelectValue placeholder={t("transactions:modal.selectAccount")} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent className="glass-panel border-glass">
@@ -253,7 +261,7 @@ export function AddTransactionModal({
                 name="date"
                 render={({ field }) => (
                   <FormItem className="flex flex-col pt-2.5">
-                    <FormLabel>Date</FormLabel>
+                    <FormLabel>{t("transactions:modal.date")}</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -265,9 +273,9 @@ export function AddTransactionModal({
                             )}
                           >
                             {field.value ? (
-                              format(new Date(field.value + "T12:00:00"), "PPP")
+                              format(new Date(field.value + "T12:00:00"), "PPP", { locale: getDateLocale() })
                             ) : (
-                              <span>Pick a date</span>
+                              <span>{t("transactions:modal.pickDate")}</span>
                             )}
                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
@@ -298,7 +306,7 @@ export function AddTransactionModal({
                 name="type"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Transaction Type</FormLabel>
+                    <FormLabel>{t("transactions:modal.type")}</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger className="bg-surface-input border-glass">
@@ -306,9 +314,9 @@ export function AddTransactionModal({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent className="glass-panel border-glass">
-                        <SelectItem value="expense">Expense</SelectItem>
-                        <SelectItem value="income">Income</SelectItem>
-                        <SelectItem value="transfer">Transfer</SelectItem>
+                        <SelectItem value="expense">{t("transactions:modal.expense")}</SelectItem>
+                        <SelectItem value="income">{t("transactions:modal.income")}</SelectItem>
+                        <SelectItem value="transfer">{t("transactions:modal.transfer")}</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -321,7 +329,7 @@ export function AddTransactionModal({
                 name="totalAmount"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Total Amount</FormLabel>
+                    <FormLabel>{t("transactions:modal.amount")}</FormLabel>
                     <FormControl>
                       <CurrencyInput
                         value={field.value}
@@ -342,9 +350,13 @@ export function AddTransactionModal({
                 name="payee"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Payee</FormLabel>
+                    <FormLabel>{t("transactions:modal.payee")}</FormLabel>
                     <FormControl>
-                      <Input placeholder="Uber, Vanti, etc." {...field} className="bg-surface-input border-glass" />
+                      <Input
+                        placeholder={t("transactions:modal.payeePlaceholder")}
+                        {...field}
+                        className="bg-surface-input border-glass"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -358,14 +370,14 @@ export function AddTransactionModal({
               name="categoryIds"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Categories</FormLabel>
+                  <FormLabel>{t("transactions:modal.category")}</FormLabel>
                   <FormControl>
                     <CategoryMultiSelect
                       categories={categories}
                       selectedIds={field.value}
                       onChange={(ids) => field.onChange(ids)}
                       onCreateCategory={createCategory}
-                      placeholder="Select or create categories..."
+                      placeholder={t("transactions:modal.selectCategory")}
                     />
                   </FormControl>
                   <FormMessage />
@@ -378,9 +390,13 @@ export function AddTransactionModal({
               name="notes"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Notes (Optional)</FormLabel>
+                  <FormLabel>{t("transactions:modal.notes")}</FormLabel>
                   <FormControl>
-                    <Input placeholder="Dinner with friends..." {...field} className="bg-surface-input border-glass" />
+                    <Input
+                      placeholder={t("transactions:modal.notesPlaceholder")}
+                      {...field}
+                      className="bg-surface-input border-glass"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -394,7 +410,7 @@ export function AddTransactionModal({
                 name="isRecurring"
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-center justify-between shadow-sm flex-1">
-                    <FormLabel>Mark as Recurring Bill</FormLabel>
+                    <FormLabel>{t("transactions:modal.recurringTransaction")}</FormLabel>
                     <FormControl>
                       <Switch checked={field.value} onCheckedChange={field.onChange} />
                     </FormControl>
@@ -411,13 +427,13 @@ export function AddTransactionModal({
                       <Select onValueChange={field.onChange} defaultValue={field.value || "Monthly"}>
                         <FormControl>
                           <SelectTrigger className="bg-surface-input border-glass">
-                            <SelectValue placeholder="Interval" />
+                            <SelectValue placeholder={t("transactions:modal.recurrenceInterval")} />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent className="glass-panel border-glass">
-                          <SelectItem value="Monthly">Monthly</SelectItem>
-                          <SelectItem value="Yearly">Yearly</SelectItem>
-                          <SelectItem value="Weekly">Weekly</SelectItem>
+                          <SelectItem value="Monthly">{t("transactions:modal.monthly")}</SelectItem>
+                          <SelectItem value="Yearly">{t("transactions:modal.yearly")}</SelectItem>
+                          <SelectItem value="Weekly">{t("transactions:modal.weekly")}</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -430,7 +446,7 @@ export function AddTransactionModal({
             {/* Splits Section */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-primary">Splits</h3>
+                <h3 className="text-lg font-semibold text-primary">{t("transactions:modal.splits")}</h3>
                 <Button
                   type="button"
                   variant="outline"
@@ -439,7 +455,7 @@ export function AddTransactionModal({
                   onClick={() => append({ amount: undefined as any, assigned_to: "", status: "Pending Receival" })}
                 >
                   <PlusCircle className="w-4 h-4 mr-2" />
-                  Add Split
+                  {t("transactions:modal.addSplit")}
                 </Button>
               </div>
 
@@ -456,7 +472,7 @@ export function AddTransactionModal({
                       name={`splits.${index}.amount`}
                       render={({ field: inputField }) => (
                         <FormItem className="col-span-4">
-                          <FormLabel className="text-xs">Amount</FormLabel>
+                          <FormLabel className="text-xs">{t("transactions:modal.splitAmount")}</FormLabel>
                           <FormControl>
                             <CurrencyInput
                               value={inputField.value}
@@ -474,10 +490,10 @@ export function AddTransactionModal({
                       name={`splits.${index}.assigned_to`}
                       render={({ field: inputField }) => (
                         <FormItem className="col-span-4">
-                          <FormLabel className="text-xs">Assigned To</FormLabel>
+                          <FormLabel className="text-xs">{t("transactions:modal.splitAssignee")}</FormLabel>
                           <FormControl>
                             <Input
-                              placeholder="Me, Mamá..."
+                              placeholder={`${t("transactions:modal.me")}, ...`}
                               {...inputField}
                               className="bg-surface-input border-glass text-sm"
                             />
@@ -491,7 +507,7 @@ export function AddTransactionModal({
                       name={`splits.${index}.status`}
                       render={({ field: selectField }) => (
                         <FormItem className="col-span-3">
-                          <FormLabel className="text-xs">Status</FormLabel>
+                          <FormLabel className="text-xs">{t("transactions:modal.splitStatus")}</FormLabel>
                           <Select onValueChange={selectField.onChange} defaultValue={selectField.value}>
                             <FormControl>
                               <SelectTrigger className="bg-surface-input border-glass text-sm px-2">
@@ -499,10 +515,12 @@ export function AddTransactionModal({
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent className="glass-panel border-glass">
-                              <SelectItem value="Settled">Settled</SelectItem>
-                              <SelectItem value="Pending Receival">Receivable</SelectItem>
-                              <SelectItem value="Pending Payment">Payable</SelectItem>
-                              <SelectItem value="Ignored">Ignored</SelectItem>
+                              <SelectItem value="Settled">{t("transactions:modal.settled")}</SelectItem>
+                              <SelectItem value="Pending Receival">
+                                {t("transactions:modal.pendingReceival")}
+                              </SelectItem>
+                              <SelectItem value="Pending Payment">{t("transactions:modal.pendingPayment")}</SelectItem>
+                              <SelectItem value="Ignored">{t("transactions:modal.ignored")}</SelectItem>
                             </SelectContent>
                           </Select>
                         </FormItem>
@@ -542,7 +560,7 @@ export function AddTransactionModal({
                     ) : (
                       <Trash2 className="w-4 h-4 mr-2" />
                     )}
-                    Delete
+                    {t("common:actions.delete")}
                   </Button>
                 )}
               </div>
@@ -553,7 +571,7 @@ export function AddTransactionModal({
                   onClick={() => setOpen(false)}
                   className="hover:bg-surface-hover-strong border border-glass"
                 >
-                  Cancel
+                  {t("common:actions.cancel")}
                 </Button>
                 <Button
                   type="submit"
@@ -561,7 +579,7 @@ export function AddTransactionModal({
                   className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-glow-accent-lg"
                 >
                   {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                  {editMode ? "Save Changes" : "Save Transaction"}
+                  {editMode ? t("transactions:modal.saveChanges") : t("transactions:modal.addTransaction")}
                 </Button>
               </div>
             </div>

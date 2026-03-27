@@ -1,3 +1,4 @@
+import { LanguageToggle } from "@/components/LanguageToggle";
 import { Button } from "@/components/ui/button.tsx";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card.tsx";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form.tsx";
@@ -5,51 +6,58 @@ import { Input } from "@/components/ui/input.tsx";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs.tsx";
 import { resetPassword, signIn, signUp } from "@/supabase/auth.ts";
 import { zodResolver } from "@hookform/resolvers/zod";
+import type { TFunction } from "i18next";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 
 // ---- Schemas ----
 
-const LoginSchema = z.object({
-  email: z.string().email("Correo inválido").min(5, "Correo es demasiado corto"),
-  password: z.string().min(8, "Contraseña es demasiado corta"),
-});
-
-const RegisterSchema = z
-  .object({
-    email: z.string().email("Correo inválido").min(5, "Correo es demasiado corto"),
-    password: z.string().min(8, "Contraseña es demasiado corta"),
-    confirmPassword: z.string().min(8, "Contraseña es demasiado corta"),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Las contraseñas no coinciden",
-    path: ["confirmPassword"],
+const createLoginSchema = (t: TFunction) =>
+  z.object({
+    email: z.string().email(t("validation:emailInvalid")).min(5, t("validation:emailTooShort")),
+    password: z.string().min(8, t("validation:passwordTooShort")),
   });
 
-const ForgotPasswordSchema = z.object({
-  email: z.string().email("Correo inválido").min(5, "Correo es demasiado corto"),
-});
+const createRegisterSchema = (t: TFunction) =>
+  z
+    .object({
+      email: z.string().email(t("validation:emailInvalid")).min(5, t("validation:emailTooShort")),
+      password: z.string().min(8, t("validation:passwordTooShort")),
+      confirmPassword: z.string().min(8, t("validation:passwordTooShort")),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: t("validation:passwordsMismatch"),
+      path: ["confirmPassword"],
+    });
+
+const createForgotPasswordSchema = (t: TFunction) =>
+  z.object({
+    email: z.string().email(t("validation:emailInvalid")).min(5, t("validation:emailTooShort")),
+  });
 
 // ---- ForgotPasswordForm ----
 
 const ForgotPasswordForm = ({ onBack }: { onBack: () => void }) => {
+  const { t } = useTranslation(["auth", "validation"]);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const form = useForm<z.infer<typeof ForgotPasswordSchema>>({
-    resolver: zodResolver(ForgotPasswordSchema),
+  const schema = createForgotPasswordSchema(t);
+  const form = useForm<z.infer<typeof schema>>({
+    resolver: zodResolver(schema),
     defaultValues: { email: "" },
   });
 
-  const onSubmit = (data: z.infer<typeof ForgotPasswordSchema>) => {
+  const onSubmit = (data: z.infer<typeof schema>) => {
     resetPassword(data.email)
       .then(() => {
-        setSuccessMessage("Revisa tu correo para restablecer tu contraseña.");
+        setSuccessMessage(t("auth:forgotPassword.success"));
       })
       .catch((error) => {
         console.error(error);
-        form.setError("root", { message: error.message ?? "Ocurrió un error. Inténtalo de nuevo." });
+        form.setError("root", { message: error.message ?? t("common:genericError") });
       });
   };
 
@@ -63,7 +71,7 @@ const ForgotPasswordForm = ({ onBack }: { onBack: () => void }) => {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Correo</FormLabel>
+                  <FormLabel>{t("auth:login.email")}</FormLabel>
                   <FormControl>
                     <Input {...field} type="email" placeholder="m@example.com" />
                   </FormControl>
@@ -79,10 +87,10 @@ const ForgotPasswordForm = ({ onBack }: { onBack: () => void }) => {
         </CardContent>
         <CardFooter className="flex flex-col gap-2">
           <Button className="w-full" type="submit">
-            Enviar enlace de recuperación
+            {t("auth:forgotPassword.submit")}
           </Button>
           <Button type="button" variant="link" className="w-full" onClick={onBack}>
-            Volver
+            {t("auth:forgotPassword.back")}
           </Button>
         </CardFooter>
       </form>
@@ -93,20 +101,22 @@ const ForgotPasswordForm = ({ onBack }: { onBack: () => void }) => {
 // ---- LoginTab ----
 
 const LoginTab = () => {
+  const { t } = useTranslation(["auth", "validation"]);
   const navigate = useNavigate();
   const [forgotMode, setForgotMode] = useState(false);
 
-  const form = useForm<z.infer<typeof LoginSchema>>({
-    resolver: zodResolver(LoginSchema),
+  const schema = createLoginSchema(t);
+  const form = useForm<z.infer<typeof schema>>({
+    resolver: zodResolver(schema),
     defaultValues: { email: "", password: "" },
   });
 
-  const onSubmit = (data: z.infer<typeof LoginSchema>) => {
+  const onSubmit = (data: z.infer<typeof schema>) => {
     signIn(data.email, data.password)
       .then(() => navigate("/dashboard"))
       .catch((error) => {
         console.error(error);
-        form.setError("root", { message: "Correo o contraseña incorrectos" });
+        form.setError("root", { message: t("auth:login.invalidCredentials") });
       });
   };
 
@@ -124,7 +134,7 @@ const LoginTab = () => {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Correo</FormLabel>
+                  <FormLabel>{t("auth:login.email")}</FormLabel>
                   <FormControl>
                     <Input {...field} type="email" placeholder="m@example.com" />
                   </FormControl>
@@ -139,7 +149,7 @@ const LoginTab = () => {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Contraseña</FormLabel>
+                  <FormLabel>{t("auth:login.password")}</FormLabel>
                   <FormControl>
                     <Input {...field} type="password" />
                   </FormControl>
@@ -154,10 +164,10 @@ const LoginTab = () => {
         </CardContent>
         <CardFooter className="flex flex-col gap-2">
           <Button className="w-full" type="submit">
-            Iniciar sesión
+            {t("auth:login.submit")}
           </Button>
           <Button type="button" variant="link" className="w-full" onClick={() => setForgotMode(true)}>
-            ¿Olvidaste tu contraseña?
+            {t("auth:login.forgotPassword")}
           </Button>
         </CardFooter>
       </form>
@@ -168,21 +178,23 @@ const LoginTab = () => {
 // ---- RegisterTab ----
 
 const RegisterTab = () => {
+  const { t } = useTranslation(["auth", "validation"]);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const form = useForm<z.infer<typeof RegisterSchema>>({
-    resolver: zodResolver(RegisterSchema),
+  const schema = createRegisterSchema(t);
+  const form = useForm<z.infer<typeof schema>>({
+    resolver: zodResolver(schema),
     defaultValues: { email: "", password: "", confirmPassword: "" },
   });
 
-  const onSubmit = (data: z.infer<typeof RegisterSchema>) => {
+  const onSubmit = (data: z.infer<typeof schema>) => {
     signUp(data.email, data.password)
       .then(() => {
-        setSuccessMessage("Cuenta creada. Revisa tu correo para confirmar tu cuenta.");
+        setSuccessMessage(t("auth:register.success"));
       })
       .catch((error) => {
         console.error(error);
-        form.setError("root", { message: error.message ?? "Ocurrió un error. Inténtalo de nuevo." });
+        form.setError("root", { message: error.message ?? t("common:genericError") });
       });
   };
 
@@ -196,7 +208,7 @@ const RegisterTab = () => {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Correo</FormLabel>
+                  <FormLabel>{t("auth:login.email")}</FormLabel>
                   <FormControl>
                     <Input {...field} type="email" placeholder="m@example.com" />
                   </FormControl>
@@ -211,7 +223,7 @@ const RegisterTab = () => {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Contraseña</FormLabel>
+                  <FormLabel>{t("auth:login.password")}</FormLabel>
                   <FormControl>
                     <Input {...field} type="password" />
                   </FormControl>
@@ -226,7 +238,7 @@ const RegisterTab = () => {
               name="confirmPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Confirmar contraseña</FormLabel>
+                  <FormLabel>{t("auth:register.confirmPassword")}</FormLabel>
                   <FormControl>
                     <Input {...field} type="password" />
                   </FormControl>
@@ -242,7 +254,7 @@ const RegisterTab = () => {
         </CardContent>
         <CardFooter>
           <Button className="w-full" type="submit">
-            Registrarse
+            {t("auth:register.submit")}
           </Button>
         </CardFooter>
       </form>
@@ -253,14 +265,18 @@ const RegisterTab = () => {
 // ---- Page ----
 
 export const LoginForm = () => {
+  const { t } = useTranslation(["auth"]);
   return (
-    <main className="grid place-items-center h-screen">
+    <main className="grid place-items-center h-screen relative">
+      <div className="absolute top-4 right-4">
+        <LanguageToggle />
+      </div>
       <Card className="glass-card w-full max-w-sm">
         <Tabs defaultValue="login">
           <CardHeader>
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="login">Iniciar sesión</TabsTrigger>
-              <TabsTrigger value="register">Registrarse</TabsTrigger>
+              <TabsTrigger value="login">{t("auth:login.title")}</TabsTrigger>
+              <TabsTrigger value="register">{t("auth:register.title")}</TabsTrigger>
             </TabsList>
           </CardHeader>
           <TabsContent value="login">

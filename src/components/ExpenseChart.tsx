@@ -1,5 +1,6 @@
 import { formatCOP, formatCOPWithSymbol } from "@/lib/currency";
 import { ArrowUpRight, BarChart3, ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Button } from "./ui/button";
@@ -21,7 +22,7 @@ const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Se
 const defaultData: MonthlyExpense[] = MONTH_NAMES.map((name) => ({ name, value: 0 }));
 
 // Custom tooltip with formatted amount + month-over-month comparison
-const CustomTooltip = ({ active, payload, label, data }: any) => {
+const CustomTooltip = ({ active, payload, label, data, translateMonth }: any) => {
   if (!active || !payload || !payload.length) return null;
   const value = payload[0].value as number;
   const monthIdx = MONTH_NAMES.indexOf(label);
@@ -31,7 +32,8 @@ const CustomTooltip = ({ active, payload, label, data }: any) => {
     if (prevValue > 0) {
       const pctChange = Math.round(((value - prevValue) / prevValue) * 100);
       const arrow = pctChange >= 0 ? "↑" : "↓";
-      comparison = ` · ${arrow} ${Math.abs(pctChange)}% vs ${MONTH_NAMES[monthIdx - 1]}`;
+      const prevMonthName = translateMonth ? translateMonth(MONTH_NAMES[monthIdx - 1]) : MONTH_NAMES[monthIdx - 1];
+      comparison = ` · ${arrow} ${Math.abs(pctChange)}% vs ${prevMonthName}`;
     }
   }
   return (
@@ -56,10 +58,18 @@ const CustomTooltip = ({ active, payload, label, data }: any) => {
   );
 };
 
+const MONTH_KEYS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"] as const;
+
 const ExpenseChart = ({ data: propData, availableYears, selectedYear, onYearChange }: ExpenseChartProps) => {
+  const { t } = useTranslation("dashboard");
   const data = propData && propData.length > 0 ? propData : defaultData;
   const currentMonth = MONTH_NAMES[new Date().getMonth()];
   const navigate = useNavigate();
+
+  const translateMonth = (name: string) => {
+    const idx = MONTH_NAMES.indexOf(name);
+    return idx >= 0 ? t(`common:monthsShort.${MONTH_KEYS[idx]}`) : name;
+  };
   const year = selectedYear ?? new Date().getFullYear();
 
   const canGoLeft = availableYears && availableYears.length > 0 && year > Math.min(...availableYears);
@@ -75,7 +85,7 @@ const ExpenseChart = ({ data: propData, availableYears, selectedYear, onYearChan
     <div className="glass-card rounded-2xl h-full flex flex-col p-6 relative z-0">
       <div className="flex flex-row items-center justify-between pb-4">
         <h2 className="typo-section-label flex items-center gap-2">
-          <BarChart3 className="w-4 h-4 text-primary" /> Expense Analytics
+          <BarChart3 className="w-4 h-4 text-primary" /> {t("expenseChart.title")}
         </h2>
         <div className="flex items-center gap-2">
           {/* Year selector */}
@@ -104,7 +114,7 @@ const ExpenseChart = ({ data: propData, availableYears, selectedYear, onYearChan
             className="text-xs rounded-full hover:bg-surface-hover-strong text-muted-foreground hover:text-foreground"
             onClick={() => navigate(`/analytics?year=${year}`)}
           >
-            View Details <ArrowUpRight className="ml-1 h-3 w-3" />
+            {t("expenseChart.viewDetails")} <ArrowUpRight className="ml-1 h-3 w-3" />
           </Button>
         </div>
       </div>
@@ -127,7 +137,9 @@ const ExpenseChart = ({ data: propData, availableYears, selectedYear, onYearChan
                     {pct}%
                   </span>
                 </div>
-                <p className="text-xs text-muted-foreground">{currentMonth} expenses</p>
+                <p className="text-xs text-muted-foreground">
+                  {translateMonth(currentMonth)} {t("expenseChart.expenses")}
+                </p>
               </div>
             </div>
             {/* Mobile inline stats */}
@@ -136,7 +148,7 @@ const ExpenseChart = ({ data: propData, availableYears, selectedYear, onYearChan
               <span className="bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 rounded border border-primary/10">
                 {pct}%
               </span>
-              <span className="text-xs text-muted-foreground">{currentMonth}</span>
+              <span className="text-xs text-muted-foreground">{translateMonth(currentMonth)}</span>
             </div>
           </>
         ) : null;
@@ -145,7 +157,15 @@ const ExpenseChart = ({ data: propData, availableYears, selectedYear, onYearChan
       <div className="h-[250px] w-full mt-4">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-            <XAxis dataKey="name" stroke="var(--chart-axis)" fontSize={12} tickLine={false} axisLine={false} dy={10} />
+            <XAxis
+              dataKey="name"
+              stroke="var(--chart-axis)"
+              fontSize={12}
+              tickLine={false}
+              axisLine={false}
+              dy={10}
+              tickFormatter={translateMonth}
+            />
             <YAxis
               stroke="var(--chart-axis)"
               fontSize={12}
@@ -153,7 +173,10 @@ const ExpenseChart = ({ data: propData, availableYears, selectedYear, onYearChan
               axisLine={false}
               tickFormatter={(value) => formatCOP(value)}
             />
-            <Tooltip cursor={{ fill: "var(--chart-cursor)" }} content={<CustomTooltip data={data} />} />
+            <Tooltip
+              cursor={{ fill: "var(--chart-cursor)" }}
+              content={<CustomTooltip data={data} translateMonth={translateMonth} />}
+            />
             <Bar dataKey="value" radius={[6, 6, 6, 6]} barSize={32} onClick={handleBarClick} cursor="pointer">
               {data.map((entry, index) => (
                 <Cell

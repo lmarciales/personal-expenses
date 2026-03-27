@@ -1,0 +1,53 @@
+{
+  "header": {
+    "title": "Analítica de gastos",
+    "subtitle": "Rastrea tus patrones de gasto y salud financiera"
+  },
+  "error": {
+    "title": "Error al cargar las analíticas"
+  },
+  "loading": "Cargando analíticas...",
+  "kpi": {
+    "totalExpenses": "Gastos totales",
+    "totalIncome": "Ingresos totales",
+    "netCashFlow": "Flujo neto de caja",
+    "avgMonthlySpend": "Gasto mensual promedio",
+    "positiveCashFlow": "Positivo — estás ahorrando",
+    "negativeCashFlow": "Negativo — gastas más de lo que ganas",
+    "firstYearOfData": "Primer año de datos",
+    "vsLastYear": "vs año anterior",
+    "basedOnMonths_one": "Basado en {{count}} mes de datos",
+    "basedOnMonths_other": "Basado en {{count}} meses de datos"
+  },
+  "trends": {
+    "title": "Tendencias de gasto",
+    "highestMonth": "Mes más alto",
+    "lowestMonth": "Mes más bajo",
+    "monthOverMonth": "Mes a mes",
+    "savingsRate": "Tasa de ahorro",
+    "noData": "Sin datos",
+    "notEnoughData": "Datos insuficientes",
+    "vsPreviousMonth": "vs mes anterior",
+    "savingsFormula": "(ingresos − gastos) / ingresos"
+  },
+  "incomeVsExpenses": {
+    "title": "Ingresos vs Gastos",
+    "income": "ingresos",
+    "expenses": "gastos",
+    "incomeLabel": "Ingresos",
+    "expensesLabel": "Gastos",
+    "netLabel": "Neto"
+  },
+  "monthDetail": {
+    "detail": "— Detalle",
+    "expenses": "Gastos",
+    "income": "Ingresos",
+    "netFlow": "Flujo neto",
+    "topTransactions": "Transacciones principales",
+    "viewAllTransactions": "Ver todas las transacciones de {{month}} →"
+  },
+  "monthlyExpenses": "Gastos mensuales",
+  "clickMonthForDetails": "Haz clic en un mes para más detalles",
+  "incomeVsExpensesSection": "Ingresos vs Gastos",
+  "spendingTrendsSection": "Tendencias de gasto"
+}

@@ -1,0 +1,70 @@
+{
+  "nav": {
+    "overview": "Resumen",
+    "accounts": "Cuentas",
+    "transactions": "Transacciones",
+    "analytics": "Analíticas",
+    "debts": "Deudas",
+    "admin": "Admin",
+    "profile": "Perfil"
+  },
+  "sidebar": {
+    "mainMenu": "Menú principal",
+    "administration": "Administración",
+    "collapse": "Colapsar",
+    "expandSidebar": "Expandir barra lateral"
+  },
+  "navbar": {
+    "addTransaction": "Agregar transacción",
+    "notifications": "Notificaciones",
+    "noNotifications": "No tienes notificaciones nuevas.",
+    "signOut": "Cerrar sesión"
+  },
+  "actions": {
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "saveChanges": "Guardar cambios",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "tryAgain": "Reintentar",
+    "viewAll": "Ver todo",
+    "add": "Agregar",
+    "close": "Cerrar",
+    "clear": "Limpiar",
+    "confirm": "Confirmar",
+    "selectAll": "Seleccionar todo",
+    "duplicate": "Duplicar",
+    "loadMore": "Cargar más"
+  },
+  "loading": "Cargando...",
+  "error": "Error",
+  "genericError": "Ocurrió un error. Inténtalo de nuevo.",
+  "months": {
+    "january": "Enero",
+    "february": "Febrero",
+    "march": "Marzo",
+    "april": "Abril",
+    "may": "Mayo",
+    "june": "Junio",
+    "july": "Julio",
+    "august": "Agosto",
+    "september": "Septiembre",
+    "october": "Octubre",
+    "november": "Noviembre",
+    "december": "Diciembre"
+  },
+  "monthsShort": {
+    "jan": "Ene",
+    "feb": "Feb",
+    "mar": "Mar",
+    "apr": "Abr",
+    "may": "May",
+    "jun": "Jun",
+    "jul": "Jul",
+    "aug": "Ago",
+    "sep": "Sep",
+    "oct": "Oct",
+    "nov": "Nov",
+    "dec": "Dic"
+  }
+}

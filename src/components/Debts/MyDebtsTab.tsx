@@ -1,9 +1,11 @@
 import { Button } from "@/components/ui/button";
 import type { AccountDebtGroup, SimpleAccount } from "@/hooks/useDebtsData";
 import { formatCOPWithSymbol } from "@/lib/currency";
+import { getDateLocale } from "@/lib/dateFnsLocale";
 import { format } from "date-fns";
 import { CheckCheck, CheckSquare, CreditCard, Square } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { PaymentDialog } from "./PaymentDialog";
 
 interface MyDebtsTabProps {
@@ -13,6 +15,7 @@ interface MyDebtsTabProps {
 }
 
 export const MyDebtsTab = ({ groups, accounts, onSettled }: MyDebtsTabProps) => {
+  const { t } = useTranslation("debts");
   const [selectedSplits, setSelectedSplits] = useState<Map<string, Set<string>>>(new Map());
   const [paymentDialog, setPaymentDialog] = useState<{
     open: boolean;
@@ -26,8 +29,8 @@ export const MyDebtsTab = ({ groups, accounts, onSettled }: MyDebtsTabProps) => 
     return (
       <div className="glass-card rounded-2xl p-12 text-center">
         <CheckCheck className="w-12 h-12 text-primary mx-auto mb-4 opacity-60" />
-        <h3 className="text-lg font-semibold mb-2">No pending debts</h3>
-        <p className="text-muted-foreground text-sm">All your payments are settled. You're all caught up!</p>
+        <h3 className="text-lg font-semibold mb-2">{t("myDebts.empty")}</h3>
+        <p className="text-muted-foreground text-sm">{t("myDebts.emptyDescription")}</p>
       </div>
     );
   }
@@ -97,12 +100,12 @@ export const MyDebtsTab = ({ groups, accounts, onSettled }: MyDebtsTabProps) => 
                 <div>
                   <h3 className="font-semibold text-foreground">{group.account.name}</h3>
                   <p className="text-xs text-muted-foreground">
-                    {group.account.type} &middot; {group.items.length} pending item{group.items.length !== 1 ? "s" : ""}
+                    {group.account.type} &middot; {t("myDebts.pendingItems", { count: group.items.length })}
                   </p>
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-xs text-muted-foreground">Total Pending</p>
+                <p className="text-xs text-muted-foreground">{t("myDebts.totalPending")}</p>
                 <p className="text-lg font-bold text-danger">{formatCOPWithSymbol(group.total)}</p>
               </div>
             </div>
@@ -115,12 +118,11 @@ export const MyDebtsTab = ({ groups, accounts, onSettled }: MyDebtsTabProps) => 
                 className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 {allSelected ? <CheckSquare className="w-4 h-4 text-primary" /> : <Square className="w-4 h-4" />}
-                Select All
+                {t("common:actions.selectAll")}
               </button>
               {selected.size > 0 && (
                 <span className="text-xs text-muted-foreground">
-                  {selected.size} selected &middot;{" "}
-                  <span className="text-foreground font-semibold">{formatCOPWithSymbol(selectedTotal)}</span>
+                  {t("myDebts.selectedInfo", { count: selected.size, amount: formatCOPWithSymbol(selectedTotal) })}
                 </span>
               )}
             </div>
@@ -146,7 +148,9 @@ export const MyDebtsTab = ({ groups, accounts, onSettled }: MyDebtsTabProps) => 
                       )}
                       <div>
                         <p className="text-sm font-medium text-foreground">{item.payee}</p>
-                        <p className="text-xs text-muted-foreground">{format(new Date(item.date), "MMM d, yyyy")}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {format(new Date(item.date), "MMM d, yyyy", { locale: getDateLocale() })}
+                        </p>
                       </div>
                     </div>
                     <span className="text-sm font-semibold text-foreground">{formatCOPWithSymbol(item.amount)}</span>
@@ -159,15 +163,13 @@ export const MyDebtsTab = ({ groups, accounts, onSettled }: MyDebtsTabProps) => 
             {selected.size > 0 && (
               <div className="p-4 border-t border-subtle bg-surface-overlay/50 flex items-center justify-between">
                 <div className="text-sm text-muted-foreground">
-                  <span className="text-foreground font-semibold">{selected.size}</span> item
-                  {selected.size !== 1 ? "s" : ""} &middot;{" "}
-                  <span className="text-foreground font-bold">{formatCOPWithSymbol(selectedTotal)}</span>
+                  {t("myDebts.selectedInfo", { count: selected.size, amount: formatCOPWithSymbol(selectedTotal) })}
                 </div>
                 <Button
                   onClick={() => openPayment(group)}
                   className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-glow-lg"
                 >
-                  Pay Selected
+                  {t("myDebts.paySelected")}
                 </Button>
               </div>
             )}

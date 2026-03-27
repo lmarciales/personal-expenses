@@ -6,19 +6,25 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import type { TFunction } from "i18next";
 import { Loader2, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import * as z from "zod";
 
-const accountSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  balance: z.number({ required_error: "Balance is required", invalid_type_error: "Balance is required" }),
-  type: z.string().min(1, "Type is required"),
-});
+const createAccountSchema = (t: TFunction) =>
+  z.object({
+    name: z.string().min(1, t("validation:nameRequired")),
+    balance: z.number({
+      required_error: t("validation:balanceRequired"),
+      invalid_type_error: t("validation:balanceRequired"),
+    }),
+    type: z.string().min(1, t("validation:typeRequired")),
+  });
 
-type FormValues = z.infer<typeof accountSchema>;
+type FormValues = z.infer<ReturnType<typeof createAccountSchema>>;
 
 interface AddAccountModalProps {
   onSuccess: () => void;
@@ -39,6 +45,7 @@ export function AddAccountModal({
   open: controlledOpen,
   onOpenChange: controlledOnOpenChange,
 }: AddAccountModalProps) {
+  const { t } = useTranslation(["accounts", "validation"]);
   const [internalOpen, setInternalOpen] = useState(false);
   const isControlled = controlledOpen !== undefined;
   const open = isControlled ? controlledOpen : internalOpen;
@@ -49,7 +56,7 @@ export function AddAccountModal({
   const [accountTypes, setAccountTypes] = useState<{ name: string; color: string }[]>([]);
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(accountSchema),
+    resolver: zodResolver(createAccountSchema(t)),
     defaultValues: {
       name: initialData?.name ?? "",
       balance: initialData?.balance ?? undefined,
@@ -126,7 +133,7 @@ export function AddAccountModal({
       onSuccess();
     } catch (error) {
       console.error(editMode ? "Failed to update account" : "Failed to add account", error);
-      toast.error(editMode ? "No se pudo actualizar la cuenta" : "No se pudo agregar la cuenta");
+      toast.error(editMode ? t("accounts:modalToast.updateError") : t("accounts:modalToast.createError"));
     } finally {
       setIsSubmitting(false);
     }
@@ -168,7 +175,7 @@ export function AddAccountModal({
       onSuccess();
     } catch (error) {
       console.error("Failed to delete account", error);
-      toast.error("No se pudo eliminar la cuenta");
+      toast.error(t("accounts:toast.deleteError"));
     } finally {
       setIsDeleting(false);
     }
@@ -177,7 +184,9 @@ export function AddAccountModal({
   const dialogContent = (
     <DialogContent className="sm:max-w-[425px] glass-panel border-glass text-foreground">
       <DialogHeader>
-        <DialogTitle className="text-xl font-bold">{editMode ? "Edit Account" : "Add New Account"}</DialogTitle>
+        <DialogTitle className="text-xl font-bold">
+          {editMode ? t("accounts:modal.editTitle") : t("accounts:modal.addTitle")}
+        </DialogTitle>
       </DialogHeader>
 
       <Form {...form}>
@@ -187,9 +196,13 @@ export function AddAccountModal({
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Account Name</FormLabel>
+                <FormLabel>{t("accounts:modal.name")}</FormLabel>
                 <FormControl>
-                  <Input placeholder="e.g. Chase Checking" {...field} className="bg-surface-input border-glass" />
+                  <Input
+                    placeholder={t("accounts:modal.namePlaceholder")}
+                    {...field}
+                    className="bg-surface-input border-glass"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -201,11 +214,11 @@ export function AddAccountModal({
             name="type"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Account Type</FormLabel>
+                <FormLabel>{t("accounts:modal.type")}</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger className="bg-surface-input border-glass">
-                      <SelectValue placeholder="Select type" />
+                      <SelectValue placeholder={t("accounts:modal.selectType")} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent className="glass-panel border-glass">
@@ -226,7 +239,7 @@ export function AddAccountModal({
             name="balance"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{editMode ? "Balance" : "Initial Balance"}</FormLabel>
+                <FormLabel>{editMode ? t("accounts:modal.balance") : t("accounts:modal.initialBalance")}</FormLabel>
                 <FormControl>
                   <CurrencyInput
                     value={field.value}
@@ -251,7 +264,7 @@ export function AddAccountModal({
                   className="text-destructive hover:bg-destructive/10 hover:text-destructive"
                 >
                   {isDeleting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Trash2 className="w-4 h-4 mr-2" />}
-                  Delete
+                  {t("common:actions.delete")}
                 </Button>
               )}
             </div>
@@ -262,7 +275,7 @@ export function AddAccountModal({
                 onClick={() => setOpen(false)}
                 className="hover:bg-surface-hover-strong border border-glass"
               >
-                Cancel
+                {t("common:actions.cancel")}
               </Button>
               <Button
                 type="submit"
@@ -270,7 +283,7 @@ export function AddAccountModal({
                 className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-glow-accent-lg"
               >
                 {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                {editMode ? "Save Changes" : "Add Account"}
+                {editMode ? t("common:actions.saveChanges") : t("accounts:modal.addAccount")}
               </Button>
             </div>
           </div>

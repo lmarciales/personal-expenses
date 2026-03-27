@@ -1,0 +1,66 @@
+{
+  "header": {
+    "title": "Debts & Payments",
+    "subtitle": "Track what you owe and what others owe you."
+  },
+  "error": {
+    "title": "Error Loading Debts"
+  },
+  "tabs": {
+    "myDebts": "My Debts",
+    "owedToMe": "Owed to Me"
+  },
+  "summary": {
+    "iOwe": "I Owe",
+    "owedToMe": "Owed to Me",
+    "netPosition": "Net Position"
+  },
+  "myDebts": {
+    "empty": "No pending debts",
+    "emptyDescription": "All your payments are settled. You're all caught up!",
+    "pendingItems_one": "{{count}} pending item",
+    "pendingItems_other": "{{count}} pending items",
+    "totalPending": "Total Pending",
+    "selectedInfo_one": "{{count}} selected · {{amount}}",
+    "selectedInfo_other": "{{count}} selected · {{amount}}",
+    "paySelected": "Pay Selected"
+  },
+  "owedToMe": {
+    "empty": "Nobody owes you money",
+    "emptyDescription": "All receivables are settled.",
+    "pendingItems_one": "{{count}} pending item",
+    "pendingItems_other": "{{count}} pending items",
+    "totalOwed": "Total Owed",
+    "selectedInfo_one": "{{count}} selected · {{amount}}",
+    "selectedInfo_other": "{{count}} selected · {{amount}}",
+    "markAsReceived": "Mark as Received"
+  },
+  "payment": {
+    "title": "Confirm Payment",
+    "settleItems_one": "Settle {{count}} item on {{account}}",
+    "settleItems_other": "Settle {{count}} items on {{account}}",
+    "totalPayment": "Total Payment",
+    "description": "This will mark all selected splits as <bold>Settled</bold> and reduce <bold>{{account}}</bold> balance by <bold>{{amount}}</bold>.",
+    "payFromAccount": "Pay from account",
+    "optional": "(optional)",
+    "noSourceAccount": "No source account (just settle)",
+    "noSourceAccountShort": "No source account",
+    "balanceDecreaseInfo": "<bold>{{account}}</bold> balance will decrease by <bold>{{amount}}</bold> and a transfer transaction will be auto-created.",
+    "processing": "Processing...",
+    "confirm": "Confirm Payment"
+  },
+  "settlement": {
+    "title": "Mark as Received",
+    "settleItems_one": "Settle {{count}} item from {{from}}",
+    "settleItems_other": "Settle {{count}} items from {{from}}",
+    "totalReceived": "Total Received",
+    "description": "This will mark all selected splits as <bold>Settled</bold>.",
+    "receivedIntoAccount": "Received into account",
+    "optional": "(optional)",
+    "noAccount": "No account (just mark settled)",
+    "noAccountShort": "No account",
+    "balanceIncreaseInfo": "<bold>{{account}}</bold> balance will increase by <bold>{{amount}}</bold> and an income transaction will be auto-created.",
+    "processing": "Processing...",
+    "confirm": "Confirm Received"
+  }
+}

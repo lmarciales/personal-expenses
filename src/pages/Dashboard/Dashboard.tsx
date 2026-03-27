@@ -10,8 +10,10 @@ import { useDashboardData } from "@/hooks/useDashboardData";
 import { useExpenseChartData } from "@/hooks/useExpenseChartData";
 import { Plus } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export const Dashboard = () => {
+  const { t } = useTranslation("dashboard");
   const [chartYear, setChartYear] = useState(new Date().getFullYear());
   const { accounts, transactions, totalExpense, categorySpending, isLoading, error, refetch } = useDashboardData();
   const chartData = useExpenseChartData(chartYear);
@@ -23,10 +25,10 @@ export const Dashboard = () => {
   if (error) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center flex-col gap-4 text-center">
-        <h2 className="text-2xl font-bold text-destructive">Error Loading Dashboard</h2>
+        <h2 className="text-2xl font-bold text-destructive">{t("error.title")}</h2>
         <p className="text-muted-foreground">{error}</p>
         <Button variant="outline" onClick={() => window.location.reload()}>
-          Try Again
+          {t("error.retry")}
         </Button>
       </div>
     );
@@ -37,20 +39,20 @@ export const Dashboard = () => {
       {/* Header */}
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 glass-card p-6 rounded-3xl shadow-xl">
         <div>
-          <h1 className="typo-page-title">Dashboard Overview</h1>
-          <p className="typo-page-subtitle">Monitor and control your financial health.</p>
+          <h1 className="typo-page-title">{t("header.title")}</h1>
+          <p className="typo-page-subtitle">{t("header.subtitle")}</p>
         </div>
         {accounts.length > 0 ? (
           <AddTransactionModal accounts={accounts} onSuccess={refetch}>
             <Button className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-glow-xl transition-all">
               <Plus className="w-4 h-4 mr-2" />
-              Add Transaction
+              {t("common:navbar.addTransaction")}
             </Button>
           </AddTransactionModal>
         ) : (
           <Button disabled className="bg-primary/50 text-primary-foreground/50 cursor-not-allowed">
             <Plus className="w-4 h-4 mr-2" />
-            Add Transaction
+            {t("common:navbar.addTransaction")}
           </Button>
         )}
       </header>

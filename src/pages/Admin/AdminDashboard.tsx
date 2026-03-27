@@ -1,11 +1,14 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { getDateLocale } from "@/lib/dateFnsLocale";
 import { supabase } from "@/supabase/client";
 import { format } from "date-fns";
 import { CheckCircle, Shield, XCircle } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export const AdminDashboard = () => {
+  const { t } = useTranslation("admin");
   const [users, setUsers] = useState<
     Array<{
       id: string;
@@ -20,7 +23,7 @@ export const AdminDashboard = () => {
   const fetchUsers = async () => {
     const { data, error } = await supabase.rpc("get_all_users_with_roles");
     if (error) {
-      setError("No se pudieron cargar los usuarios.");
+      setError(t("loadError"));
       return;
     }
     if (data) {
@@ -36,7 +39,7 @@ export const AdminDashboard = () => {
   const handleRoleChange = async (userId: string, newRole: string) => {
     const { error } = await supabase.rpc("update_user_role", { target_user_id: userId, new_role: newRole });
     if (error) {
-      setError("No se pudo actualizar el rol.");
+      setError(t("updateRoleError"));
       return;
     }
     setError(null);
@@ -47,7 +50,7 @@ export const AdminDashboard = () => {
     <div>
       <div className="flex items-center gap-3 mb-6">
         <Shield className="w-6 h-6 text-primary" />
-        <h1 className="typo-page-title">Panel de administración</h1>
+        <h1 className="typo-page-title">{t("title")}</h1>
       </div>
       {error && (
         <div className="mb-4 rounded-lg border border-danger/30 bg-danger/10 text-danger px-4 py-3 text-sm">
@@ -58,10 +61,10 @@ export const AdminDashboard = () => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Correo</TableHead>
-              <TableHead>Rol</TableHead>
-              <TableHead>Correo confirmado</TableHead>
-              <TableHead>Registrado</TableHead>
+              <TableHead>{t("columns.email")}</TableHead>
+              <TableHead>{t("columns.role")}</TableHead>
+              <TableHead>{t("columns.emailConfirmed")}</TableHead>
+              <TableHead>{t("columns.registered")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -74,8 +77,8 @@ export const AdminDashboard = () => {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="user">user</SelectItem>
-                      <SelectItem value="admin">admin</SelectItem>
+                      <SelectItem value="user">{t("roles.user")}</SelectItem>
+                      <SelectItem value="admin">{t("roles.admin")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </TableCell>
@@ -86,7 +89,7 @@ export const AdminDashboard = () => {
                     <XCircle className="w-5 h-5 text-danger" />
                   )}
                 </TableCell>
-                <TableCell>{format(new Date(user.created_at), "dd/MM/yyyy")}</TableCell>
+                <TableCell>{format(new Date(user.created_at), "dd/MM/yyyy", { locale: getDateLocale() })}</TableCell>
               </TableRow>
             ))}
           </TableBody>

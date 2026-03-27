@@ -1,4 +1,5 @@
 import { formatCOPWithSymbol } from "@/lib/currency";
+import { useTranslation } from "react-i18next";
 
 interface KpiCardsProps {
   totalExpenses: number;
@@ -11,13 +12,6 @@ interface KpiCardsProps {
   hasPrevYearData: boolean;
 }
 
-function yoyChange(current: number, previous: number): string {
-  if (previous === 0) return "First year of data";
-  const pct = Math.round(((current - previous) / previous) * 100);
-  const arrow = pct >= 0 ? "↑" : "↓";
-  return `${arrow} ${Math.abs(pct)}% vs last year`;
-}
-
 export function KpiCards({
   totalExpenses,
   totalIncome,
@@ -28,30 +22,39 @@ export function KpiCards({
   monthsWithData,
   hasPrevYearData,
 }: KpiCardsProps) {
+  const { t } = useTranslation("analytics");
+
+  function yoyChange(current: number, previous: number): string {
+    if (previous === 0) return t("kpi.firstYearOfData");
+    const pct = Math.round(((current - previous) / previous) * 100);
+    const arrow = pct >= 0 ? "↑" : "↓";
+    return `${arrow} ${Math.abs(pct)}% ${t("kpi.vsLastYear")}`;
+  }
+
   const cards = [
     {
-      label: "Total Expenses",
+      label: t("kpi.totalExpenses"),
       value: formatCOPWithSymbol(totalExpenses),
-      subtext: hasPrevYearData ? yoyChange(totalExpenses, prevYearTotalExpenses) : "First year of data",
+      subtext: hasPrevYearData ? yoyChange(totalExpenses, prevYearTotalExpenses) : t("kpi.firstYearOfData"),
       subtextColor: hasPrevYearData && totalExpenses > prevYearTotalExpenses ? "text-red-400" : "text-green-400",
     },
     {
-      label: "Total Income",
+      label: t("kpi.totalIncome"),
       value: formatCOPWithSymbol(totalIncome),
-      subtext: hasPrevYearData ? yoyChange(totalIncome, prevYearTotalIncome) : "First year of data",
+      subtext: hasPrevYearData ? yoyChange(totalIncome, prevYearTotalIncome) : t("kpi.firstYearOfData"),
       subtextColor: hasPrevYearData && totalIncome >= prevYearTotalIncome ? "text-green-400" : "text-red-400",
     },
     {
-      label: "Net Cash Flow",
+      label: t("kpi.netCashFlow"),
       value: `${netCashFlow >= 0 ? "+ " : "- "}${formatCOPWithSymbol(Math.abs(netCashFlow))}`,
-      subtext: netCashFlow >= 0 ? "Positive — saving money" : "Negative — spending more than earning",
+      subtext: netCashFlow >= 0 ? t("kpi.positiveCashFlow") : t("kpi.negativeCashFlow"),
       subtextColor: netCashFlow >= 0 ? "text-green-400" : "text-red-400",
       valueColor: netCashFlow >= 0 ? "text-green-400" : "text-red-400",
     },
     {
-      label: "Avg Monthly Spend",
+      label: t("kpi.avgMonthlySpend"),
       value: formatCOPWithSymbol(avgMonthlySpend),
-      subtext: `Based on ${monthsWithData} month${monthsWithData !== 1 ? "s" : ""} of data`,
+      subtext: t("kpi.basedOnMonths", { count: monthsWithData }),
       subtextColor: "text-muted-foreground",
     },
   ];

@@ -5,6 +5,7 @@ import { AdminRoute } from "@/router/AdminRoute";
 import { AuthContext } from "@/store/authContext.tsx";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Suspense, lazy, useContext, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 
 const AccountsView = lazy(() => import("@/pages/Accounts").then((m) => ({ default: m.AccountsView })));
@@ -16,6 +17,15 @@ const LoginForm = lazy(() => import("@/pages/Login").then((m) => ({ default: m.L
 const Profile = lazy(() => import("@/pages/Profile").then((m) => ({ default: m.Profile })));
 const ResetPassword = lazy(() => import("@/pages/ResetPassword").then((m) => ({ default: m.ResetPassword })));
 const TransactionsView = lazy(() => import("@/pages/Transactions").then((m) => ({ default: m.TransactionsView })));
+
+function LoadingFallback() {
+  const { t } = useTranslation();
+  return (
+    <div className="grid place-items-center h-screen">
+      <p>{t("loading")}</p>
+    </div>
+  );
+}
 
 function App() {
   const { session } = useContext(AuthContext);
@@ -30,13 +40,7 @@ function App() {
 
   return (
     <>
-      <Suspense
-        fallback={
-          <div className="grid place-items-center h-screen">
-            <p>Cargando...</p>
-          </div>
-        }
-      >
+      <Suspense fallback={<LoadingFallback />}>
         <Routes>
           <Route index element={<LoginForm />} />
           <Route path="/reset-password" element={<ResetPassword />} />
