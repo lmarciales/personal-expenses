@@ -28,26 +28,28 @@ export const AuthProvider = ({ children }: Props) => {
   useEffect(() => {
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_: AuthChangeEvent, session: Session | null) => {
+    } = supabase.auth.onAuthStateChange((_: AuthChangeEvent, session: Session | null) => {
       setLoading(false);
       setSession(session || null);
-
-      if (session) {
-        const { data } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", session.user.id)
-          .single();
-        setUserRole((data?.role as "user" | "admin") ?? null);
-      } else {
-        setUserRole(null);
-      }
     });
 
     return () => {
       subscription.unsubscribe();
     };
   }, []);
+
+  useEffect(() => {
+    if (!session?.user?.id) {
+      setUserRole(null);
+      return;
+    }
+    supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", session.user.id)
+      .single()
+      .then(({ data }) => setUserRole((data?.role as "user" | "admin") ?? null));
+  }, [session?.user?.id]);
 
   const value = useMemo(() => ({ session, userRole, emailConfirmed }), [session, userRole, emailConfirmed]);
 

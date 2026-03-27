@@ -15,10 +15,18 @@ export const AdminDashboard = () => {
       created_at: string;
     }>
   >([]);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchUsers = async () => {
     const { data, error } = await supabase.rpc("get_all_users_with_roles");
-    if (!error && data) setUsers(data);
+    if (error) {
+      setError("No se pudieron cargar los usuarios.");
+      return;
+    }
+    if (data) {
+      setError(null);
+      setUsers(data);
+    }
   };
 
   useEffect(() => {
@@ -26,7 +34,12 @@ export const AdminDashboard = () => {
   }, []);
 
   const handleRoleChange = async (userId: string, newRole: string) => {
-    await supabase.rpc("update_user_role", { target_user_id: userId, new_role: newRole });
+    const { error } = await supabase.rpc("update_user_role", { target_user_id: userId, new_role: newRole });
+    if (error) {
+      setError("No se pudo actualizar el rol.");
+      return;
+    }
+    setError(null);
     fetchUsers();
   };
 
@@ -36,6 +49,11 @@ export const AdminDashboard = () => {
         <Shield className="w-6 h-6 text-primary" />
         <h1 className="text-2xl font-bold">Panel de administración</h1>
       </div>
+      {error && (
+        <div className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 text-red-200 px-4 py-3 text-sm">
+          {error}
+        </div>
+      )}
       <div className="rounded-xl border shell-card overflow-hidden">
         <Table>
           <TableHeader>
