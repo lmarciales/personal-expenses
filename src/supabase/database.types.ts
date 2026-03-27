@@ -228,6 +228,27 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -282,6 +303,16 @@ export type Database = {
       delete_account_cascade: {
         Args: { p_account_id: string; p_user_id: string }
         Returns: undefined
+      }
+      get_all_users_with_roles: {
+        Args: never
+        Returns: {
+          created_at: string
+          email: string
+          email_confirmed_at: string
+          role: string
+          user_id: string
+        }[]
       }
       settle_debts: {
         Args: {
@@ -354,6 +385,10 @@ export type Database = {
             }
             Returns: undefined
           }
+      update_user_role: {
+        Args: { new_role: string; target_user_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
