@@ -1,12 +1,12 @@
-import { useState, useEffect, useCallback } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AddAccountModal } from "@/components/Products/AddAccountModal";
 import { Button } from "@/components/ui/button";
-import { CreditCard, TrendingUp, TrendingDown, Receipt, Pencil, ArrowUpRight } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import type { AccountWithStats } from "@/hooks/useAccountsData";
 import { formatCOPWithSymbol } from "@/lib/currency";
 import { supabase } from "@/supabase/client";
-import { AddAccountModal } from "@/components/Products/AddAccountModal";
+import { ArrowUpRight, CreditCard, Pencil, Receipt, TrendingDown, TrendingUp } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import type { AccountWithStats } from "@/hooks/useAccountsData";
 
 interface RecentTransaction {
   id: string;
@@ -122,7 +122,9 @@ export function AccountDetailModal({ account, open, onOpenChange, onUpdated }: A
           {/* Recent Transactions */}
           <div className="mt-4">
             <div className="flex items-center justify-between mb-3">
-              <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Recent Transactions</h4>
+              <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                Recent Transactions
+              </h4>
               <Button
                 variant="ghost"
                 size="sm"
@@ -162,7 +164,9 @@ export function AccountDetailModal({ account, open, onOpenChange, onUpdated }: A
                         <p className="text-xs text-muted-foreground">{txn.date}</p>
                       </div>
                     </div>
-                    <span className={`font-bold text-sm tabular-nums ${txn.type === "income" ? "text-income" : "text-foreground"}`}>
+                    <span
+                      className={`font-bold text-sm tabular-nums ${txn.type === "income" ? "text-income" : "text-foreground"}`}
+                    >
                       {txn.type === "income" ? "+" : txn.type === "expense" ? "-" : ""}
                       {formatCOPWithSymbol(Math.abs(txn.total_amount))}
                     </span>
@@ -174,7 +178,12 @@ export function AccountDetailModal({ account, open, onOpenChange, onUpdated }: A
 
           {/* Created date */}
           <p className="text-xs text-muted-foreground text-center mt-4">
-            Created {new Date(account.created_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+            Created{" "}
+            {new Date(account.created_at).toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })}
           </p>
         </DialogContent>
       </Dialog>

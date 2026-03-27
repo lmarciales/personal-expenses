@@ -1,10 +1,10 @@
-import { useState } from "react";
-import { CreditCard, CheckSquare, Square, CheckCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { formatCOPWithSymbol } from "@/lib/currency";
-import { PaymentDialog } from "./PaymentDialog";
 import type { AccountDebtGroup, SimpleAccount } from "@/hooks/useDebtsData";
+import { formatCOPWithSymbol } from "@/lib/currency";
 import { format } from "date-fns";
+import { CheckCheck, CheckSquare, CreditCard, Square } from "lucide-react";
+import { useState } from "react";
+import { PaymentDialog } from "./PaymentDialog";
 
 interface MyDebtsTabProps {
   groups: AccountDebtGroup[];
@@ -92,10 +92,7 @@ export const MyDebtsTab = ({ groups, accounts, onSettled }: MyDebtsTabProps) => 
                   className="w-10 h-10 rounded-xl flex items-center justify-center"
                   style={{ backgroundColor: group.account.color ? `${group.account.color}20` : "rgba(99,102,241,0.1)" }}
                 >
-                  <CreditCard
-                    className="w-5 h-5"
-                    style={{ color: group.account.color || "#6366f1" }}
-                  />
+                  <CreditCard className="w-5 h-5" style={{ color: group.account.color || "#6366f1" }} />
                 </div>
                 <div>
                   <h3 className="font-semibold text-foreground">{group.account.name}</h3>
@@ -117,11 +114,7 @@ export const MyDebtsTab = ({ groups, accounts, onSettled }: MyDebtsTabProps) => 
                 onClick={() => toggleAllForAccount(group.account.id, group.items)}
                 className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
-                {allSelected ? (
-                  <CheckSquare className="w-4 h-4 text-primary" />
-                ) : (
-                  <Square className="w-4 h-4" />
-                )}
+                {allSelected ? <CheckSquare className="w-4 h-4 text-primary" /> : <Square className="w-4 h-4" />}
                 Select All
               </button>
               {selected.size > 0 && (
@@ -166,7 +159,8 @@ export const MyDebtsTab = ({ groups, accounts, onSettled }: MyDebtsTabProps) => 
             {selected.size > 0 && (
               <div className="p-4 border-t border-subtle bg-surface-overlay/50 flex items-center justify-between">
                 <div className="text-sm text-muted-foreground">
-                  <span className="text-foreground font-semibold">{selected.size}</span> item{selected.size !== 1 ? "s" : ""} &middot;{" "}
+                  <span className="text-foreground font-semibold">{selected.size}</span> item
+                  {selected.size !== 1 ? "s" : ""} &middot;{" "}
                   <span className="text-foreground font-bold">{formatCOPWithSymbol(selectedTotal)}</span>
                 </div>
                 <Button

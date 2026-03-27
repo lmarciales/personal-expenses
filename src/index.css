@@ -47,12 +47,12 @@
     --surface-overlay: hsl(240 5% 90%);
     --surface-overlay-heavy: rgba(0, 0, 0, 0.15);
     --border-subtle: rgba(0, 0, 0, 0.06);
-    --border-glass: rgba(0, 0, 0, 0.10);
+    --border-glass: rgba(0, 0, 0, 0.1);
 
     /* Chart tokens */
     --chart-axis: #8b8b9a;
     --chart-tooltip-bg: rgba(255, 255, 255, 0.92);
-    --chart-tooltip-border: rgba(0, 0, 0, 0.10);
+    --chart-tooltip-border: rgba(0, 0, 0, 0.1);
     --chart-tooltip-text: #0a0a0f;
     --chart-tooltip-shadow: rgba(0, 0, 0, 0.12);
     --chart-cursor: rgba(0, 0, 0, 0.04);
@@ -121,22 +121,22 @@
 
     /* Surface / Overlay tokens */
     --surface-hover: rgba(255, 255, 255, 0.05);
-    --surface-hover-strong: rgba(255, 255, 255, 0.10);
-    --surface-indicator: rgba(255, 255, 255, 0.20);
-    --surface-input: rgba(0, 0, 0, 0.20);
-    --surface-overlay: rgba(0, 0, 0, 0.40);
-    --surface-overlay-heavy: rgba(0, 0, 0, 0.50);
+    --surface-hover-strong: rgba(255, 255, 255, 0.1);
+    --surface-indicator: rgba(255, 255, 255, 0.2);
+    --surface-input: rgba(0, 0, 0, 0.2);
+    --surface-overlay: rgba(0, 0, 0, 0.4);
+    --surface-overlay-heavy: rgba(0, 0, 0, 0.5);
     --border-subtle: rgba(255, 255, 255, 0.05);
-    --border-glass: rgba(255, 255, 255, 0.10);
+    --border-glass: rgba(255, 255, 255, 0.1);
 
     /* Chart tokens */
     --chart-axis: #888888;
-    --chart-tooltip-bg: rgba(9, 9, 11, 0.80);
-    --chart-tooltip-border: rgba(255, 255, 255, 0.10);
+    --chart-tooltip-bg: rgba(9, 9, 11, 0.8);
+    --chart-tooltip-border: rgba(255, 255, 255, 0.1);
     --chart-tooltip-text: #ffffff;
-    --chart-tooltip-shadow: rgba(0, 0, 0, 0.50);
+    --chart-tooltip-shadow: rgba(0, 0, 0, 0.5);
     --chart-cursor: rgba(255, 255, 255, 0.05);
-    --chart-bar-inactive: rgba(255, 255, 255, 0.10);
+    --chart-bar-inactive: rgba(255, 255, 255, 0.1);
 
     /* Glow tokens */
     --glow-primary-color: rgba(212, 255, 0, 0.15);

@@ -15,7 +15,11 @@ const QuickTransfer = () => {
         <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest flex items-center gap-2">
           <Send className="w-4 h-4 text-purple-500" /> Quick Transfer
         </h2>
-        <Button variant="ghost" size="sm" className="text-xs rounded-full hover:bg-surface-hover-strong text-muted-foreground hover:text-foreground">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-xs rounded-full hover:bg-surface-hover-strong text-muted-foreground hover:text-foreground"
+        >
           View All <ArrowRight className="ml-1 h-3 w-3" />
         </Button>
       </div>
@@ -25,7 +29,10 @@ const QuickTransfer = () => {
         <div className="flex items-center justify-between mb-6">
           <div className="flex -space-x-3 overflow-hidden p-1">
             {contacts.map((contact) => (
-              <div key={contact.id} className="relative transition-transform hover:-translate-y-1 hover:z-10 cursor-pointer">
+              <div
+                key={contact.id}
+                className="relative transition-transform hover:-translate-y-1 hover:z-10 cursor-pointer"
+              >
                 <img
                   src={contact.image}
                   alt={contact.name}
@@ -34,13 +41,20 @@ const QuickTransfer = () => {
               </div>
             ))}
           </div>
-          <Button variant="outline" size="icon" className="rounded-full w-12 h-12 bg-surface-overlay border-glass hover:border-primary hover:text-primary transition-colors hover:bg-surface-overlay-heavy shadow-lg">
+          <Button
+            variant="outline"
+            size="icon"
+            className="rounded-full w-12 h-12 bg-surface-overlay border-glass hover:border-primary hover:text-primary transition-colors hover:bg-surface-overlay-heavy shadow-lg"
+          >
             <ArrowRight className="h-5 w-5" />
           </Button>
         </div>
 
         <div className="flex space-x-3 pt-2">
-          <Button variant="outline" className="flex-1 rounded-xl bg-surface-overlay border-glass hover:bg-surface-hover-strong hover:text-foreground h-12 font-semibold">
+          <Button
+            variant="outline"
+            className="flex-1 rounded-xl bg-surface-overlay border-glass hover:bg-surface-hover-strong hover:text-foreground h-12 font-semibold"
+          >
             Request Money
           </Button>
           <Button className="flex-1 rounded-xl shadow-glow-lg hover:shadow-glow-xl transition-shadow h-12 font-bold">

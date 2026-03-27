@@ -1,5 +1,5 @@
-import { TrendingDown, TrendingUp, Scale } from "lucide-react";
 import { formatCOPWithSymbol } from "@/lib/currency";
+import { Scale, TrendingDown, TrendingUp } from "lucide-react";
 
 interface DebtSummaryCardsProps {
   totalIOwe: number;
@@ -18,9 +18,7 @@ export const DebtSummaryCards = ({ totalIOwe, totalOwedToMe }: DebtSummaryCardsP
           </div>
           <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">I Owe</span>
         </div>
-        <p className="typo-amount-md text-danger">
-          {formatCOPWithSymbol(totalIOwe)}
-        </p>
+        <p className="typo-amount-md text-danger">{formatCOPWithSymbol(totalIOwe)}</p>
       </div>
 
       <div className="glass-card rounded-2xl p-5">
@@ -30,9 +28,7 @@ export const DebtSummaryCards = ({ totalIOwe, totalOwedToMe }: DebtSummaryCardsP
           </div>
           <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Owed to Me</span>
         </div>
-        <p className="typo-amount-md text-success">
-          {formatCOPWithSymbol(totalOwedToMe)}
-        </p>
+        <p className="typo-amount-md text-success">{formatCOPWithSymbol(totalOwedToMe)}</p>
       </div>
 
       <div className="glass-card rounded-2xl p-5">
@@ -43,7 +39,8 @@ export const DebtSummaryCards = ({ totalIOwe, totalOwedToMe }: DebtSummaryCardsP
           <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Net Position</span>
         </div>
         <p className={`typo-amount-md ${netPosition >= 0 ? "text-success" : "text-danger"}`}>
-          {netPosition >= 0 ? "+" : ""}{formatCOPWithSymbol(Math.abs(netPosition))}
+          {netPosition >= 0 ? "+" : ""}
+          {formatCOPWithSymbol(Math.abs(netPosition))}
         </p>
       </div>
     </div>

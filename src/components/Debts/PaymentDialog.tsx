@@ -1,11 +1,18 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { formatCOPWithSymbol } from "@/lib/currency";
 import { useDebtActions } from "@/hooks/useDebtActions";
-import { Loader2, ArrowRight, Info } from "lucide-react";
-import { useState } from "react";
 import type { SimpleAccount } from "@/hooks/useDebtsData";
+import { formatCOPWithSymbol } from "@/lib/currency";
+import { ArrowRight, Info, Loader2 } from "lucide-react";
+import { useState } from "react";
 
 interface PaymentDialogProps {
   open: boolean;
@@ -29,17 +36,10 @@ export const PaymentDialog = ({
   const { settleDebts, isProcessing } = useDebtActions();
   const [sourceAccountId, setSourceAccountId] = useState<string>("");
 
-  const availableAccounts = accounts.filter(
-    (a) => a.id !== targetAccount.id && a.type !== "Credit Card"
-  );
+  const availableAccounts = accounts.filter((a) => a.id !== targetAccount.id && a.type !== "Credit Card");
 
   const handleConfirm = async () => {
-    await settleDebts(
-      selectedSplitIds,
-      totalAmount,
-      targetAccount.id,
-      sourceAccountId || undefined
-    );
+    await settleDebts(selectedSplitIds, totalAmount, targetAccount.id, sourceAccountId || undefined);
     setSourceAccountId("");
     onOpenChange(false);
     onSuccess();
@@ -62,9 +62,7 @@ export const PaymentDialog = ({
           {/* Payment amount */}
           <div className="glass-card rounded-xl p-4 text-center">
             <p className="text-sm text-muted-foreground mb-1">Total Payment</p>
-            <p className="text-3xl font-extrabold tracking-tight text-primary">
-              {formatCOPWithSymbol(totalAmount)}
-            </p>
+            <p className="text-3xl font-extrabold tracking-tight text-primary">{formatCOPWithSymbol(totalAmount)}</p>
           </div>
 
           {/* What will happen */}
@@ -72,8 +70,8 @@ export const PaymentDialog = ({
             <div className="flex items-start gap-2 text-sm text-muted-foreground">
               <Info className="w-4 h-4 mt-0.5 shrink-0 text-primary" />
               <span>
-                This will mark all selected splits as <span className="text-foreground font-medium">Settled</span> and reduce{" "}
-                <span className="text-foreground font-medium">{targetAccount.name}</span> balance by{" "}
+                This will mark all selected splits as <span className="text-foreground font-medium">Settled</span> and
+                reduce <span className="text-foreground font-medium">{targetAccount.name}</span> balance by{" "}
                 <span className="text-foreground font-medium">{formatCOPWithSymbol(totalAmount)}</span>.
               </span>
             </div>
@@ -101,7 +99,8 @@ export const PaymentDialog = ({
               <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1 pl-1">
                 <ArrowRight className="w-3 h-3" />
                 <span>
-                  {sourceAccount.name} balance will decrease by {formatCOPWithSymbol(totalAmount)} and a transfer transaction will be auto-created.
+                  {sourceAccount.name} balance will decrease by {formatCOPWithSymbol(totalAmount)} and a transfer
+                  transaction will be auto-created.
                 </span>
               </div>
             )}
@@ -109,7 +108,12 @@ export const PaymentDialog = ({
         </div>
 
         <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isProcessing} className="border-border">
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isProcessing}
+            className="border-border"
+          >
             Cancel
           </Button>
           <Button

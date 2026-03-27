@@ -1,10 +1,10 @@
 import { DebtSummaryCards } from "@/components/Debts/DebtSummaryCards";
 import { MyDebtsTab } from "@/components/Debts/MyDebtsTab";
 import { OwedToMeTab } from "@/components/Debts/OwedToMeTab";
-import { useDebtsData } from "@/hooks/useDebtsData";
-import { Button } from "@/components/ui/button";
-import { Landmark, Users } from "lucide-react";
 import { DebtsSkeleton } from "@/components/ui/Skeleton";
+import { Button } from "@/components/ui/button";
+import { useDebtsData } from "@/hooks/useDebtsData";
+import { Landmark, Users } from "lucide-react";
 import { useState } from "react";
 
 type Tab = "my-debts" | "owed-to-me";
@@ -25,7 +25,9 @@ export const DebtsView = () => {
       <div className="flex min-h-[60vh] items-center justify-center flex-col gap-4 text-center">
         <h2 className="text-2xl font-bold text-destructive">Error Loading Debts</h2>
         <p className="text-muted-foreground">{error}</p>
-        <Button variant="outline" onClick={() => window.location.reload()}>Try Again</Button>
+        <Button variant="outline" onClick={() => window.location.reload()}>
+          Try Again
+        </Button>
       </div>
     );
   }
@@ -39,19 +41,17 @@ export const DebtsView = () => {
       </header>
 
       {/* Summary Cards */}
-      <DebtSummaryCards
-        totalIOwe={totalIOwe}
-        totalOwedToMe={totalOwedToMe}
-      />
+      <DebtSummaryCards totalIOwe={totalIOwe} totalOwedToMe={totalOwedToMe} />
 
       {/* Tab Switcher */}
       <div className="flex gap-2">
         <Button
           variant={activeTab === "my-debts" ? "default" : "outline"}
           onClick={() => setActiveTab("my-debts")}
-          className={`rounded-full gap-2 ${activeTab === "my-debts"
-            ? "bg-primary text-primary-foreground shadow-glow-lg"
-            : "bg-transparent border-border hover:bg-surface-hover"
+          className={`rounded-full gap-2 ${
+            activeTab === "my-debts"
+              ? "bg-primary text-primary-foreground shadow-glow-lg"
+              : "bg-transparent border-border hover:bg-surface-hover"
           }`}
         >
           <Landmark className="w-4 h-4" />
@@ -65,9 +65,10 @@ export const DebtsView = () => {
         <Button
           variant={activeTab === "owed-to-me" ? "default" : "outline"}
           onClick={() => setActiveTab("owed-to-me")}
-          className={`rounded-full gap-2 ${activeTab === "owed-to-me"
-            ? "bg-primary text-primary-foreground shadow-glow-lg"
-            : "bg-transparent border-border hover:bg-surface-hover"
+          className={`rounded-full gap-2 ${
+            activeTab === "owed-to-me"
+              ? "bg-primary text-primary-foreground shadow-glow-lg"
+              : "bg-transparent border-border hover:bg-surface-hover"
           }`}
         >
           <Users className="w-4 h-4" />

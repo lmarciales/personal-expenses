@@ -91,16 +91,20 @@ const Sidebar = () => {
                 const isActive = location.pathname === "/admin";
                 const linkContent = (
                   <Link to="/admin" className="block focus-ring rounded-xl">
-                    <span className={`flex items-center w-full px-3 py-3 rounded-xl transition-all duration-200 group ${
-                      collapsed ? "justify-center" : ""
-                    } ${
-                      isActive
-                        ? "bg-primary text-primary-foreground shadow-glow font-medium"
-                        : "text-muted-foreground hover:bg-surface-hover hover:text-foreground"
-                    }`}>
-                      <Shield className={`w-5 h-5 shrink-0 transition-transform group-hover:scale-110 ${
-                        isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-primary"
-                      }`} />
+                    <span
+                      className={`flex items-center w-full px-3 py-3 rounded-xl transition-all duration-200 group ${
+                        collapsed ? "justify-center" : ""
+                      } ${
+                        isActive
+                          ? "bg-primary text-primary-foreground shadow-glow font-medium"
+                          : "text-muted-foreground hover:bg-surface-hover hover:text-foreground"
+                      }`}
+                    >
+                      <Shield
+                        className={`w-5 h-5 shrink-0 transition-transform group-hover:scale-110 ${
+                          isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-primary"
+                        }`}
+                      />
                       {!collapsed && <span className="ml-3 whitespace-nowrap overflow-hidden">Administración</span>}
                     </span>
                   </Link>
@@ -110,7 +114,9 @@ const Sidebar = () => {
                   return (
                     <Tooltip>
                       <TooltipTrigger asChild>{linkContent}</TooltipTrigger>
-                      <TooltipContent side="right" className="font-medium">Administración</TooltipContent>
+                      <TooltipContent side="right" className="font-medium">
+                        Administración
+                      </TooltipContent>
                     </Tooltip>
                   );
                 }

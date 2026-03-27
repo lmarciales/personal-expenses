@@ -1,5 +1,5 @@
-import { useState } from "react";
 import { supabase } from "@/supabase/client";
+import { useState } from "react";
 
 export function useDebtActions() {
   const [isProcessing, setIsProcessing] = useState(false);
@@ -10,7 +10,7 @@ export function useDebtActions() {
     paymentAmount: number,
     targetAccountId: string,
     sourceAccountId?: string,
-    notes?: string
+    notes?: string,
   ): Promise<string | null> => {
     setIsProcessing(true);
     setError(null);
@@ -42,7 +42,7 @@ export function useDebtActions() {
     receivedAmount: number,
     personName: string,
     receivingAccountId?: string,
-    notes?: string
+    notes?: string,
   ): Promise<string | null> => {
     setIsProcessing(true);
     setError(null);

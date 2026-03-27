@@ -61,10 +61,10 @@ export function formatCOPForInput(value: number): string {
  */
 export function parseCOPInput(value: string): number {
   const cleaned = value
-    .replace(/\./g, "")    // remove thousands-separator dots
-    .replace(",", ".")      // convert decimal comma → JS period
+    .replace(/\./g, "") // remove thousands-separator dots
+    .replace(",", ".") // convert decimal comma → JS period
     .replace(/\s/g, "")
     .trim();
-  if (cleaned === "" || cleaned === "-") return NaN;
-  return parseFloat(cleaned);
+  if (cleaned === "" || cleaned === "-") return Number.NaN;
+  return Number.parseFloat(cleaned);
 }

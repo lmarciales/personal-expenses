@@ -1,6 +1,6 @@
+import { formatCOPWithSymbol } from "@/lib/currency";
 import { MoreVertical, PieChart } from "lucide-react";
 import { Button } from "./ui/button";
-import { formatCOPWithSymbol } from "@/lib/currency";
 
 export interface CategorySpending {
   name: string;
@@ -14,8 +14,16 @@ export interface SpendingOverviewProps {
 }
 
 const DEFAULT_COLORS = [
-  "#7c3aed", "#3b82f6", "#06b6d4", "#10b981", "#f59e0b",
-  "#ef4444", "#ec4899", "#8b5cf6", "#14b8a6", "#f97316",
+  "#7c3aed",
+  "#3b82f6",
+  "#06b6d4",
+  "#10b981",
+  "#f59e0b",
+  "#ef4444",
+  "#ec4899",
+  "#8b5cf6",
+  "#14b8a6",
+  "#f97316",
 ];
 
 const SpendingOverview = ({ totalExpense, categorySpending = [] }: SpendingOverviewProps) => {
@@ -32,12 +40,16 @@ const SpendingOverview = ({ totalExpense, categorySpending = [] }: SpendingOverv
             <span className="typo-amount-lg">{formatCOPWithSymbol(totalExpense)}</span>
           </div>
         </div>
-        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground rounded-full hover:bg-surface-hover-strong">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 text-muted-foreground hover:text-foreground rounded-full hover:bg-surface-hover-strong"
+        >
           <MoreVertical className="h-4 w-4" />
         </Button>
       </div>
 
-      <div className={`flex-1 flex flex-col space-y-5 min-h-0 ${!hasData ? 'opacity-50' : ''}`}>
+      <div className={`flex-1 flex flex-col space-y-5 min-h-0 ${!hasData ? "opacity-50" : ""}`}>
         <div>
           {!hasData ? (
             <div className="flex justify-between text-xs font-medium text-muted-foreground mb-3 px-1">
@@ -49,18 +61,19 @@ const SpendingOverview = ({ totalExpense, categorySpending = [] }: SpendingOverv
             </div>
           )}
           <div className="h-3 w-full bg-surface-overlay rounded-full overflow-hidden flex border border-subtle">
-            {hasData && categorySpending.map((cat, idx) => {
-              const pct = (cat.amount / totalExpense) * 100;
-              const color = cat.color || DEFAULT_COLORS[idx % DEFAULT_COLORS.length];
-              return (
-                <div
-                  key={cat.name}
-                  className="h-full transition-all duration-500"
-                  style={{ width: `${pct}%`, backgroundColor: color }}
-                  title={`${cat.name}: ${formatCOPWithSymbol(cat.amount)}`}
-                />
-              );
-            })}
+            {hasData &&
+              categorySpending.map((cat, idx) => {
+                const pct = (cat.amount / totalExpense) * 100;
+                const color = cat.color || DEFAULT_COLORS[idx % DEFAULT_COLORS.length];
+                return (
+                  <div
+                    key={cat.name}
+                    className="h-full transition-all duration-500"
+                    style={{ width: `${pct}%`, backgroundColor: color }}
+                    title={`${cat.name}: ${formatCOPWithSymbol(cat.amount)}`}
+                  />
+                );
+              })}
           </div>
         </div>
 
@@ -70,7 +83,10 @@ const SpendingOverview = ({ totalExpense, categorySpending = [] }: SpendingOverv
               const color = cat.color || DEFAULT_COLORS[idx % DEFAULT_COLORS.length];
               const pct = totalExpense > 0 ? ((cat.amount / totalExpense) * 100).toFixed(0) : 0;
               return (
-                <div key={cat.name} className="flex items-center justify-between text-sm p-2 rounded-lg hover:bg-surface-hover transition-colors">
+                <div
+                  key={cat.name}
+                  className="flex items-center justify-between text-sm p-2 rounded-lg hover:bg-surface-hover transition-colors"
+                >
                   <div className="flex items-center">
                     <div className="w-3 h-3 rounded-full mr-3 flex-shrink-0" style={{ backgroundColor: color }} />
                     <span className="font-medium text-foreground truncate">{cat.name}</span>

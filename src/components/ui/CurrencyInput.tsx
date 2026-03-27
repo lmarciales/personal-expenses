@@ -1,6 +1,6 @@
-import { useRef, useState } from "react";
 import { formatCOP, formatCOPForInput, parseCOPInput } from "@/lib/currency";
 import { cn } from "@/lib/utils";
+import { useRef, useState } from "react";
 
 interface CurrencyInputProps {
   /** The numeric value (undefined = empty field) */
@@ -30,26 +30,16 @@ interface CurrencyInputProps {
  *   User types "1000000"    → displays "1.000.000"   → reports 1000000
  *   User types "1000000,50" → displays "1.000.000,50" → reports 1000000.5
  */
-export function CurrencyInput({
-  value,
-  onChange,
-  placeholder = "0",
-  className,
-  disabled,
-  id,
-}: CurrencyInputProps) {
+export function CurrencyInput({ value, onChange, placeholder = "0", className, disabled, id }: CurrencyInputProps) {
   // Local display string — we format integers in real-time but let the user
   // type the decimal part freely until blur.
-  const [rawInput, setRawInput] = useState<string>(() =>
-    value !== undefined ? formatCOPForInput(value) : ""
-  );
+  const [rawInput, setRawInput] = useState<string>(() => (value !== undefined ? formatCOPForInput(value) : ""));
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Sync with external value changes (e.g. form reset / initialData applied).
   const externalValueStr = value !== undefined ? formatCOPForInput(value) : "";
   const rawAsNumber = parseCOPInput(rawInput);
-  const rawMatchesExternal =
-    (isNaN(rawAsNumber) && value === undefined) || rawAsNumber === value;
+  const rawMatchesExternal = (isNaN(rawAsNumber) && value === undefined) || rawAsNumber === value;
   const displayValue = rawMatchesExternal ? rawInput : externalValueStr;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -86,7 +76,7 @@ export function CurrencyInput({
     const fullStr = hasComma
       ? `${intPart}.${decPart ?? "0"}` // JS decimal format
       : intPart;
-    const num = parseFloat(fullStr);
+    const num = Number.parseFloat(fullStr);
     if (!isNaN(num)) {
       onChange(num);
     } else {
@@ -109,10 +99,7 @@ export function CurrencyInput({
   };
 
   const handleFocus = () => {
-    inputRef.current?.setSelectionRange(
-      inputRef.current.value.length,
-      inputRef.current.value.length
-    );
+    inputRef.current?.setSelectionRange(inputRef.current.value.length, inputRef.current.value.length);
   };
 
   return (
@@ -133,7 +120,7 @@ export function CurrencyInput({
         "placeholder:text-muted-foreground",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
         "disabled:cursor-not-allowed disabled:opacity-50",
-        className
+        className,
       )}
     />
   );

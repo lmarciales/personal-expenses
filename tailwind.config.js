@@ -15,7 +15,16 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['"Poppins"', 'ui-sans-serif', 'system-ui', 'sans-serif', '"Apple Color Emoji"', '"Segoe UI Emoji"', '"Segoe UI Symbol"', '"Noto Color Emoji"'],
+        sans: [
+          '"Poppins"',
+          "ui-sans-serif",
+          "system-ui",
+          "sans-serif",
+          '"Apple Color Emoji"',
+          '"Segoe UI Emoji"',
+          '"Segoe UI Symbol"',
+          '"Noto Color Emoji"',
+        ],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -92,15 +101,15 @@ export default {
         "glass-border": "linear-gradient(180deg, var(--border-glass) 0%, transparent 100%)",
       },
       boxShadow: {
-        'glow-sm': '0 0 10px var(--glow-primary-shadow)',
-        'glow': '0 0 15px var(--glow-primary-shadow)',
-        'glow-lg': '0 0 15px var(--glow-primary-shadow-strong)',
-        'glow-xl': '0 0 25px var(--glow-primary-shadow-intense)',
-        'glow-accent': '0 0 15px var(--glow-accent-shadow)',
-        'glow-accent-lg': '0 0 15px var(--glow-accent-shadow-strong)',
-        'glow-success': '0 0 15px var(--glow-success-shadow)',
-        'glow-success-lg': '0 0 15px var(--glow-success-shadow-strong)',
-        'float': 'var(--shadow-float)',
+        "glow-sm": "0 0 10px var(--glow-primary-shadow)",
+        glow: "0 0 15px var(--glow-primary-shadow)",
+        "glow-lg": "0 0 15px var(--glow-primary-shadow-strong)",
+        "glow-xl": "0 0 25px var(--glow-primary-shadow-intense)",
+        "glow-accent": "0 0 15px var(--glow-accent-shadow)",
+        "glow-accent-lg": "0 0 15px var(--glow-accent-shadow-strong)",
+        "glow-success": "0 0 15px var(--glow-success-shadow)",
+        "glow-success-lg": "0 0 15px var(--glow-success-shadow-strong)",
+        float: "var(--shadow-float)",
       },
       borderRadius: {
         lg: "var(--radius)",

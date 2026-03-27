@@ -45,9 +45,7 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <SidebarContext.Provider value={{ collapsed, setCollapsed, toggleCollapsed }}>
-      {children}
-    </SidebarContext.Provider>
+    <SidebarContext.Provider value={{ collapsed, setCollapsed, toggleCollapsed }}>{children}</SidebarContext.Provider>
   );
 }
 

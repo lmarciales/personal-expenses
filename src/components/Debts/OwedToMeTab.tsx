@@ -1,10 +1,10 @@
-import { useState } from "react";
-import { User, CheckSquare, Square, PartyPopper } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { formatCOPWithSymbol } from "@/lib/currency";
-import { SettlementDialog } from "./SettlementDialog";
 import type { PersonDebtGroup, SimpleAccount } from "@/hooks/useDebtsData";
+import { formatCOPWithSymbol } from "@/lib/currency";
 import { format } from "date-fns";
+import { CheckSquare, PartyPopper, Square, User } from "lucide-react";
+import { useState } from "react";
+import { SettlementDialog } from "./SettlementDialog";
 
 interface OwedToMeTabProps {
   groups: PersonDebtGroup[];
@@ -109,11 +109,7 @@ export const OwedToMeTab = ({ groups, accounts, onSettled }: OwedToMeTabProps) =
                 onClick={() => toggleAllForPerson(group.person, group.items)}
                 className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
-                {allSelected ? (
-                  <CheckSquare className="w-4 h-4 text-success" />
-                ) : (
-                  <Square className="w-4 h-4" />
-                )}
+                {allSelected ? <CheckSquare className="w-4 h-4 text-success" /> : <Square className="w-4 h-4" />}
                 Select All
               </button>
               {selected.size > 0 && (
@@ -160,7 +156,8 @@ export const OwedToMeTab = ({ groups, accounts, onSettled }: OwedToMeTabProps) =
             {selected.size > 0 && (
               <div className="p-4 border-t border-subtle bg-surface-overlay/50 flex items-center justify-between">
                 <div className="text-sm text-muted-foreground">
-                  <span className="text-foreground font-semibold">{selected.size}</span> item{selected.size !== 1 ? "s" : ""} &middot;{" "}
+                  <span className="text-foreground font-semibold">{selected.size}</span> item
+                  {selected.size !== 1 ? "s" : ""} &middot;{" "}
                   <span className="text-foreground font-bold">{formatCOPWithSymbol(selectedTotal)}</span>
                 </div>
                 <Button

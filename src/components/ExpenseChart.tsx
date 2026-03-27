@@ -1,8 +1,8 @@
+import { formatCOP, formatCOPWithSymbol } from "@/lib/currency";
 import { ArrowUpRight, BarChart3, ChevronLeft, ChevronRight } from "lucide-react";
-import { Bar, BarChart, ResponsiveContainer, XAxis, Tooltip, Cell, YAxis } from "recharts";
 import { useNavigate } from "react-router-dom";
+import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Button } from "./ui/button";
-import { formatCOPWithSymbol, formatCOP } from "@/lib/currency";
 
 export interface MonthlyExpense {
   name: string;
@@ -37,23 +37,21 @@ const CustomTooltip = ({ active, payload, label, data }: any) => {
   return (
     <div
       style={{
-        backgroundColor: 'var(--chart-tooltip-bg)',
-        backdropFilter: 'blur(12px)',
-        borderColor: 'var(--chart-tooltip-border)',
+        backgroundColor: "var(--chart-tooltip-bg)",
+        backdropFilter: "blur(12px)",
+        borderColor: "var(--chart-tooltip-border)",
         borderWidth: 1,
-        borderStyle: 'solid',
-        borderRadius: '12px',
-        color: 'var(--chart-tooltip-text)',
-        boxShadow: '0 10px 30px var(--chart-tooltip-shadow)',
-        padding: '10px 14px',
+        borderStyle: "solid",
+        borderRadius: "12px",
+        color: "var(--chart-tooltip-text)",
+        boxShadow: "0 10px 30px var(--chart-tooltip-shadow)",
+        padding: "10px 14px",
       }}
     >
-      <p style={{ fontWeight: 'bold', color: 'hsl(var(--primary))', margin: 0, fontSize: 14 }}>
+      <p style={{ fontWeight: "bold", color: "hsl(var(--primary))", margin: 0, fontSize: 14 }}>
         {formatCOPWithSymbol(value)}
       </p>
-      {comparison && (
-        <p style={{ margin: '4px 0 0', fontSize: 11, opacity: 0.7 }}>{comparison}</p>
-      )}
+      {comparison && <p style={{ margin: "4px 0 0", fontSize: 11, opacity: 0.7 }}>{comparison}</p>}
     </div>
   );
 };
@@ -122,8 +120,12 @@ const ExpenseChart = ({ data: propData, availableYears, selectedYear, onYearChan
             <div className="absolute top-20 right-8 z-20 hidden lg:block">
               <div className="glass-panel p-4 rounded-xl border border-glass shadow-float backdrop-blur-2xl">
                 <div className="flex items-center justify-between mb-1 border-b border-subtle pb-2">
-                  <span className="text-xl font-bold font-mono tracking-tighter text-foreground">{formatCOPWithSymbol(currentMonthData.value)}</span>
-                  <span className="bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 rounded border border-primary/10 ml-3">{pct}%</span>
+                  <span className="text-xl font-bold font-mono tracking-tighter text-foreground">
+                    {formatCOPWithSymbol(currentMonthData.value)}
+                  </span>
+                  <span className="bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 rounded border border-primary/10 ml-3">
+                    {pct}%
+                  </span>
                 </div>
                 <p className="text-xs text-muted-foreground">{currentMonth} expenses</p>
               </div>
@@ -131,7 +133,9 @@ const ExpenseChart = ({ data: propData, availableYears, selectedYear, onYearChan
             {/* Mobile inline stats */}
             <div className="flex items-center gap-3 mt-2 lg:hidden">
               <span className="typo-amount-sm font-mono">{formatCOPWithSymbol(currentMonthData.value)}</span>
-              <span className="bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 rounded border border-primary/10">{pct}%</span>
+              <span className="bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 rounded border border-primary/10">
+                {pct}%
+              </span>
               <span className="text-xs text-muted-foreground">{currentMonth}</span>
             </div>
           </>
@@ -141,14 +145,7 @@ const ExpenseChart = ({ data: propData, availableYears, selectedYear, onYearChan
       <div className="h-[250px] w-full mt-4">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-            <XAxis
-              dataKey="name"
-              stroke="var(--chart-axis)"
-              fontSize={12}
-              tickLine={false}
-              axisLine={false}
-              dy={10}
-            />
+            <XAxis dataKey="name" stroke="var(--chart-axis)" fontSize={12} tickLine={false} axisLine={false} dy={10} />
             <YAxis
               stroke="var(--chart-axis)"
               fontSize={12}
@@ -156,23 +153,15 @@ const ExpenseChart = ({ data: propData, availableYears, selectedYear, onYearChan
               axisLine={false}
               tickFormatter={(value) => formatCOP(value)}
             />
-            <Tooltip
-              cursor={{ fill: 'var(--chart-cursor)' }}
-              content={<CustomTooltip data={data} />}
-            />
-            <Bar
-              dataKey="value"
-              radius={[6, 6, 6, 6]}
-              barSize={32}
-              onClick={handleBarClick}
-              cursor="pointer"
-            >
+            <Tooltip cursor={{ fill: "var(--chart-cursor)" }} content={<CustomTooltip data={data} />} />
+            <Bar dataKey="value" radius={[6, 6, 6, 6]} barSize={32} onClick={handleBarClick} cursor="pointer">
               {data.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}
-                  fill={entry.name === currentMonth ? 'hsl(var(--primary))' : 'var(--chart-bar-inactive)'}
+                  fill={entry.name === currentMonth ? "hsl(var(--primary))" : "var(--chart-bar-inactive)"}
                   style={{
-                    filter: entry.name === currentMonth ? `drop-shadow(0 0 8px var(--glow-primary-shadow-strong))` : 'none'
+                    filter:
+                      entry.name === currentMonth ? `drop-shadow(0 0 8px var(--glow-primary-shadow-strong))` : "none",
                   }}
                 />
               ))}

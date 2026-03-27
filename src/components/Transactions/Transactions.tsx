@@ -1,16 +1,11 @@
-import { useState } from "react";
-import { ArrowUpRight, Activity, CopyPlus, Pencil } from "lucide-react";
-import { EmptyState } from "../ui/EmptyState";
 import { formatCOPWithSymbol } from "@/lib/currency";
-import { Button } from "../ui/button";
-import { AddTransactionModal } from "./AddTransactionModal";
+import { Activity, ArrowUpRight, CopyPlus, Pencil } from "lucide-react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
+import { EmptyState } from "../ui/EmptyState";
+import { Button } from "../ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
+import { AddTransactionModal } from "./AddTransactionModal";
 
 export interface Transaction {
   id: string | number;
@@ -28,10 +23,14 @@ export interface Transaction {
   transaction_categories?: { category_id: string; categories: { id: string; name: string; color: string | null } }[];
 }
 
-const Transactions = ({ transactions, accounts, onSuccess }: { transactions: Transaction[], accounts?: any[], onSuccess?: () => void }) => {
+const Transactions = ({
+  transactions,
+  accounts,
+  onSuccess,
+}: { transactions: Transaction[]; accounts?: any[]; onSuccess?: () => void }) => {
   const navigate = useNavigate();
   const [modalState, setModalState] = useState<{
-    mode: 'edit' | 'duplicate';
+    mode: "edit" | "duplicate";
     transaction: Transaction;
   } | null>(null);
 
@@ -62,13 +61,13 @@ const Transactions = ({ transactions, accounts, onSuccess }: { transactions: Tra
           transactions.map((transaction) => (
             <DropdownMenu key={transaction.id}>
               <DropdownMenuTrigger asChild>
-                <div
-                  className="group relative flex items-center gap-3 p-3 rounded-xl hover:bg-surface-hover transition-colors cursor-pointer overflow-hidden"
-                >
+                <div className="group relative flex items-center gap-3 p-3 rounded-xl hover:bg-surface-hover transition-colors cursor-pointer overflow-hidden">
                   {/* Avatar */}
                   <div className="relative shrink-0">
                     <div className="w-9 h-9 rounded-full bg-surface-overlay border-2 border-background shadow-sm flex items-center justify-center">
-                      <span className="text-xs font-bold text-muted-foreground">{transaction.name.charAt(0).toUpperCase()}</span>
+                      <span className="text-xs font-bold text-muted-foreground">
+                        {transaction.name.charAt(0).toUpperCase()}
+                      </span>
                     </div>
                     {transaction.status === "Success" && (
                       <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-primary border-2 border-background rounded-full"></div>
@@ -81,8 +80,11 @@ const Transactions = ({ transactions, accounts, onSuccess }: { transactions: Tra
                       <span className="font-semibold text-sm truncate group-hover:text-primary transition-colors">
                         {transaction.name}
                       </span>
-                      <span className={`shrink-0 font-bold text-sm tabular-nums ${transaction.type === 'income' ? 'text-income' : 'text-foreground'}`}>
-                        {transaction.type === 'income' ? '+' : transaction.type === 'expense' ? '-' : ''}{formatCOPWithSymbol(Math.abs(transaction.amount))}
+                      <span
+                        className={`shrink-0 font-bold text-sm tabular-nums ${transaction.type === "income" ? "text-income" : "text-foreground"}`}
+                      >
+                        {transaction.type === "income" ? "+" : transaction.type === "expense" ? "-" : ""}
+                        {formatCOPWithSymbol(Math.abs(transaction.amount))}
                       </span>
                     </div>
                     <div className="flex items-center justify-between gap-2 mt-0.5">
@@ -101,12 +103,18 @@ const Transactions = ({ transactions, accounts, onSuccess }: { transactions: Tra
 
               {accounts && onSuccess && (
                 <DropdownMenuContent align="end" className="w-48 glass-panel border-border z-50">
-                  <DropdownMenuItem onSelect={() => setModalState({ mode: 'edit', transaction })} className="cursor-pointer">
+                  <DropdownMenuItem
+                    onSelect={() => setModalState({ mode: "edit", transaction })}
+                    className="cursor-pointer"
+                  >
                     <Pencil className="w-4 h-4 mr-2" />
                     <span>Edit</span>
                   </DropdownMenuItem>
 
-                  <DropdownMenuItem onSelect={() => setModalState({ mode: 'duplicate', transaction })} className="cursor-pointer">
+                  <DropdownMenuItem
+                    onSelect={() => setModalState({ mode: "duplicate", transaction })}
+                    className="cursor-pointer"
+                  >
                     <CopyPlus className="w-4 h-4 mr-2" />
                     <span>Duplicate</span>
                   </DropdownMenuItem>
@@ -121,33 +129,41 @@ const Transactions = ({ transactions, accounts, onSuccess }: { transactions: Tra
       {accounts && onSuccess && modalState && (
         <AddTransactionModal
           accounts={accounts}
-          onSuccess={() => { setModalState(null); onSuccess(); }}
-          editMode={modalState.mode === 'edit'}
-          transactionId={modalState.mode === 'edit' ? String(modalState.transaction.id) : undefined}
+          onSuccess={() => {
+            setModalState(null);
+            onSuccess();
+          }}
+          editMode={modalState.mode === "edit"}
+          transactionId={modalState.mode === "edit" ? String(modalState.transaction.id) : undefined}
           initialData={{
             accountId: modalState.transaction.account_id,
-            date: modalState.mode === 'edit' && modalState.transaction.date
-              ? new Date(modalState.transaction.date).toISOString().split('T')[0]
-              : undefined,
+            date:
+              modalState.mode === "edit" && modalState.transaction.date
+                ? new Date(modalState.transaction.date).toISOString().split("T")[0]
+                : undefined,
             totalAmount: Math.abs(modalState.transaction.amount),
             type: modalState.transaction.type,
             payee: modalState.transaction.name,
-            notes: modalState.mode === 'edit' ? (modalState.transaction.notes || "") : undefined,
-            isRecurring: modalState.mode === 'edit' ? (modalState.transaction.is_recurring || false) : false,
-            recurrenceInterval: modalState.mode === 'edit' ? modalState.transaction.recurrence_interval as any : undefined,
-            categoryIds: modalState.transaction.transaction_categories?.map(tc => tc.category_id) || [],
-            splits: modalState.mode === 'edit'
-              ? (modalState.transaction.transaction_splits?.length
-                  ? modalState.transaction.transaction_splits.map(s => ({
+            notes: modalState.mode === "edit" ? modalState.transaction.notes || "" : undefined,
+            isRecurring: modalState.mode === "edit" ? modalState.transaction.is_recurring || false : false,
+            recurrenceInterval:
+              modalState.mode === "edit" ? (modalState.transaction.recurrence_interval as any) : undefined,
+            categoryIds: modalState.transaction.transaction_categories?.map((tc) => tc.category_id) || [],
+            splits:
+              modalState.mode === "edit"
+                ? modalState.transaction.transaction_splits?.length
+                  ? modalState.transaction.transaction_splits.map((s) => ({
                       amount: Math.abs(s.amount),
                       assigned_to: s.assigned_to || "Me",
                       status: s.status as any,
                     }))
-                  : [{ amount: Math.abs(modalState.transaction.amount), assigned_to: "Me", status: "Settled" as const }])
-              : undefined,
+                  : [{ amount: Math.abs(modalState.transaction.amount), assigned_to: "Me", status: "Settled" as const }]
+                : undefined,
           }}
           open={true}
-          onOpenChange={(isOpen) => { if (!isOpen) setModalState(null); }}
+          onOpenChange={(isOpen) => {
+            if (!isOpen) setModalState(null);
+          }}
         />
       )}
     </div>

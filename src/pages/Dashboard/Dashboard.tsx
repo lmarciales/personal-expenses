@@ -1,15 +1,15 @@
-import { useState } from "react";
-import { Plus } from "lucide-react";
 import ExpenseChart from "@/components/ExpenseChart";
 import Products from "@/components/Products/Products";
+import { RecurringRecommendations } from "@/components/RecurringRecommendations";
 import SpendingOverview from "@/components/SpendingOverview";
+import { AddTransactionModal } from "@/components/Transactions/AddTransactionModal";
 import Transactions from "@/components/Transactions/Transactions";
+import { DashboardSkeleton } from "@/components/ui/Skeleton";
 import { Button } from "@/components/ui/button";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useExpenseChartData } from "@/hooks/useExpenseChartData";
-import { AddTransactionModal } from "@/components/Transactions/AddTransactionModal";
-import { RecurringRecommendations } from "@/components/RecurringRecommendations";
-import { DashboardSkeleton } from "@/components/ui/Skeleton";
+import { Plus } from "lucide-react";
+import { useState } from "react";
 
 export const Dashboard = () => {
   const [chartYear, setChartYear] = useState(new Date().getFullYear());
@@ -25,7 +25,9 @@ export const Dashboard = () => {
       <div className="flex min-h-[60vh] items-center justify-center flex-col gap-4 text-center">
         <h2 className="text-2xl font-bold text-destructive">Error Loading Dashboard</h2>
         <p className="text-muted-foreground">{error}</p>
-        <Button variant="outline" onClick={() => window.location.reload()}>Try Again</Button>
+        <Button variant="outline" onClick={() => window.location.reload()}>
+          Try Again
+        </Button>
       </div>
     );
   }
@@ -41,12 +43,14 @@ export const Dashboard = () => {
         {accounts.length > 0 ? (
           <AddTransactionModal accounts={accounts} onSuccess={refetch}>
             <Button className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-glow-xl transition-all">
-              <Plus className="w-4 h-4 mr-2" />Add Transaction
+              <Plus className="w-4 h-4 mr-2" />
+              Add Transaction
             </Button>
           </AddTransactionModal>
         ) : (
           <Button disabled className="bg-primary/50 text-primary-foreground/50 cursor-not-allowed">
-            <Plus className="w-4 h-4 mr-2" />Add Transaction
+            <Plus className="w-4 h-4 mr-2" />
+            Add Transaction
           </Button>
         )}
       </header>

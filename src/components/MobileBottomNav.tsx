@@ -32,17 +32,21 @@ export const MobileBottomNav = () => {
             </Link>
           );
         })}
-        {userRole === "admin" && (() => {
-          const isActive = location.pathname === "/admin";
-          return (
-            <Link to="/admin" className={`flex flex-col items-center gap-1 px-3 py-1.5 rounded-xl transition-colors focus-ring ${
-              isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
-            }`}>
-              <Shield className={`w-5 h-5 ${isActive ? "text-primary" : ""}`} />
-              <span className="text-[10px] font-medium">Admin</span>
-            </Link>
-          );
-        })()}
+        {userRole === "admin" &&
+          (() => {
+            const isActive = location.pathname === "/admin";
+            return (
+              <Link
+                to="/admin"
+                className={`flex flex-col items-center gap-1 px-3 py-1.5 rounded-xl transition-colors focus-ring ${
+                  isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Shield className={`w-5 h-5 ${isActive ? "text-primary" : ""}`} />
+                <span className="text-[10px] font-medium">Admin</span>
+              </Link>
+            );
+          })()}
       </div>
     </nav>
   );
