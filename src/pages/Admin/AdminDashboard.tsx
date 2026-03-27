@@ -47,14 +47,14 @@ export const AdminDashboard = () => {
     <div>
       <div className="flex items-center gap-3 mb-6">
         <Shield className="w-6 h-6 text-primary" />
-        <h1 className="text-2xl font-bold">Panel de administración</h1>
+        <h1 className="typo-page-title">Panel de administración</h1>
       </div>
       {error && (
-        <div className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 text-red-200 px-4 py-3 text-sm">
+        <div className="mb-4 rounded-lg border border-danger/30 bg-danger/10 text-danger px-4 py-3 text-sm">
           {error}
         </div>
       )}
-      <div className="rounded-xl border shell-card overflow-hidden">
+      <div className="glass-card rounded-2xl overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
@@ -81,9 +81,9 @@ export const AdminDashboard = () => {
                 </TableCell>
                 <TableCell>
                   {user.email_confirmed_at ? (
-                    <CheckCircle className="w-5 h-5 text-green-500" />
+                    <CheckCircle className="w-5 h-5 text-success" />
                   ) : (
-                    <XCircle className="w-5 h-5 text-red-500" />
+                    <XCircle className="w-5 h-5 text-danger" />
                   )}
                 </TableCell>
                 <TableCell>{format(new Date(user.created_at), "dd/MM/yyyy")}</TableCell>

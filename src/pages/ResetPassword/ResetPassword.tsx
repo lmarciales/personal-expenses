@@ -41,7 +41,7 @@ export const ResetPassword = () => {
 
   return (
     <main className="grid place-items-center h-screen">
-      <Card className="w-full max-w-sm">
+      <Card className="glass-card w-full max-w-sm">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <CardHeader>

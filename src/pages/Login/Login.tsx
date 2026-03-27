@@ -75,7 +75,7 @@ const ForgotPasswordForm = ({ onBack }: { onBack: () => void }) => {
           {form.formState.errors.root?.message && (
             <span className="text-destructive">{form.formState.errors.root.message}</span>
           )}
-          {successMessage && <span className="text-sm text-green-600">{successMessage}</span>}
+          {successMessage && <span className="text-sm text-success">{successMessage}</span>}
         </CardContent>
         <CardFooter className="flex flex-col gap-2">
           <Button className="w-full" type="submit">
@@ -238,7 +238,7 @@ const RegisterTab = () => {
           {form.formState.errors.root?.message && (
             <span className="text-destructive">{form.formState.errors.root.message}</span>
           )}
-          {successMessage && <span className="text-sm text-green-600">{successMessage}</span>}
+          {successMessage && <span className="text-sm text-success">{successMessage}</span>}
         </CardContent>
         <CardFooter>
           <Button className="w-full" type="submit">
@@ -255,7 +255,7 @@ const RegisterTab = () => {
 export const LoginForm = () => {
   return (
     <main className="grid place-items-center h-screen">
-      <Card className="w-full max-w-sm">
+      <Card className="glass-card w-full max-w-sm">
         <Tabs defaultValue="login">
           <CardHeader>
             <TabsList className="grid w-full grid-cols-2">
