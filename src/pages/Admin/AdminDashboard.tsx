@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 export const AdminDashboard = () => {
   const [users, setUsers] = useState<
     Array<{
-      user_id: string;
+      id: string;
       email: string;
       role: string;
       email_confirmed_at: string | null;
@@ -66,10 +66,10 @@ export const AdminDashboard = () => {
           </TableHeader>
           <TableBody>
             {users.map((user) => (
-              <TableRow key={user.user_id}>
+              <TableRow key={user.id}>
                 <TableCell>{user.email}</TableCell>
                 <TableCell>
-                  <Select value={user.role} onValueChange={(newRole) => handleRoleChange(user.user_id, newRole)}>
+                  <Select value={user.role} onValueChange={(newRole) => handleRoleChange(user.id, newRole)}>
                     <SelectTrigger className="w-28">
                       <SelectValue />
                     </SelectTrigger>

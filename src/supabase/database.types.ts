@@ -304,10 +304,11 @@ export type Database = {
           created_at: string;
           email: string;
           email_confirmed_at: string;
+          id: string;
           role: string;
-          user_id: string;
         }[];
       };
+      is_admin: { Args: never; Returns: boolean };
       settle_debts: {
         Args: {
           p_notes?: string;
