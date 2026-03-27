@@ -8,22 +8,40 @@ interface Props {
 
 interface AuthContextValue {
   session: Session | null;
+  userRole: "user" | "admin" | null;
+  emailConfirmed: boolean;
 }
 
 export const AuthContext = createContext<AuthContextValue>({
   session: {} as Session | null,
+  userRole: null,
+  emailConfirmed: false,
 });
 
 export const AuthProvider = ({ children }: Props) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [userRole, setUserRole] = useState<"user" | "admin" | null>(null);
+
+  const emailConfirmed = session?.user?.email_confirmed_at != null;
 
   useEffect(() => {
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_: AuthChangeEvent, session: Session | null) => {
+    } = supabase.auth.onAuthStateChange(async (_: AuthChangeEvent, session: Session | null) => {
       setLoading(false);
       setSession(session || null);
+
+      if (session) {
+        const { data } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", session.user.id)
+          .single();
+        setUserRole((data?.role as "user" | "admin") ?? null);
+      } else {
+        setUserRole(null);
+      }
     });
 
     return () => {
@@ -31,7 +49,7 @@ export const AuthProvider = ({ children }: Props) => {
     };
   }, []);
 
-  const value = useMemo(() => ({ session }), [session]);
+  const value = useMemo(() => ({ session, userRole, emailConfirmed }), [session, userRole, emailConfirmed]);
 
   return <AuthContext.Provider value={value}>{loading ? <div>Loading...</div> : children}</AuthContext.Provider>;
 };
