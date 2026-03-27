@@ -1,16 +1,12 @@
-import { useState } from "react";
-import { CreditCard, MoreVertical, Wallet, Plus, ArrowUpRight, Pencil, Trash2, Loader2 } from "lucide-react";
-import { Button } from "../ui/button";
-import { AddAccountModal } from "./AddAccountModal";
 import { formatCOPWithSymbol } from "@/lib/currency";
-import { useNavigate } from "react-router-dom";
 import { supabase } from "@/supabase/client";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
+import { ArrowUpRight, CreditCard, Loader2, MoreVertical, Pencil, Plus, Trash2, Wallet } from "lucide-react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { Button } from "../ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
+import { AddAccountModal } from "./AddAccountModal";
 
 export interface Product {
   id: string | number;
@@ -20,7 +16,7 @@ export interface Product {
   type?: string;
 }
 
-const Products = ({ products, onAccountAdded }: { products: Product[], onAccountAdded: () => void }) => {
+const Products = ({ products, onAccountAdded }: { products: Product[]; onAccountAdded: () => void }) => {
   const navigate = useNavigate();
   const totalBalance = products.reduce((sum, p) => sum + p.balance, 0);
 
@@ -42,9 +38,10 @@ const Products = ({ products, onAccountAdded }: { products: Product[], onAccount
       if (countError) throw countError;
 
       const txCount = count || 0;
-      const message = txCount > 0
-        ? `"${product.name}" has ${txCount} linked transaction${txCount !== 1 ? "s" : ""}. Deleting it will also remove all associated transactions. Are you sure?`
-        : `Are you sure you want to delete "${product.name}"?`;
+      const message =
+        txCount > 0
+          ? `"${product.name}" has ${txCount} linked transaction${txCount !== 1 ? "s" : ""}. Deleting it will also remove all associated transactions. Are you sure?`
+          : `Are you sure you want to delete "${product.name}"?`;
 
       if (!window.confirm(message)) return;
 
@@ -59,7 +56,7 @@ const Products = ({ products, onAccountAdded }: { products: Product[], onAccount
       onAccountAdded();
     } catch (error) {
       console.error("Failed to delete account", error);
-      alert("Failed to delete account. Please try again.");
+      toast.error("No se pudo eliminar la cuenta");
     } finally {
       setDeletingId(null);
     }
@@ -103,7 +100,12 @@ const Products = ({ products, onAccountAdded }: { products: Product[], onAccount
                   View All <ArrowUpRight className="ml-1 h-3 w-3" />
                 </Button>
                 <AddAccountModal onSuccess={onAccountAdded}>
-                  <Button variant="ghost" size="sm" className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground rounded-full hover:bg-surface-hover-strong gap-1" title="Add Account">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground rounded-full hover:bg-surface-hover-strong gap-1"
+                    title="Add Account"
+                  >
                     <Plus className="h-3.5 w-3.5" />
                     <span className="hidden sm:inline">Add</span>
                   </Button>
@@ -116,7 +118,10 @@ const Products = ({ products, onAccountAdded }: { products: Product[], onAccount
           <div className="flex flex-col items-center justify-center p-6 bg-surface-input border border-subtle rounded-xl text-center space-y-3">
             <p className="text-sm text-muted-foreground italic">You don't have any accounts yet.</p>
             <AddAccountModal onSuccess={onAccountAdded}>
-              <Button variant="outline" className="w-full border-primary/50 text-primary hover:bg-primary/20 shadow-glow-sm bg-transparent">
+              <Button
+                variant="outline"
+                className="w-full border-primary/50 text-primary hover:bg-primary/20 shadow-glow-sm bg-transparent"
+              >
                 <Plus className="mr-2 h-4 w-4" /> Add First Account
               </Button>
             </AddAccountModal>
@@ -128,11 +133,15 @@ const Products = ({ products, onAccountAdded }: { products: Product[], onAccount
                 <DropdownMenuTrigger asChild>
                   <div className="flex items-center justify-between p-3 rounded-xl bg-surface-overlay border border-subtle hover:bg-surface-hover transition-colors group cursor-pointer">
                     <div className="flex items-center space-x-3">
-                      <div className={`w-10 h-10 rounded-lg ${product.color} flex items-center justify-center shadow-lg transition-transform group-hover:scale-105`}>
+                      <div
+                        className={`w-10 h-10 rounded-lg ${product.color} flex items-center justify-center shadow-lg transition-transform group-hover:scale-105`}
+                      >
                         <CreditCard className="w-5 h-5" />
                       </div>
                       <div>
-                        <div className="font-semibold text-sm group-hover:text-primary transition-colors">{product.name}</div>
+                        <div className="font-semibold text-sm group-hover:text-primary transition-colors">
+                          {product.name}
+                        </div>
                         <div className="text-xs text-muted-foreground mt-0.5">{product.type || "Account"}</div>
                       </div>
                     </div>
@@ -142,10 +151,7 @@ const Products = ({ products, onAccountAdded }: { products: Product[], onAccount
                   </div>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-44 glass-panel border-border z-50">
-                  <DropdownMenuItem
-                    onSelect={() => setEditState({ product })}
-                    className="cursor-pointer"
-                  >
+                  <DropdownMenuItem onSelect={() => setEditState({ product })} className="cursor-pointer">
                     <Pencil className="w-4 h-4 mr-2" />
                     Edit
                   </DropdownMenuItem>
@@ -186,8 +192,13 @@ const Products = ({ products, onAccountAdded }: { products: Product[], onAccount
             balance: editState.product.balance,
           }}
           open={true}
-          onOpenChange={(open) => { if (!open) setEditState(null); }}
-          onSuccess={() => { setEditState(null); onAccountAdded(); }}
+          onOpenChange={(open) => {
+            if (!open) setEditState(null);
+          }}
+          onSuccess={() => {
+            setEditState(null);
+            onAccountAdded();
+          }}
         />
       )}
     </div>

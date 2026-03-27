@@ -48,7 +48,7 @@ const ForgotPasswordForm = ({ onBack }: { onBack: () => void }) => {
         setSuccessMessage("Revisa tu correo para restablecer tu contraseña.");
       })
       .catch((error) => {
-        console.log(error);
+        console.error(error);
         form.setError("root", { message: error.message ?? "Ocurrió un error. Inténtalo de nuevo." });
       });
   };
@@ -105,7 +105,7 @@ const LoginTab = () => {
     signIn(data.email, data.password)
       .then(() => navigate("/dashboard"))
       .catch((error) => {
-        console.log(error);
+        console.error(error);
         form.setError("root", { message: "Correo o contraseña incorrectos" });
       });
   };
@@ -181,7 +181,7 @@ const RegisterTab = () => {
         setSuccessMessage("Cuenta creada. Revisa tu correo para confirmar tu cuenta.");
       })
       .catch((error) => {
-        console.log(error);
+        console.error(error);
         form.setError("root", { message: error.message ?? "Ocurrió un error. Inténtalo de nuevo." });
       });
   };

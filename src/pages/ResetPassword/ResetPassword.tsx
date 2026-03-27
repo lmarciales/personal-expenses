@@ -4,9 +4,11 @@ import { Input } from "@/components/ui/input.tsx";
 
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form.tsx";
 import { updatePassword } from "@/supabase/auth.ts";
+import { supabase } from "@/supabase/client.ts";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { z } from "zod";
 
 const ResetPasswordSchema = z
@@ -21,6 +23,33 @@ const ResetPasswordSchema = z
 
 export const ResetPassword = () => {
   const navigate = useNavigate();
+  const [sessionStatus, setSessionStatus] = useState<"loading" | "valid" | "invalid">("loading");
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        setSessionStatus("valid");
+      }
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") {
+        setSessionStatus("valid");
+      }
+    });
+
+    const timeout = setTimeout(() => {
+      setSessionStatus((prev) => (prev === "loading" ? "invalid" : prev));
+    }, 3000);
+
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timeout);
+    };
+  }, []);
+
   const form = useForm<z.infer<typeof ResetPasswordSchema>>({
     resolver: zodResolver(ResetPasswordSchema),
     defaultValues: {
@@ -34,10 +63,22 @@ export const ResetPassword = () => {
     updatePassword(password)
       .then(() => navigate("/dashboard"))
       .catch((error) => {
-        console.log(error);
+        console.error(error);
         form.setError("root", { message: "No se pudo restablecer la contraseña" });
       });
   };
+
+  if (sessionStatus === "loading") {
+    return (
+      <main className="grid place-items-center h-screen">
+        <p>Verificando...</p>
+      </main>
+    );
+  }
+
+  if (sessionStatus === "invalid") {
+    return <Navigate to="/" />;
+  }
 
   return (
     <main className="grid place-items-center h-screen">

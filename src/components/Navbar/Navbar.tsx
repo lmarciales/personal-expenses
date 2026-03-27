@@ -24,7 +24,8 @@ export default function Navbar() {
 
   useEffect(() => {
     const fetchAccounts = async () => {
-      const { data } = await supabase.from("accounts").select("id, name, balance");
+      if (!session?.user?.id) return;
+      const { data } = await supabase.from("accounts").select("id, name, balance").eq("user_id", session.user.id);
       if (data) setAccounts(data);
     };
     fetchAccounts();
@@ -32,7 +33,7 @@ export default function Navbar() {
     const handleRefresh = () => fetchAccounts();
     window.addEventListener("transaction-added", handleRefresh);
     return () => window.removeEventListener("transaction-added", handleRefresh);
-  }, []);
+  }, [session]);
 
   const handleSignOut = () => signOut().then(() => navigate("/"));
 

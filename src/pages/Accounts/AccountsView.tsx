@@ -1,37 +1,32 @@
-import { useState } from "react";
-import { useAccountsData, type AccountWithStats } from "@/hooks/useAccountsData";
-import { AddAccountModal } from "@/components/Products/AddAccountModal";
 import { AccountDetailModal } from "@/components/Accounts/AccountDetailModal";
-import { Button } from "@/components/ui/button";
+import { AddAccountModal } from "@/components/Products/AddAccountModal";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { formatCOPWithSymbol } from "@/lib/currency";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { type AccountWithStats, useAccountsData } from "@/hooks/useAccountsData";
+import { formatCOPWithSymbol } from "@/lib/currency";
+import { supabase } from "@/supabase/client";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Wallet,
-  Plus,
-  Search,
-  CreditCard,
-  MoreVertical,
-  Pencil,
-  Trash2,
   ArrowUpDown,
+  CreditCard,
   Hash,
   Layers,
+  MoreVertical,
+  Pencil,
+  Plus,
+  Search,
+  Trash2,
+  Wallet,
 } from "lucide-react";
-import { supabase } from "@/supabase/client";
 import { Loader2 } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export const AccountsView = () => {
   const [search, setSearch] = useState("");
@@ -64,9 +59,10 @@ export const AccountsView = () => {
       if (countError) throw countError;
 
       const txCount = count || 0;
-      const message = txCount > 0
-        ? `"${account.name}" has ${txCount} linked transaction${txCount !== 1 ? "s" : ""}. Deleting it will also remove all associated transactions. Are you sure?`
-        : `Are you sure you want to delete "${account.name}"?`;
+      const message =
+        txCount > 0
+          ? `"${account.name}" has ${txCount} linked transaction${txCount !== 1 ? "s" : ""}. Deleting it will also remove all associated transactions. Are you sure?`
+          : `Are you sure you want to delete "${account.name}"?`;
 
       if (!window.confirm(message)) return;
 
@@ -81,7 +77,7 @@ export const AccountsView = () => {
       refetch();
     } catch (error) {
       console.error("Failed to delete account", error);
-      alert("Failed to delete account. Please try again.");
+      toast.error("No se pudo eliminar la cuenta");
     } finally {
       setDeletingId(null);
     }
@@ -100,7 +96,9 @@ export const AccountsView = () => {
       <div className="flex min-h-[60vh] items-center justify-center flex-col gap-4 text-center">
         <h2 className="text-2xl font-bold text-destructive">Error Loading Accounts</h2>
         <p className="text-muted-foreground">{error}</p>
-        <Button variant="outline" onClick={() => window.location.reload()}>Try Again</Button>
+        <Button variant="outline" onClick={() => window.location.reload()}>
+          Try Again
+        </Button>
       </div>
     );
   }
@@ -134,9 +132,7 @@ export const AccountsView = () => {
           </div>
           <p className="typo-amount-md">{formatCOPWithSymbol(isFiltered ? filteredBalance : totalBalance)}</p>
           {isFiltered && (
-            <p className="text-xs text-muted-foreground mt-1">
-              of {formatCOPWithSymbol(totalBalance)} total
-            </p>
+            <p className="text-xs text-muted-foreground mt-1">of {formatCOPWithSymbol(totalBalance)} total</p>
           )}
         </div>
 
@@ -150,11 +146,7 @@ export const AccountsView = () => {
             </span>
           </div>
           <p className="typo-amount-md">{isFiltered ? accounts.length : totalAccounts}</p>
-          {isFiltered && (
-            <p className="text-xs text-muted-foreground mt-1">
-              of {totalAccounts} accounts
-            </p>
-          )}
+          {isFiltered && <p className="text-xs text-muted-foreground mt-1">of {totalAccounts} accounts</p>}
         </div>
 
         <div className="glass-card rounded-2xl p-5">
@@ -191,7 +183,9 @@ export const AccountsView = () => {
           <SelectContent className="glass-panel border-glass">
             <SelectItem value="all">All Types</SelectItem>
             {accountTypes.map((t) => (
-              <SelectItem key={t.name} value={t.name}>{t.name}</SelectItem>
+              <SelectItem key={t.name} value={t.name}>
+                {t.name}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -272,10 +266,7 @@ export const AccountsView = () => {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-44 glass-panel border-border z-50">
-                    <DropdownMenuItem
-                      onSelect={() => setEditState({ account })}
-                      className="cursor-pointer"
-                    >
+                    <DropdownMenuItem onSelect={() => setEditState({ account })} className="cursor-pointer">
                       <Pencil className="w-4 h-4 mr-2" />
                       Edit
                     </DropdownMenuItem>
@@ -296,7 +287,9 @@ export const AccountsView = () => {
 
               {/* Card Content */}
               <div className="flex items-center gap-3 mb-4">
-                <div className={`w-12 h-12 rounded-xl ${account.color} flex items-center justify-center shadow-lg transition-transform group-hover:scale-105`}>
+                <div
+                  className={`w-12 h-12 rounded-xl ${account.color} flex items-center justify-center shadow-lg transition-transform group-hover:scale-105`}
+                >
                   <CreditCard className="w-6 h-6" />
                 </div>
                 <div>
@@ -313,7 +306,8 @@ export const AccountsView = () => {
                 <div className="text-right">
                   <p className="text-xs text-muted-foreground">{account.transactionCount} transactions</p>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Since {new Date(account.created_at).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
+                    Since{" "}
+                    {new Date(account.created_at).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
                   </p>
                 </div>
               </div>
@@ -326,8 +320,13 @@ export const AccountsView = () => {
       <AccountDetailModal
         account={detailAccount}
         open={!!detailAccount}
-        onOpenChange={(open) => { if (!open) setDetailAccount(null); }}
-        onUpdated={() => { setDetailAccount(null); refetch(); }}
+        onOpenChange={(open) => {
+          if (!open) setDetailAccount(null);
+        }}
+        onUpdated={() => {
+          setDetailAccount(null);
+          refetch();
+        }}
       />
 
       {editState && (
@@ -340,8 +339,13 @@ export const AccountsView = () => {
             balance: editState.account.balance,
           }}
           open={true}
-          onOpenChange={(open) => { if (!open) setEditState(null); }}
-          onSuccess={() => { setEditState(null); refetch(); }}
+          onOpenChange={(open) => {
+            if (!open) setEditState(null);
+          }}
+          onSuccess={() => {
+            setEditState(null);
+            refetch();
+          }}
         />
       )}
     </>
