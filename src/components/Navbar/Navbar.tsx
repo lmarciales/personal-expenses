@@ -1,21 +1,23 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Bell, LogOut, Monitor, Moon, Plus, Sun } from "lucide-react";
+import { AddTransactionModal } from "@/components/Transactions/AddTransactionModal";
 import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { AddTransactionModal } from "@/components/Transactions/AddTransactionModal";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
 import { signOut } from "@/supabase/auth";
 import { supabase } from "@/supabase/client";
+import { Bell, LogOut, Monitor, Moon, Plus, Sun } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   const navigate = useNavigate();
+  const { session } = useAuth();
   const { theme, setTheme } = useTheme();
 
   const [accounts, setAccounts] = useState<{ id: string; name: string; balance: number }[]>([]);
@@ -59,23 +61,14 @@ export default function Navbar() {
             </Button>
           </AddTransactionModal>
         ) : (
-          <Button
-            size="sm"
-            disabled
-            className="bg-primary/50 text-primary-foreground/50 cursor-not-allowed"
-          >
+          <Button size="sm" disabled className="bg-primary/50 text-primary-foreground/50 cursor-not-allowed">
             <Plus className="w-4 h-4 md:mr-1.5" />
             <span className="hidden md:inline">Add Transaction</span>
           </Button>
         )}
 
         {/* Theme Toggle */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="rounded-full hover:bg-secondary"
-          onClick={cycleTheme}
-        >
+        <Button variant="ghost" size="icon" className="rounded-full hover:bg-secondary" onClick={cycleTheme}>
           {theme === "light" ? (
             <Sun className="w-5 h-5" />
           ) : theme === "dark" ? (
@@ -105,7 +98,7 @@ export default function Navbar() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="w-9 h-9 rounded-full bg-primary/20 border-2 border-transparent hover:border-primary transition-colors focus:outline-none ml-1 flex items-center justify-center">
-              <span className="text-sm font-bold text-primary">L</span>
+              <span className="text-sm font-bold text-primary">{session?.user?.email?.[0]?.toUpperCase() ?? "U"}</span>
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48 glass-panel rounded-xl mt-2 border-border">
@@ -114,7 +107,7 @@ export default function Navbar() {
               className="text-destructive focus:bg-destructive/10 focus:text-destructive rounded-lg cursor-pointer"
             >
               <LogOut className="w-4 h-4 mr-2" />
-              <span>Log out</span>
+              <span>Cerrar sesión</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
