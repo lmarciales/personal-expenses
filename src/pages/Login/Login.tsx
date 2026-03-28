@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button.tsx";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card.tsx";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form.tsx";
 import { Input } from "@/components/ui/input.tsx";
+import { PasswordInput } from "@/components/ui/password-input.tsx";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs.tsx";
 import { resetPassword, signIn, signUp } from "@/supabase/auth.ts";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -151,7 +152,7 @@ const LoginTab = () => {
                 <FormItem>
                   <FormLabel>{t("auth:login.password")}</FormLabel>
                   <FormControl>
-                    <Input {...field} type="password" />
+                    <PasswordInput {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -225,7 +226,7 @@ const RegisterTab = () => {
                 <FormItem>
                   <FormLabel>{t("auth:login.password")}</FormLabel>
                   <FormControl>
-                    <Input {...field} type="password" />
+                    <PasswordInput {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -240,7 +241,7 @@ const RegisterTab = () => {
                 <FormItem>
                   <FormLabel>{t("auth:register.confirmPassword")}</FormLabel>
                   <FormControl>
-                    <Input {...field} type="password" />
+                    <PasswordInput {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

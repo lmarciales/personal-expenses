@@ -1,7 +1,7 @@
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { Button } from "@/components/ui/button.tsx";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card.tsx";
-import { Input } from "@/components/ui/input.tsx";
+import { PasswordInput } from "@/components/ui/password-input.tsx";
 
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form.tsx";
 import { updatePassword } from "@/supabase/auth.ts";
@@ -107,7 +107,7 @@ export const ResetPassword = () => {
                     <FormItem>
                       <FormLabel>{t("auth:resetPassword.newPassword")}</FormLabel>
                       <FormControl>
-                        <Input {...field} type="password" />
+                        <PasswordInput {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -122,7 +122,7 @@ export const ResetPassword = () => {
                     <FormItem>
                       <FormLabel>{t("auth:resetPassword.confirmPassword")}</FormLabel>
                       <FormControl>
-                        <Input {...field} type="password" />
+                        <PasswordInput {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
