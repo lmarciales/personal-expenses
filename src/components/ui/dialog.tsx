@@ -31,26 +31,33 @@ const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
 >(({ className, children, ...props }, ref) => {
-  // Safety net: Radix Dialog sets pointer-events:none on document.body when open.
-  // If the Dialog unmounts abruptly (e.g. parent conditionally renders it, or it
-  // was opened from inside a DropdownMenu), the cleanup never runs and the body
-  // stays blocked. This ensures it's always restored — both on unmount and after
-  // close animations that might leave orphaned pointer-events.
+  // Safety net: Radix Dialog and DropdownMenu both manage pointer-events:none on
+  // document.body. When a Dialog opens from a DropdownMenu item, their cleanups
+  // race — the dropdown may re-apply pointer-events:none after the dialog clears
+  // it, or vice versa. A MutationObserver catches any re-application in real time,
+  // regardless of timing, animation delays, or device speed.
   React.useEffect(() => {
-    return () => {
-      document.body.style.pointerEvents = "";
-    };
-  }, []);
+    const body = document.body;
 
-  React.useEffect(() => {
-    // When content mounts inside a closing dropdown, Radix may set pointer-events
-    // after our dialog opens. Poll briefly to guarantee it's cleared once settled.
-    const timer = setTimeout(() => {
-      if (document.body.style.pointerEvents === "none") {
-        document.body.style.pointerEvents = "";
+    if (body.style.pointerEvents === "none") {
+      body.style.pointerEvents = "";
+    }
+
+    const observer = new MutationObserver(() => {
+      if (body.style.pointerEvents === "none") {
+        body.style.pointerEvents = "";
       }
-    }, 300);
-    return () => clearTimeout(timer);
+    });
+
+    observer.observe(body, {
+      attributeFilter: ["style"],
+      attributes: true,
+    });
+
+    return () => {
+      observer.disconnect();
+      body.style.pointerEvents = "";
+    };
   }, []);
 
   return (
