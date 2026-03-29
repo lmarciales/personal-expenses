@@ -23,6 +23,13 @@
     "title": "Upcoming Recurring Bills",
     "bill": "Bill",
     "lastPaid": "Last Paid:",
-    "logItNow": "Log It Now"
+    "logItNow": "Log It Now",
+    "cancel": "Cancel recurrence",
+    "cancelledToast": "Recurrence cancelled for {{payee}}",
+    "cancelError": "Could not cancel recurrence",
+    "daily": "Daily",
+    "weekly": "Weekly",
+    "monthly": "Monthly",
+    "yearly": "Yearly"
   }
 }

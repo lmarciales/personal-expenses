@@ -21,7 +21,8 @@ export interface DashboardData {
     date: string;
     notes: string | null;
     is_recurring: boolean;
-    recurrence_interval: string | null;
+    recurrence_value: number | null;
+    recurrence_unit: string | null;
     transaction_splits: { id: string; amount: number; assigned_to: string; status: string }[];
     transaction_categories: { category_id: string; categories: { id: string; name: string; color: string | null } }[];
   }[];
@@ -64,7 +65,7 @@ export function useDashboardData() {
           .from("transactions")
           .select(`
                         id, payee, total_amount, date, account_id, type,
-                        is_recurring, recurrence_interval, notes,
+                        is_recurring, recurrence_value, recurrence_unit, notes,
                         accounts (name),
                         transaction_splits (id, amount, assigned_to, status),
                         transaction_categories (category_id, categories (id, name, color))
@@ -143,7 +144,8 @@ export function useDashboardData() {
         date: txn.date,
         notes: txn.notes || null,
         is_recurring: txn.is_recurring || false,
-        recurrence_interval: txn.recurrence_interval || null,
+        recurrence_value: txn.recurrence_value || null,
+        recurrence_unit: txn.recurrence_unit || null,
         transaction_splits: txn.transaction_splits || [],
         transaction_categories: txn.transaction_categories || [],
       }));

@@ -32,12 +32,25 @@ const DialogContent = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
 >(({ className, children, ...props }, ref) => {
   // Safety net: Radix Dialog sets pointer-events:none on document.body when open.
-  // If the Dialog unmounts abruptly (e.g. parent conditionally renders it), the
-  // cleanup never runs and the body stays blocked. This ensures it's always restored.
+  // If the Dialog unmounts abruptly (e.g. parent conditionally renders it, or it
+  // was opened from inside a DropdownMenu), the cleanup never runs and the body
+  // stays blocked. This ensures it's always restored — both on unmount and after
+  // close animations that might leave orphaned pointer-events.
   React.useEffect(() => {
     return () => {
       document.body.style.pointerEvents = "";
     };
+  }, []);
+
+  React.useEffect(() => {
+    // When content mounts inside a closing dropdown, Radix may set pointer-events
+    // after our dialog opens. Poll briefly to guarantee it's cleared once settled.
+    const timer = setTimeout(() => {
+      if (document.body.style.pointerEvents === "none") {
+        document.body.style.pointerEvents = "";
+      }
+    }, 300);
+    return () => clearTimeout(timer);
   }, []);
 
   return (

@@ -8,7 +8,8 @@ export interface TransactionWithSplits {
   date: string;
   account_id: string;
   is_recurring: boolean;
-  recurrence_interval: string | null;
+  recurrence_value: number | null;
+  recurrence_unit: string | null;
   notes: string | null;
   type: "expense" | "income" | "transfer";
   accounts: { name: string; color: string } | null;
@@ -65,7 +66,8 @@ export function useTransactionsData(filters: TransactionFilters) {
           date,
           account_id,
           is_recurring,
-          recurrence_interval,
+          recurrence_value,
+          recurrence_unit,
           notes,
           type,
           accounts!inner(name, color),

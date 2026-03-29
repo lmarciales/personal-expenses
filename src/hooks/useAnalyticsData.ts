@@ -87,7 +87,7 @@ export function useAnalyticsData(year: number): AnalyticsData {
       // Available years
       const yearsSet = new Set<number>();
       for (const row of allDatesResult.data || []) {
-        if (row.date) yearsSet.add(new Date(row.date).getFullYear());
+        if (row.date) yearsSet.add(Number.parseInt(row.date.split("-")[0], 10));
       }
       const availableYears = Array.from(yearsSet).sort();
 
@@ -96,7 +96,9 @@ export function useAnalyticsData(year: number): AnalyticsData {
       const incomeMap = new Map<number, number>();
 
       for (const txn of currentTxns) {
-        const month = new Date(txn.date).getMonth();
+        // Parse month directly from date string to avoid timezone-related shifts
+        // (new Date("2026-01-01") at UTC midnight becomes Dec 31 in UTC-5 timezones)
+        const month = Number.parseInt(txn.date.split("-")[1], 10) - 1;
         const amount = Math.abs(txn.total_amount);
         if (txn.type === "expense") {
           expenseMap.set(month, (expenseMap.get(month) || 0) + amount);

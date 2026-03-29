@@ -3,7 +3,7 @@ import { KpiCards } from "@/components/Analytics/KpiCards";
 import { MonthDetailPanel } from "@/components/Analytics/MonthDetailPanel";
 import { SpendingTrends } from "@/components/Analytics/SpendingTrends";
 import { useAnalyticsData } from "@/hooks/useAnalyticsData";
-import { formatCOP, formatCOPWithSymbol } from "@/lib/currency";
+import { formatCOPCompact, formatCOPWithSymbol } from "@/lib/currency";
 import { ChevronLeft, ChevronRight, TrendingUp } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -60,7 +60,7 @@ export const AnalyticsView = () => {
   });
 
   const analytics = useAnalyticsData(year);
-  const currentMonth = MONTH_NAMES[new Date().getMonth()];
+  const currentMonth = year === new Date().getFullYear() ? MONTH_NAMES[new Date().getMonth()] : null;
   const monthDetailRef = useRef<HTMLDivElement>(null);
 
   // Sync URL params when year/month changes
@@ -182,7 +182,7 @@ export const AnalyticsView = () => {
                 fontSize={12}
                 tickLine={false}
                 axisLine={false}
-                tickFormatter={(value) => formatCOP(value)}
+                tickFormatter={(value) => formatCOPCompact(Math.round(value))}
               />
               <Tooltip
                 cursor={{ fill: "var(--chart-cursor)" }}

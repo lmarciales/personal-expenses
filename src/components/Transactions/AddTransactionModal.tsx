@@ -1,3 +1,4 @@
+import { AssigneeSelect } from "@/components/ui/AssigneeSelect";
 import { CategoryMultiSelect } from "@/components/ui/CategoryMultiSelect";
 import { CurrencyInput } from "@/components/ui/CurrencyInput";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { useAssignees } from "@/hooks/useAssignees";
 import { useCategories } from "@/hooks/useCategories";
 import { formatCOPWithSymbol } from "@/lib/currency";
 import { getDateLocale } from "@/lib/dateFnsLocale";
@@ -17,7 +19,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import type { TFunction } from "i18next";
 import { CalendarIcon, Loader2, PlusCircle, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -45,18 +47,19 @@ const createFormSchema = (t: TFunction) => {
       notes: z.string().optional(),
       type: z.enum(["expense", "income", "transfer"]).default("expense"),
       isRecurring: z.boolean().default(false),
-      recurrenceInterval: z.enum(["Monthly", "Yearly", "Weekly"]).optional().nullable(),
+      recurrenceValue: z.number().int().min(1).default(1),
+      recurrenceUnit: z.enum(["Days", "Weeks", "Months", "Years"]).default("Months"),
       categoryIds: z.array(z.string()).default([]),
       splits: z.array(splitSchema).min(1, t("validation:splitsRequired")),
     })
     .refine(
       (data) => {
-        if (data.isRecurring && !data.recurrenceInterval) return false;
+        if (data.isRecurring && !data.recurrenceUnit) return false;
         return true;
       },
       {
         message: t("validation:recurrenceRequired"),
-        path: ["recurrenceInterval"],
+        path: ["recurrenceUnit"],
       },
     )
     .refine(
@@ -102,6 +105,7 @@ export function AddTransactionModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const { categories, createCategory } = useCategories();
+  const { assignees, createAssignee } = useAssignees();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(createFormSchema(t)),
@@ -113,7 +117,8 @@ export function AddTransactionModal({
       payee: initialData?.payee || "",
       notes: initialData?.notes || "",
       isRecurring: initialData?.isRecurring || false,
-      recurrenceInterval: initialData?.recurrenceInterval || "Monthly",
+      recurrenceValue: initialData?.recurrenceValue || 1,
+      recurrenceUnit: initialData?.recurrenceUnit || "Months",
       categoryIds: initialData?.categoryIds || [],
       splits: initialData?.splits || [
         {
@@ -130,12 +135,28 @@ export function AddTransactionModal({
     control: form.control,
   });
 
+  const [splitEqually, setSplitEqually] = useState(false);
+
   // Automatically update the first split amount when totalAmount changes if there's only one split
   const isRecurring = form.watch("isRecurring");
+  const totalAmount = form.watch("totalAmount");
+
+  // Recalculate equal splits when totalAmount or split count changes
+  useEffect(() => {
+    if (!splitEqually || fields.length === 0) return;
+    const total = totalAmount || 0;
+    const count = fields.length;
+    const base = Math.floor((total * 100) / count) / 100;
+    const remainder = Math.round((total - base * count) * 100) / 100;
+    for (let i = 0; i < count; i++) {
+      const amount = i === 0 ? base + remainder : base;
+      form.setValue(`splits.${i}.amount`, amount, { shouldValidate: true });
+    }
+  }, [splitEqually, totalAmount, fields.length]);
 
   const handleTotalAmountChange = (val: number | undefined) => {
     form.setValue("totalAmount", val as number, { shouldValidate: true });
-    if (fields.length === 1) {
+    if (!splitEqually && fields.length === 1) {
       form.setValue("splits.0.amount", val as number, { shouldValidate: true });
     }
   };
@@ -165,7 +186,8 @@ export function AddTransactionModal({
           p_notes: data.notes || ("" as any),
           p_type: data.type,
           p_is_recurring: data.isRecurring,
-          p_recurrence_interval: (data.isRecurring ? data.recurrenceInterval : null) as any,
+          p_recurrence_value: data.isRecurring ? data.recurrenceValue : (null as any),
+          p_recurrence_unit: data.isRecurring ? data.recurrenceUnit : (null as any),
           p_splits: splitsPayload as any,
           p_category_ids: data.categoryIds,
         });
@@ -180,7 +202,8 @@ export function AddTransactionModal({
           p_notes: data.notes || ("" as any),
           p_type: data.type,
           p_is_recurring: data.isRecurring,
-          p_recurrence_interval: (data.isRecurring ? data.recurrenceInterval : null) as any,
+          p_recurrence_value: data.isRecurring ? data.recurrenceValue : (null as any),
+          p_recurrence_unit: data.isRecurring ? data.recurrenceUnit : (null as any),
           p_splits: splitsPayload as any,
           p_category_ids: data.categoryIds,
         });
@@ -404,12 +427,12 @@ export function AddTransactionModal({
             />
 
             {/* Recurring Toggle */}
-            <div className="flex items-center gap-4 bg-surface-hover p-4 rounded-xl border border-glass">
+            <div className="bg-surface-hover p-4 rounded-xl border border-glass space-y-3">
               <FormField
                 control={form.control}
                 name="isRecurring"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between shadow-sm flex-1">
+                  <FormItem className="flex flex-row items-center justify-between shadow-sm">
                     <FormLabel>{t("transactions:modal.recurringTransaction")}</FormLabel>
                     <FormControl>
                       <Switch checked={field.value} onCheckedChange={field.onChange} />
@@ -419,27 +442,77 @@ export function AddTransactionModal({
               />
 
               {isRecurring && (
-                <FormField
-                  control={form.control}
-                  name="recurrenceInterval"
-                  render={({ field }) => (
-                    <FormItem className="flex-1">
-                      <Select onValueChange={field.onChange} defaultValue={field.value || "Monthly"}>
-                        <FormControl>
-                          <SelectTrigger className="bg-surface-input border-glass">
-                            <SelectValue placeholder={t("transactions:modal.recurrenceInterval")} />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent className="glass-panel border-glass">
-                          <SelectItem value="Monthly">{t("transactions:modal.monthly")}</SelectItem>
-                          <SelectItem value="Yearly">{t("transactions:modal.yearly")}</SelectItem>
-                          <SelectItem value="Weekly">{t("transactions:modal.weekly")}</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="space-y-3 pt-2 border-t border-glass">
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm text-muted-foreground whitespace-nowrap">
+                      {t("transactions:modal.repeatEvery")}
+                    </span>
+                    <FormField
+                      control={form.control}
+                      name="recurrenceValue"
+                      render={({ field }) => (
+                        <FormItem className="w-20">
+                          <FormControl>
+                            <Input
+                              type="number"
+                              min={1}
+                              value={field.value}
+                              onChange={(e) => field.onChange(Number.parseInt(e.target.value, 10) || 1)}
+                              className="bg-surface-input border-glass text-center text-primary font-bold"
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="recurrenceUnit"
+                      render={({ field }) => (
+                        <FormItem className="flex-1">
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger className="bg-surface-input border-glass">
+                                <SelectValue />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent className="glass-panel border-glass">
+                              <SelectItem value="Days">{t("transactions:modal.days")}</SelectItem>
+                              <SelectItem value="Weeks">{t("transactions:modal.weeks")}</SelectItem>
+                              <SelectItem value="Months">{t("transactions:modal.months")}</SelectItem>
+                              <SelectItem value="Years">{t("transactions:modal.years")}</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="flex gap-2 flex-wrap">
+                    {[
+                      { label: t("transactions:modal.weekly"), value: 1, unit: "Weeks" as const },
+                      { label: t("transactions:modal.monthly"), value: 1, unit: "Months" as const },
+                      { label: t("transactions:modal.yearly"), value: 1, unit: "Years" as const },
+                    ].map((shortcut) => (
+                      <button
+                        key={shortcut.label}
+                        type="button"
+                        className={cn(
+                          "px-3 py-1 text-xs rounded-full border transition-colors",
+                          form.getValues("recurrenceValue") === shortcut.value &&
+                            form.getValues("recurrenceUnit") === shortcut.unit
+                            ? "border-primary text-primary bg-primary/10"
+                            : "border-glass text-muted-foreground hover:text-foreground hover:border-foreground/30",
+                        )}
+                        onClick={() => {
+                          form.setValue("recurrenceValue", shortcut.value);
+                          form.setValue("recurrenceUnit", shortcut.unit);
+                        }}
+                      >
+                        {shortcut.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               )}
             </div>
 
@@ -458,6 +531,22 @@ export function AddTransactionModal({
                   {t("transactions:modal.addSplit")}
                 </Button>
               </div>
+
+              {/* Equal Split Toggle */}
+              {fields.length > 1 && (
+                <div className="flex items-center justify-between bg-surface-hover p-3 rounded-lg border border-glass">
+                  <div>
+                    <span className="text-sm font-medium">{t("transactions:modal.splitEqually")}</span>
+                    {splitEqually && (
+                      <p className="text-xs text-muted-foreground">{t("transactions:modal.splitEquallyHint")}</p>
+                    )}
+                  </div>
+                  <Switch
+                    checked={splitEqually}
+                    onCheckedChange={setSplitEqually}
+                  />
+                </div>
+              )}
 
               <FormMessage>{form.formState.errors.splits?.root?.message}</FormMessage>
 
@@ -478,7 +567,8 @@ export function AddTransactionModal({
                               value={inputField.value}
                               onChange={(val) => inputField.onChange(val)}
                               placeholder="0"
-                              className="bg-surface-input border-glass text-sm"
+                              className={cn("bg-surface-input border-glass text-sm", splitEqually && "opacity-60")}
+                              disabled={splitEqually}
                             />
                           </FormControl>
                         </FormItem>
@@ -492,10 +582,13 @@ export function AddTransactionModal({
                         <FormItem className="col-span-4">
                           <FormLabel className="text-xs">{t("transactions:modal.splitAssignee")}</FormLabel>
                           <FormControl>
-                            <Input
+                            <AssigneeSelect
+                              assignees={assignees}
+                              value={inputField.value}
+                              onChange={inputField.onChange}
+                              onCreateAssignee={createAssignee}
                               placeholder={`${t("transactions:modal.me")}, ...`}
-                              {...inputField}
-                              className="bg-surface-input border-glass text-sm"
+                              className="text-sm"
                             />
                           </FormControl>
                         </FormItem>

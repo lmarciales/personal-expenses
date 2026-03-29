@@ -1,5 +1,5 @@
 import type { MonthlyData } from "@/hooks/useAnalyticsData";
-import { formatCOP, formatCOPWithSymbol } from "@/lib/currency";
+import { formatCOPCompact, formatCOPWithSymbol } from "@/lib/currency";
 import { useTranslation } from "react-i18next";
 import { Bar, BarChart, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
@@ -72,7 +72,7 @@ export function IncomeExpenseChart({ monthlyExpenses, monthlyIncome, onMonthClic
               fontSize={12}
               tickLine={false}
               axisLine={false}
-              tickFormatter={(value) => formatCOP(value)}
+              tickFormatter={(value) => formatCOPCompact(Math.round(value))}
             />
             <Tooltip content={<CustomTooltip t={t} />} cursor={{ fill: "var(--chart-cursor)" }} />
             <Legend

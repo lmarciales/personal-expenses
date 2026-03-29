@@ -19,7 +19,8 @@ export interface Transaction {
   date?: string;
   notes?: string | null;
   is_recurring?: boolean;
-  recurrence_interval?: string | null;
+  recurrence_value?: number | null;
+  recurrence_unit?: string | null;
   transaction_splits?: { id: string; amount: number; assigned_to: string; status: string }[];
   transaction_categories?: { category_id: string; categories: { id: string; name: string; color: string | null } }[];
 }
@@ -144,8 +145,12 @@ const Transactions = ({
             payee: modalState.transaction.name,
             notes: modalState.mode === "edit" ? modalState.transaction.notes || "" : undefined,
             isRecurring: modalState.mode === "edit" ? modalState.transaction.is_recurring || false : false,
-            recurrenceInterval:
-              modalState.mode === "edit" ? (modalState.transaction.recurrence_interval as any) : undefined,
+            recurrenceValue:
+              modalState.mode === "edit" ? (modalState.transaction.recurrence_value ?? undefined) : undefined,
+            recurrenceUnit:
+              modalState.mode === "edit"
+                ? ((modalState.transaction.recurrence_unit as any) ?? undefined)
+                : undefined,
             categoryIds: modalState.transaction.transaction_categories?.map((tc) => tc.category_id) || [],
             splits:
               modalState.mode === "edit"

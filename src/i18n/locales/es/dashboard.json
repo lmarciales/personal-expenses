@@ -23,6 +23,13 @@
     "title": "Próximos pagos recurrentes",
     "bill": "Factura",
     "lastPaid": "Último pago:",
-    "logItNow": "Registrar ahora"
+    "logItNow": "Registrar ahora",
+    "cancel": "Cancelar recurrencia",
+    "cancelledToast": "Recurrencia cancelada para {{payee}}",
+    "cancelError": "No se pudo cancelar la recurrencia",
+    "daily": "Diario",
+    "weekly": "Semanal",
+    "monthly": "Mensual",
+    "yearly": "Anual"
   }
 }

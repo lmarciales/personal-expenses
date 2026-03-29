@@ -1,13 +1,15 @@
 import { supabase } from "@/supabase/client";
-import { isSameMonth, isSameWeek, isSameYear, parseISO } from "date-fns";
+import { differenceInDays, differenceInMonths, differenceInWeeks, differenceInYears, parseISO } from "date-fns";
 import { useCallback, useEffect, useState } from "react";
 
 export interface RecurringRecommendation {
   payee: string;
   total_amount: number;
-  recurrence_interval: "Monthly" | "Yearly" | "Weekly";
+  recurrence_value: number;
+  recurrence_unit: "Days" | "Weeks" | "Months" | "Years";
   last_paid_date: string;
-  account_id: string; // The account previously used
+  account_id: string;
+  lastSplits: { amount: number; assigned_to: string; status: string }[];
 }
 
 export function useRecurringRecommendations() {
@@ -21,10 +23,12 @@ export function useRecurringRecommendations() {
       if (userError || !userData?.user) throw new Error("User not authenticated");
       const userId = userData.user.id;
 
-      // Fetch all transactions marked as recurring
+      // Fetch all transactions marked as recurring, with their splits
       const { data: recurringTxns, error: txnsError } = await supabase
         .from("transactions")
-        .select("payee, total_amount, recurrence_interval, date, account_id")
+        .select(
+          "payee, total_amount, recurrence_value, recurrence_unit, date, account_id, transaction_splits(amount, assigned_to, status)",
+        )
         .eq("user_id", userId)
         .eq("is_recurring", true)
         .order("date", { ascending: false });
@@ -42,38 +46,47 @@ export function useRecurringRecommendations() {
       // Group by payee to find the latest payment for each recurring bill
       const latestPayments = new Map<string, (typeof recurringTxns)[0]>();
 
-      recurringTxns.forEach((txn) => {
+      for (const txn of recurringTxns) {
         if (!latestPayments.has(txn.payee)) {
           latestPayments.set(txn.payee, txn);
         }
-      });
+      }
 
       const suggestions: RecurringRecommendation[] = [];
 
-      latestPayments.forEach((txn) => {
+      for (const txn of latestPayments.values()) {
         const lastPaidDate = parseISO(txn.date);
+        const value = txn.recurrence_value ?? 1;
+        const unit = txn.recurrence_unit ?? "Months";
         let needsRecommendation = false;
 
-        if (txn.recurrence_interval === "Monthly") {
-          // Suggest if not paid this month
-          needsRecommendation = !isSameMonth(lastPaidDate, now);
-        } else if (txn.recurrence_interval === "Yearly") {
-          // Suggest if not paid this year, AND it's generally due this month based on the original payment
-          needsRecommendation = !isSameYear(lastPaidDate, now) && lastPaidDate.getMonth() === now.getMonth();
-        } else if (txn.recurrence_interval === "Weekly") {
-          needsRecommendation = !isSameWeek(lastPaidDate, now);
+        if (unit === "Days") {
+          needsRecommendation = differenceInDays(now, lastPaidDate) >= value;
+        } else if (unit === "Weeks") {
+          needsRecommendation = differenceInWeeks(now, lastPaidDate) >= value;
+        } else if (unit === "Months") {
+          needsRecommendation = differenceInMonths(now, lastPaidDate) >= value;
+        } else if (unit === "Years") {
+          needsRecommendation =
+            differenceInYears(now, lastPaidDate) >= value && lastPaidDate.getMonth() === now.getMonth();
         }
 
         if (needsRecommendation) {
           suggestions.push({
             payee: txn.payee,
             total_amount: txn.total_amount,
-            recurrence_interval: txn.recurrence_interval as any,
+            recurrence_value: value,
+            recurrence_unit: unit as any,
             last_paid_date: txn.date,
             account_id: txn.account_id,
+            lastSplits: (txn.transaction_splits || []).map((s) => ({
+              amount: Math.abs(s.amount),
+              assigned_to: s.assigned_to,
+              status: s.status,
+            })),
           });
         }
-      });
+      }
 
       setRecommendations(suggestions);
     } catch (err) {

@@ -1,4 +1,4 @@
-import { formatCOP, formatCOPWithSymbol } from "@/lib/currency";
+import { formatCOPCompact, formatCOPWithSymbol } from "@/lib/currency";
 import { ArrowUpRight, BarChart3, ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -63,7 +63,8 @@ const MONTH_KEYS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep
 const ExpenseChart = ({ data: propData, availableYears, selectedYear, onYearChange }: ExpenseChartProps) => {
   const { t } = useTranslation("dashboard");
   const data = propData && propData.length > 0 ? propData : defaultData;
-  const currentMonth = MONTH_NAMES[new Date().getMonth()];
+  const currentYear = new Date().getFullYear();
+  const currentMonth = (selectedYear ?? currentYear) === currentYear ? MONTH_NAMES[new Date().getMonth()] : null;
   const navigate = useNavigate();
 
   const translateMonth = (name: string) => {
@@ -171,7 +172,7 @@ const ExpenseChart = ({ data: propData, availableYears, selectedYear, onYearChan
               fontSize={12}
               tickLine={false}
               axisLine={false}
-              tickFormatter={(value) => formatCOP(value)}
+              tickFormatter={(value) => formatCOPCompact(Math.round(value))}
             />
             <Tooltip
               cursor={{ fill: "var(--chart-cursor)" }}

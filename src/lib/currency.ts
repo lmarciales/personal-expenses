@@ -45,6 +45,25 @@ export function formatCOP(value: number): string {
 }
 
 /**
+ * Format a number as a compact COP string for chart axes.
+ * Prevents truncation of long numbers in small chart margins.
+ * e.g. 1500000 → "1,5M", 250000 → "250K", 1200 → "1.200"
+ */
+export function formatCOPCompact(value: number): string {
+  const abs = Math.abs(value);
+  const sign = value < 0 ? "-" : "";
+  if (abs >= 1_000_000) {
+    const m = abs / 1_000_000;
+    return `${sign}${m % 1 === 0 ? m.toFixed(0) : m.toFixed(1).replace(".", ",")}M`;
+  }
+  if (abs >= 1_000) {
+    const k = abs / 1_000;
+    return `${sign}${k % 1 === 0 ? k.toFixed(0) : k.toFixed(1).replace(".", ",")}K`;
+  }
+  return COP_PLAIN_FORMATTER.format(value);
+}
+
+/**
  * Format a number for display inside a currency input field.
  * Always shows exactly 2 decimal places.
  * e.g. 1000000.5 → "1.000.000,50"
