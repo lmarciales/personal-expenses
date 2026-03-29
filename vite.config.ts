@@ -9,4 +9,24 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          recharts: ["recharts"],
+          "radix-ui": [
+            "@radix-ui/react-select",
+            "@radix-ui/react-dialog",
+            "@radix-ui/react-dropdown-menu",
+            "@radix-ui/react-popover",
+            "@radix-ui/react-tabs",
+            "@radix-ui/react-tooltip",
+          ],
+          "form-vendor": ["react-hook-form", "@hookform/resolvers", "zod"],
+          "date-vendor": ["date-fns"],
+        },
+      },
+    },
+  },
 });
