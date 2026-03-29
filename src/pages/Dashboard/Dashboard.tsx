@@ -61,11 +61,13 @@ export const Dashboard = () => {
 
       {/* Dashboard Grid */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-        <div className="md:col-span-6 flex flex-col md:h-[420px]">
+        <div className="md:col-span-6">
           <Products products={accounts} onAccountAdded={refetch} />
         </div>
-        <div className="md:col-span-6 flex flex-col md:h-[420px]">
-          <SpendingOverview totalExpense={totalExpense} categorySpending={categorySpending} />
+        <div className="md:col-span-6 relative">
+          <div className="md:absolute md:inset-0">
+            <SpendingOverview totalExpense={totalExpense} categorySpending={categorySpending} />
+          </div>
         </div>
 
         <div className="md:col-span-4">

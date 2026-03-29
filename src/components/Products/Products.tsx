@@ -65,7 +65,7 @@ const Products = ({ products, onAccountAdded }: { products: Product[]; onAccount
   };
 
   return (
-    <div className="glass-card rounded-2xl h-full flex flex-col p-6">
+    <div className="glass-card rounded-2xl flex flex-col p-6">
       <div className="flex flex-row items-start justify-between pb-4">
         <div>
           <h2 className="typo-section-label flex items-center gap-2">
@@ -87,7 +87,7 @@ const Products = ({ products, onAccountAdded }: { products: Product[]; onAccount
         </Button>
       </div>
 
-      <div className="mt-auto space-y-3">
+      <div className="mt-2 min-h-[280px] space-y-3">
         <div className="flex items-center justify-between mb-2">
           <h3 className="typo-section-label">{t("products.myAccounts")}</h3>
           <div className="flex items-center gap-1">
