@@ -139,7 +139,7 @@ const ExpenseChart = ({ data: propData, availableYears, selectedYear, onYearChan
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  {translateMonth(currentMonth)} {t("expenseChart.expenses")}
+                  {translateMonth(currentMonth!)} {t("expenseChart.expenses")}
                 </p>
               </div>
             </div>
@@ -149,7 +149,7 @@ const ExpenseChart = ({ data: propData, availableYears, selectedYear, onYearChan
               <span className="bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 rounded border border-primary/10">
                 {pct}%
               </span>
-              <span className="text-xs text-muted-foreground">{translateMonth(currentMonth)}</span>
+              <span className="text-xs text-muted-foreground">{translateMonth(currentMonth!)}</span>
             </div>
           </>
         ) : null;

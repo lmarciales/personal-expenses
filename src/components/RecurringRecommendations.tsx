@@ -55,7 +55,8 @@ export function RecurringRecommendations({
         await supabase
           .from("transactions")
           .update({ is_recurring: false, recurrence_value: null, recurrence_unit: null })
-          .eq("id", txns[0].id);
+          .eq("id", txns[0].id)
+          .eq("user_id", userData.user.id);
         refetch();
         toast.success(t("dashboard:recurring.cancelledToast", { payee }));
       }
