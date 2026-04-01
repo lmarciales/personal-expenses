@@ -10,6 +10,7 @@ export interface RecurringRecommendation {
   last_paid_date: string;
   account_id: string;
   lastSplits: { amount: number; assigned_to: string; status: string }[];
+  lastCategoryIds: string[];
 }
 
 export function useRecurringRecommendations() {
@@ -27,7 +28,7 @@ export function useRecurringRecommendations() {
       const { data: recurringTxns, error: txnsError } = await supabase
         .from("transactions")
         .select(
-          "payee, total_amount, recurrence_value, recurrence_unit, date, account_id, transaction_splits(amount, assigned_to, status)",
+          "payee, total_amount, recurrence_value, recurrence_unit, date, account_id, transaction_splits(amount, assigned_to, status), transaction_categories(category_id)",
         )
         .eq("user_id", userId)
         .eq("is_recurring", true)
@@ -84,6 +85,7 @@ export function useRecurringRecommendations() {
               assigned_to: s.assigned_to,
               status: s.status,
             })),
+            lastCategoryIds: (txn.transaction_categories || []).map((tc) => tc.category_id),
           });
         }
       }

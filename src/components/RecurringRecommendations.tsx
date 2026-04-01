@@ -125,6 +125,7 @@ export function RecurringRecommendations({
                       recurrenceValue: rec.recurrence_value,
                       recurrenceUnit: rec.recurrence_unit,
                       accountId: rec.account_id,
+                      categoryIds: rec.lastCategoryIds,
                       splits:
                         rec.lastSplits.length > 0
                           ? rec.lastSplits.map((s) => ({
