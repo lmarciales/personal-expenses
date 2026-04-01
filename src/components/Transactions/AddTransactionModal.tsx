@@ -228,7 +228,13 @@ export function AddTransactionModal({
 
     setIsDeleting(true);
     try {
-      const { error } = await supabase.from("transactions").delete().eq("id", transactionId);
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      if (userError || !userData?.user) throw new Error("User not authenticated");
+
+      const { error } = await supabase.rpc("delete_transaction_with_balance", {
+        p_transaction_id: transactionId,
+        p_user_id: userData.user.id,
+      });
       if (error) throw error;
 
       setOpen(false);

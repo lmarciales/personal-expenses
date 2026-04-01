@@ -123,7 +123,13 @@ export function TransactionsView() {
     if (!confirm(t("deleteConfirm"))) return;
 
     try {
-      const { error } = await supabase.from("transactions").delete().eq("id", id);
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      if (userError || !userData?.user) throw new Error("User not authenticated");
+
+      const { error } = await supabase.rpc("delete_transaction_with_balance", {
+        p_transaction_id: id,
+        p_user_id: userData.user.id,
+      });
       if (error) throw error;
       refetch();
     } catch (err) {
