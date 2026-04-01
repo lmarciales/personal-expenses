@@ -32,7 +32,7 @@ function formatRecurrence(value: number, unit: string, t: (key: string) => strin
 export function RecurringRecommendations({
   accounts,
   onSuccess,
-}: { accounts: { id: string; name: string; balance: number }[]; onSuccess: () => void }) {
+}: { accounts: { id: string; name: string; balance: number; type: string }[]; onSuccess: () => void }) {
   const { t } = useTranslation(["dashboard", "transactions"]);
   const { recommendations, isLoading, refetch } = useRecurringRecommendations();
 

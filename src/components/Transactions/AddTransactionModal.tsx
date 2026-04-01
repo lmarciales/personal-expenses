@@ -77,7 +77,7 @@ const createFormSchema = (t: TFunction) => {
 type FormValues = z.infer<ReturnType<typeof createFormSchema>>;
 
 interface AddTransactionModalProps {
-  accounts: { id: string; name: string; balance: number }[];
+  accounts: { id: string; name: string; balance: number; type: string }[];
   onSuccess: () => void;
   initialData?: Partial<FormValues>;
   editMode?: boolean;
@@ -153,6 +153,23 @@ export function AddTransactionModal({
       form.setValue(`splits.${i}.amount`, amount, { shouldValidate: true });
     }
   }, [splitEqually, totalAmount, fields.length]);
+
+  // Auto-update split statuses when the selected account changes
+  const accountId = form.watch("accountId");
+  useEffect(() => {
+    if (editMode) return;
+    const selectedAccount = accounts.find((a) => a.id === accountId);
+    if (!selectedAccount) return;
+    const isCreditCard = selectedAccount.type === "Credit Card";
+    for (let i = 0; i < fields.length; i++) {
+      const assignee = form.getValues(`splits.${i}.assigned_to`);
+      if (assignee === "Me") {
+        form.setValue(`splits.${i}.status`, isCreditCard ? "Pending Payment" : "Settled");
+      } else {
+        form.setValue(`splits.${i}.status`, "Pending Receival");
+      }
+    }
+  }, [accountId, accounts, editMode, fields.length, form]);
 
   const handleTotalAmountChange = (val: number | undefined) => {
     form.setValue("totalAmount", val as number, { shouldValidate: true });
@@ -607,7 +624,7 @@ export function AddTransactionModal({
                       render={({ field: selectField }) => (
                         <FormItem className="col-span-3">
                           <FormLabel className="text-xs">{t("transactions:modal.splitStatus")}</FormLabel>
-                          <Select onValueChange={selectField.onChange} defaultValue={selectField.value}>
+                          <Select onValueChange={selectField.onChange} value={selectField.value}>
                             <FormControl>
                               <SelectTrigger className="bg-surface-input border-glass text-sm px-2">
                                 <SelectValue />

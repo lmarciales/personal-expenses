@@ -107,12 +107,12 @@ export function TransactionsView() {
     transaction: (typeof transactions)[number];
   } | null>(null);
 
-  const [accounts, setAccounts] = useState<{ id: string; name: string; balance: number }[]>([]);
+  const [accounts, setAccounts] = useState<{ id: string; name: string; balance: number; type: string }[]>([]);
   useEffect(() => {
     const fetchAccounts = async () => {
       const { data: userData } = await supabase.auth.getUser();
       if (!userData?.user) return;
-      const { data } = await supabase.from("accounts").select("id, name, balance").eq("user_id", userData.user.id);
+      const { data } = await supabase.from("accounts").select("id, name, balance, type").eq("user_id", userData.user.id);
       if (data) setAccounts(data);
     };
     fetchAccounts();

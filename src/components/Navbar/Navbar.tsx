@@ -23,12 +23,12 @@ export default function Navbar() {
   const { theme, setTheme } = useTheme();
   const { t } = useTranslation();
 
-  const [accounts, setAccounts] = useState<{ id: string; name: string; balance: number }[]>([]);
+  const [accounts, setAccounts] = useState<{ id: string; name: string; balance: number; type: string }[]>([]);
 
   useEffect(() => {
     const fetchAccounts = async () => {
       if (!session?.user?.id) return;
-      const { data } = await supabase.from("accounts").select("id, name, balance").eq("user_id", session.user.id);
+      const { data } = await supabase.from("accounts").select("id, name, balance, type").eq("user_id", session.user.id);
       if (data) setAccounts(data);
     };
     fetchAccounts();
