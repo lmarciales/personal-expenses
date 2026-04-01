@@ -14,7 +14,7 @@ create table accounts (
   id uuid primary key default uuid_generate_v4(),
   user_id uuid references auth.users not null,
   name text not null,
-  type text not null check (type in ('Checking', 'Savings', 'Credit Card', 'Cash', 'Other')),
+  type text not null references account_types (name) on update cascade,
   balance numeric(12, 2) not null default 0.00,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
@@ -324,6 +324,10 @@ declare
   v_transaction_id uuid;
   v_target_name text;
 begin
+  if p_user_id != auth.uid() then
+    raise exception 'Unauthorized: user_id mismatch';
+  end if;
+
   select name into v_target_name from accounts
   where id = p_target_account_id and user_id = p_user_id;
 
@@ -350,7 +354,7 @@ begin
   end if;
   return null;
 end;
-$$ language plpgsql security definer;
+$$ language plpgsql security definer set search_path = public;
 
 -- Settle receivables (mark debts others owe as received)
 create or replace function settle_receivables(
@@ -364,6 +368,10 @@ create or replace function settle_receivables(
 declare
   v_transaction_id uuid;
 begin
+  if p_user_id != auth.uid() then
+    raise exception 'Unauthorized: user_id mismatch';
+  end if;
+
   update transaction_splits set status = 'Settled'
   where id = any(p_split_ids) and user_id = p_user_id;
 
@@ -383,7 +391,7 @@ begin
   end if;
   return null;
 end;
-$$ language plpgsql security definer;
+$$ language plpgsql security definer set search_path = public;
 
 -- ============================================================
 -- Data Migration (run once on existing data)

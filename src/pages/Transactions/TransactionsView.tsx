@@ -112,7 +112,10 @@ export function TransactionsView() {
     const fetchAccounts = async () => {
       const { data: userData } = await supabase.auth.getUser();
       if (!userData?.user) return;
-      const { data } = await supabase.from("accounts").select("id, name, balance, type").eq("user_id", userData.user.id);
+      const { data } = await supabase
+        .from("accounts")
+        .select("id, name, balance, type")
+        .eq("user_id", userData.user.id);
       if (data) setAccounts(data);
     };
     fetchAccounts();
@@ -446,21 +449,16 @@ export function TransactionsView() {
           transactionId={modalState.mode === "edit" ? modalState.transaction.id : undefined}
           initialData={{
             accountId: modalState.transaction.account_id || "",
-            date:
-              modalState.mode === "edit"
-                ? modalState.transaction.date
-                : undefined,
+            date: modalState.mode === "edit" ? modalState.transaction.date : undefined,
             totalAmount: Math.abs(modalState.transaction.total_amount),
             type: modalState.transaction.type,
             payee: modalState.transaction.payee,
             notes: modalState.mode === "edit" ? modalState.transaction.notes || "" : undefined,
             isRecurring: modalState.mode === "edit" ? modalState.transaction.is_recurring || false : false,
             recurrenceValue:
-              modalState.mode === "edit" ? (modalState.transaction.recurrence_value ?? undefined) : undefined,
+              modalState.mode === "edit" ? modalState.transaction.recurrence_value ?? undefined : undefined,
             recurrenceUnit:
-              modalState.mode === "edit"
-                ? ((modalState.transaction.recurrence_unit as any) ?? undefined)
-                : undefined,
+              modalState.mode === "edit" ? (modalState.transaction.recurrence_unit as any) ?? undefined : undefined,
             categoryIds: modalState.transaction.transaction_categories?.map((tc) => tc.category_id) || [],
             splits:
               modalState.mode === "edit"

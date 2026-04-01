@@ -136,21 +136,16 @@ const Transactions = ({
           transactionId={modalState.mode === "edit" ? String(modalState.transaction.id) : undefined}
           initialData={{
             accountId: modalState.transaction.account_id || "",
-            date:
-              modalState.mode === "edit" && modalState.transaction.date
-                ? modalState.transaction.date
-                : undefined,
+            date: modalState.mode === "edit" && modalState.transaction.date ? modalState.transaction.date : undefined,
             totalAmount: Math.abs(modalState.transaction.amount),
             type: modalState.transaction.type,
             payee: modalState.transaction.name,
             notes: modalState.mode === "edit" ? modalState.transaction.notes || "" : undefined,
             isRecurring: modalState.mode === "edit" ? modalState.transaction.is_recurring || false : false,
             recurrenceValue:
-              modalState.mode === "edit" ? (modalState.transaction.recurrence_value ?? undefined) : undefined,
+              modalState.mode === "edit" ? modalState.transaction.recurrence_value ?? undefined : undefined,
             recurrenceUnit:
-              modalState.mode === "edit"
-                ? ((modalState.transaction.recurrence_unit as any) ?? undefined)
-                : undefined,
+              modalState.mode === "edit" ? (modalState.transaction.recurrence_unit as any) ?? undefined : undefined,
             categoryIds: modalState.transaction.transaction_categories?.map((tc) => tc.category_id) || [],
             splits:
               modalState.mode === "edit"

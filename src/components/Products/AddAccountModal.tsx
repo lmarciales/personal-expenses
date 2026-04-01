@@ -94,6 +94,12 @@ export function AddAccountModal({
     fetchTypes();
   }, [form, editMode, initialData]);
 
+  const isLegacyType =
+    editMode &&
+    initialData?.type &&
+    accountTypes.length > 0 &&
+    !accountTypes.some((at) => at.name === initialData.type);
+
   const onSubmit = async (data: FormValues) => {
     setIsSubmitting(true);
     try {
@@ -222,9 +228,17 @@ export function AddAccountModal({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent className="glass-panel border-glass">
-                    {accountTypes.map((t) => (
-                      <SelectItem key={t.name} value={t.name}>
-                        {t.name}
+                    {/* Intentional: when a legacy type (no longer in account_types) is present,
+                        show it as a disabled option so the form value passes through unchanged
+                        on submit. This is graceful degradation — not a bug. */}
+                    {isLegacyType && initialData?.type && (
+                      <SelectItem key={initialData.type} value={initialData.type} disabled>
+                        {initialData.type} ({t("accounts:modal.legacy")})
+                      </SelectItem>
+                    )}
+                    {accountTypes.map((at) => (
+                      <SelectItem key={at.name} value={at.name}>
+                        {at.name}
                       </SelectItem>
                     ))}
                   </SelectContent>

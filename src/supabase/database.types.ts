@@ -281,6 +281,23 @@ export type Database = {
       add_transaction_with_splits:
         | {
             Args: {
+              p_account_id?: string
+              p_category_ids?: string[]
+              p_date?: string
+              p_is_recurring?: boolean
+              p_notes?: string
+              p_payee?: string
+              p_recurrence_unit?: string
+              p_recurrence_value?: number
+              p_splits?: Json
+              p_total_amount?: number
+              p_type?: string
+              p_user_id: string
+            }
+            Returns: string
+          }
+        | {
+            Args: {
               p_account_id: string
               p_date: string
               p_is_recurring: boolean
@@ -317,23 +334,6 @@ export type Database = {
               p_notes: string
               p_payee: string
               p_recurrence_interval?: string
-              p_splits?: Json
-              p_total_amount: number
-              p_type?: string
-              p_user_id: string
-            }
-            Returns: string
-          }
-        | {
-            Args: {
-              p_account_id?: string | null
-              p_category_ids?: string[]
-              p_date: string
-              p_is_recurring?: boolean
-              p_notes: string
-              p_payee: string
-              p_recurrence_unit?: string
-              p_recurrence_value?: number
               p_splits?: Json
               p_total_amount: number
               p_type?: string
@@ -385,6 +385,24 @@ export type Database = {
       update_transaction_with_splits:
         | {
             Args: {
+              p_account_id?: string
+              p_category_ids?: string[]
+              p_date?: string
+              p_is_recurring?: boolean
+              p_notes?: string
+              p_payee?: string
+              p_recurrence_unit?: string
+              p_recurrence_value?: number
+              p_splits?: Json
+              p_total_amount?: number
+              p_transaction_id: string
+              p_type?: string
+              p_user_id: string
+            }
+            Returns: undefined
+          }
+        | {
+            Args: {
               p_account_id: string
               p_date: string
               p_is_recurring: boolean
@@ -423,24 +441,6 @@ export type Database = {
               p_notes: string
               p_payee: string
               p_recurrence_interval?: string
-              p_splits?: Json
-              p_total_amount: number
-              p_transaction_id: string
-              p_type?: string
-              p_user_id: string
-            }
-            Returns: undefined
-          }
-        | {
-            Args: {
-              p_account_id?: string | null
-              p_category_ids?: string[]
-              p_date: string
-              p_is_recurring?: boolean
-              p_notes: string
-              p_payee: string
-              p_recurrence_unit?: string
-              p_recurrence_value?: number
               p_splits?: Json
               p_total_amount: number
               p_transaction_id: string
