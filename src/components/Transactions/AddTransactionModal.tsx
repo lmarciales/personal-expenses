@@ -196,7 +196,7 @@ export function AddTransactionModal({
         const { error } = await supabase.rpc("update_transaction_with_splits", {
           p_transaction_id: transactionId,
           p_user_id: userId,
-          p_account_id: data.accountId === "none" ? null : data.accountId,
+          p_account_id: data.accountId === "none" ? undefined : data.accountId,
           p_date: data.date,
           p_total_amount: data.totalAmount,
           p_payee: data.payee,
@@ -212,7 +212,7 @@ export function AddTransactionModal({
       } else {
         const { error } = await supabase.rpc("add_transaction_with_splits", {
           p_user_id: userId,
-          p_account_id: data.accountId === "none" ? null : data.accountId,
+          p_account_id: data.accountId === "none" ? undefined : data.accountId,
           p_date: data.date,
           p_total_amount: data.totalAmount,
           p_payee: data.payee,
