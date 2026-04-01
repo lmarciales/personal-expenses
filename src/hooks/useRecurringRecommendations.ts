@@ -8,7 +8,7 @@ export interface RecurringRecommendation {
   recurrence_value: number;
   recurrence_unit: "Days" | "Weeks" | "Months" | "Years";
   last_paid_date: string;
-  account_id: string;
+  account_id: string | null;
   lastSplits: { amount: number; assigned_to: string; status: string }[];
   lastCategoryIds: string[];
 }

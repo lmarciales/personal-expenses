@@ -445,7 +445,7 @@ export function TransactionsView() {
           editMode={modalState.mode === "edit"}
           transactionId={modalState.mode === "edit" ? modalState.transaction.id : undefined}
           initialData={{
-            accountId: modalState.transaction.account_id,
+            accountId: modalState.transaction.account_id || "",
             date:
               modalState.mode === "edit"
                 ? modalState.transaction.date

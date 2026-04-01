@@ -85,6 +85,7 @@ export function useAccountsData(filters: AccountFilters) {
       // Aggregate transaction stats by account_id
       const statsMap = new Map<string, { count: number; income: number; expenses: number }>();
       for (const txn of transactionsData || []) {
+        if (!txn.account_id) continue;
         const existing = statsMap.get(txn.account_id) || { count: 0, income: 0, expenses: 0 };
         existing.count += 1;
         if (txn.type === "income") {

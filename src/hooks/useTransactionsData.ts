@@ -6,7 +6,7 @@ export interface TransactionWithSplits {
   payee: string;
   total_amount: number;
   date: string;
-  account_id: string;
+  account_id: string | null;
   is_recurring: boolean;
   recurrence_value: number | null;
   recurrence_unit: string | null;
@@ -70,7 +70,7 @@ export function useTransactionsData(filters: TransactionFilters) {
           recurrence_unit,
           notes,
           type,
-          accounts!inner(name, color),
+          accounts(name, color),
           transaction_splits!inner(
             id,
             amount,

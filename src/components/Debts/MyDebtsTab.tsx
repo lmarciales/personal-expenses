@@ -4,7 +4,7 @@ import { formatCOPWithSymbol } from "@/lib/currency";
 import { parseLocalDate } from "@/lib/dates";
 import { getDateLocale } from "@/lib/dateFnsLocale";
 import { format } from "date-fns";
-import { CheckCheck, CheckSquare, CreditCard, Square } from "lucide-react";
+import { CheckCheck, CheckSquare, CreditCard, Globe, Square } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { PaymentDialog } from "./PaymentDialog";
@@ -96,7 +96,11 @@ export const MyDebtsTab = ({ groups, accounts, onSettled }: MyDebtsTabProps) => 
                   className="w-10 h-10 rounded-xl flex items-center justify-center"
                   style={{ backgroundColor: group.account.color ? `${group.account.color}20` : "rgba(99,102,241,0.1)" }}
                 >
-                  <CreditCard className="w-5 h-5" style={{ color: group.account.color || "#6366f1" }} />
+                  {group.account.type === "External" ? (
+                    <Globe className="w-5 h-5" style={{ color: group.account.color || "#6366f1" }} />
+                  ) : (
+                    <CreditCard className="w-5 h-5" style={{ color: group.account.color || "#6366f1" }} />
+                  )}
                 </div>
                 <div>
                   <h3 className="font-semibold text-foreground">{group.account.name}</h3>
@@ -106,8 +110,19 @@ export const MyDebtsTab = ({ groups, accounts, onSettled }: MyDebtsTabProps) => 
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-xs text-muted-foreground">{t("myDebts.totalPending")}</p>
-                <p className="text-lg font-bold text-danger">{formatCOPWithSymbol(group.total)}</p>
+                {group.transactionTotal !== group.total ? (
+                  <>
+                    <p className="text-xs text-muted-foreground">{t("myDebts.totalTransactions")}</p>
+                    <p className="text-lg font-bold text-foreground">{formatCOPWithSymbol(group.transactionTotal)}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{t("myDebts.iOwe")}</p>
+                    <p className="text-sm font-semibold text-danger">{formatCOPWithSymbol(group.total)}</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-xs text-muted-foreground">{t("myDebts.totalPending")}</p>
+                    <p className="text-lg font-bold text-danger">{formatCOPWithSymbol(group.total)}</p>
+                  </>
+                )}
               </div>
             </div>
 
@@ -154,7 +169,14 @@ export const MyDebtsTab = ({ groups, accounts, onSettled }: MyDebtsTabProps) => 
                         </p>
                       </div>
                     </div>
-                    <span className="text-sm font-semibold text-foreground">{formatCOPWithSymbol(item.amount)}</span>
+                    <div className="text-right">
+                      <span className="text-sm font-semibold text-foreground">{formatCOPWithSymbol(item.amount)}</span>
+                      {item.transactionTotal !== item.amount && (
+                        <p className="text-xs text-muted-foreground">
+                          {t("myDebts.ofTotal", { total: formatCOPWithSymbol(item.transactionTotal) })}
+                        </p>
+                      )}
+                    </div>
                   </button>
                 );
               })}

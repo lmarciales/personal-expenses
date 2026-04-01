@@ -21,6 +21,9 @@
     "pendingItems_one": "{{count}} pending item",
     "pendingItems_other": "{{count}} pending items",
     "totalPending": "Total Pending",
+    "totalTransactions": "Total Transactions",
+    "iOwe": "I Owe",
+    "ofTotal": "of {{total}} total",
     "selectedInfo_one": "{{count}} selected · {{amount}}",
     "selectedInfo_other": "{{count}} selected · {{amount}}",
     "paySelected": "Pay Selected"

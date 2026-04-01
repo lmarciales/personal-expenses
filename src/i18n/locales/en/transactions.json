@@ -27,6 +27,7 @@
     "editTitle": "Edit Transaction",
     "account": "Account",
     "selectAccount": "Select account",
+    "noAccount": "No account (external debt)",
     "date": "Date",
     "pickDate": "Pick a date",
     "type": "Type",

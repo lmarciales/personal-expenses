@@ -7,6 +7,7 @@ export interface DebtItem {
   payee: string;
   date: string;
   amount: number;
+  transactionTotal: number;
   notes: string | null;
 }
 
@@ -20,6 +21,7 @@ export interface AccountDebtGroup {
   };
   items: DebtItem[];
   total: number;
+  transactionTotal: number;
 }
 
 export interface PersonDebtGroup {
@@ -34,6 +36,8 @@ export interface SimpleAccount {
   type: string;
   balance: number;
 }
+
+const EXTERNAL_ACCOUNT_ID = "external";
 
 export function useDebtsData() {
   const [myDebts, setMyDebts] = useState<AccountDebtGroup[]>([]);
@@ -73,7 +77,7 @@ export function useDebtsData() {
             total_amount,
             account_id,
             notes,
-            accounts!inner(id, name, type, color, balance)
+            accounts(id, name, type, color, balance)
           )
         `)
         .eq("user_id", userId)
@@ -82,24 +86,33 @@ export function useDebtsData() {
 
       if (myDebtsError) throw myDebtsError;
 
-      // Group by account
+      // Group by account (or "external" for no-account transactions)
       const accountMap = new Map<string, AccountDebtGroup>();
       for (const split of (myDebtsData || []) as any[]) {
         const txn = split.transactions;
         const acc = txn.accounts;
-        const accountId = acc.id;
+        const accountId = acc?.id || EXTERNAL_ACCOUNT_ID;
 
         if (!accountMap.has(accountId)) {
           accountMap.set(accountId, {
-            account: {
-              id: acc.id,
-              name: acc.name,
-              type: acc.type,
-              color: acc.color,
-              balance: acc.balance,
-            },
+            account: acc
+              ? {
+                  id: acc.id,
+                  name: acc.name,
+                  type: acc.type,
+                  color: acc.color,
+                  balance: acc.balance,
+                }
+              : {
+                  id: EXTERNAL_ACCOUNT_ID,
+                  name: "Externo",
+                  type: "External",
+                  color: null,
+                  balance: 0,
+                },
             items: [],
             total: 0,
+            transactionTotal: 0,
           });
         }
 
@@ -110,11 +123,17 @@ export function useDebtsData() {
           payee: txn.payee,
           date: txn.date,
           amount: split.amount,
+          transactionTotal: txn.total_amount,
           notes: txn.notes,
         });
         group.total += split.amount;
+        group.transactionTotal += txn.total_amount;
       }
-      setMyDebts(Array.from(accountMap.values()));
+      const myDebtsGroups = Array.from(accountMap.values());
+      for (const group of myDebtsGroups) {
+        group.items.sort((a, b) => b.date.localeCompare(a.date));
+      }
+      setMyDebts(myDebtsGroups);
 
       // Fetch Owed to Me: splits NOT assigned to "Me" with status "Pending Receival"
       const { data: owedData, error: owedError } = await supabase
@@ -130,7 +149,7 @@ export function useDebtsData() {
             date,
             total_amount,
             notes,
-            accounts!inner(name)
+            accounts(name)
           )
         `)
         .eq("user_id", userId)
@@ -160,12 +179,17 @@ export function useDebtsData() {
           payee: txn.payee,
           date: txn.date,
           amount: split.amount,
+          transactionTotal: txn.total_amount,
           notes: txn.notes,
-          accountName: txn.accounts?.name || "Unknown",
+          accountName: txn.accounts?.name || "Externo",
         });
         group.total += split.amount;
       }
-      setOwedToMe(Array.from(personMap.values()));
+      const owedGroups = Array.from(personMap.values());
+      for (const group of owedGroups) {
+        group.items.sort((a, b) => b.date.localeCompare(a.date));
+      }
+      setOwedToMe(owedGroups);
     } catch (err: any) {
       setError(err.message);
     } finally {

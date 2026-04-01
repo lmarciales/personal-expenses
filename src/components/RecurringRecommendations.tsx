@@ -124,7 +124,7 @@ export function RecurringRecommendations({
                       isRecurring: true,
                       recurrenceValue: rec.recurrence_value,
                       recurrenceUnit: rec.recurrence_unit,
-                      accountId: rec.account_id,
+                      accountId: rec.account_id || "",
                       categoryIds: rec.lastCategoryIds,
                       splits:
                         rec.lastSplits.length > 0

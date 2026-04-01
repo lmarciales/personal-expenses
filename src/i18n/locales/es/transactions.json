@@ -27,6 +27,7 @@
     "editTitle": "Editar transacción",
     "account": "Cuenta",
     "selectAccount": "Seleccionar cuenta",
+    "noAccount": "Sin cuenta (deuda externa)",
     "date": "Fecha",
     "pickDate": "Seleccionar fecha",
     "type": "Tipo",

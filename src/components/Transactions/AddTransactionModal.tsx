@@ -38,7 +38,7 @@ const createFormSchema = (t: TFunction) => {
   const splitSchema = createSplitSchema(t);
   return z
     .object({
-      accountId: z.string().uuid(t("validation:accountRequired")),
+      accountId: z.string().uuid(t("validation:accountRequired")).or(z.literal("none")),
       date: z.string().min(1, t("validation:dateRequired")),
       totalAmount: z
         .number({ required_error: t("validation:amountRequired"), invalid_type_error: t("validation:amountRequired") })
@@ -110,7 +110,7 @@ export function AddTransactionModal({
   const form = useForm<FormValues>({
     resolver: zodResolver(createFormSchema(t)),
     defaultValues: {
-      accountId: initialData?.accountId || (accounts.length > 0 ? accounts[0].id : ""),
+      accountId: initialData?.accountId || "none",
       date: initialData?.date || format(new Date(), "yyyy-MM-dd"),
       totalAmount: initialData?.totalAmount ?? undefined,
       type: initialData?.type || "expense",
@@ -159,12 +159,12 @@ export function AddTransactionModal({
   useEffect(() => {
     if (editMode) return;
     const selectedAccount = accounts.find((a) => a.id === accountId);
-    if (!selectedAccount) return;
-    const isCreditCard = selectedAccount.type === "Credit Card";
+    const isExternal = !accountId || accountId === "none";
+    const isCreditCard = selectedAccount?.type === "Credit Card";
     for (let i = 0; i < fields.length; i++) {
       const assignee = form.getValues(`splits.${i}.assigned_to`);
       if (assignee === "Me") {
-        form.setValue(`splits.${i}.status`, isCreditCard ? "Pending Payment" : "Settled");
+        form.setValue(`splits.${i}.status`, isExternal || isCreditCard ? "Pending Payment" : "Settled");
       } else {
         form.setValue(`splits.${i}.status`, "Pending Receival");
       }
@@ -196,7 +196,7 @@ export function AddTransactionModal({
         const { error } = await supabase.rpc("update_transaction_with_splits", {
           p_transaction_id: transactionId,
           p_user_id: userId,
-          p_account_id: data.accountId,
+          p_account_id: (data.accountId === "none" ? null : data.accountId) as any,
           p_date: data.date,
           p_total_amount: data.totalAmount,
           p_payee: data.payee,
@@ -212,7 +212,7 @@ export function AddTransactionModal({
       } else {
         const { error } = await supabase.rpc("add_transaction_with_splits", {
           p_user_id: userId,
-          p_account_id: data.accountId,
+          p_account_id: (data.accountId === "none" ? null : data.accountId) as any,
           p_date: data.date,
           p_total_amount: data.totalAmount,
           p_payee: data.payee,
@@ -290,6 +290,7 @@ export function AddTransactionModal({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent className="glass-panel border-glass">
+                        <SelectItem value="none">{t("transactions:modal.noAccount")}</SelectItem>
                         {accounts.map((acc) => (
                           <SelectItem key={acc.id} value={acc.id}>
                             {acc.name.trim()} ({formatCOPWithSymbol(acc.balance)})

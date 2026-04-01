@@ -135,7 +135,7 @@ const Transactions = ({
           editMode={modalState.mode === "edit"}
           transactionId={modalState.mode === "edit" ? String(modalState.transaction.id) : undefined}
           initialData={{
-            accountId: modalState.transaction.account_id,
+            accountId: modalState.transaction.account_id || "",
             date:
               modalState.mode === "edit" && modalState.transaction.date
                 ? modalState.transaction.date

@@ -201,7 +201,7 @@ export type Database = {
       }
       transactions: {
         Row: {
-          account_id: string
+          account_id: string | null
           created_at: string
           date: string
           id: string
@@ -215,7 +215,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          account_id: string
+          account_id?: string | null
           created_at?: string
           date?: string
           id?: string
@@ -229,7 +229,7 @@ export type Database = {
           user_id: string
         }
         Update: {
-          account_id?: string
+          account_id?: string | null
           created_at?: string
           date?: string
           id?: string
@@ -326,7 +326,7 @@ export type Database = {
           }
         | {
             Args: {
-              p_account_id: string
+              p_account_id?: string | null
               p_category_ids?: string[]
               p_date: string
               p_is_recurring?: boolean
@@ -433,7 +433,7 @@ export type Database = {
           }
         | {
             Args: {
-              p_account_id: string
+              p_account_id?: string | null
               p_category_ids?: string[]
               p_date: string
               p_is_recurring?: boolean
