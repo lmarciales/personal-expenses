@@ -64,7 +64,8 @@
     "selectType": "Seleccionar tipo",
     "balance": "Saldo",
     "initialBalance": "Saldo inicial",
-    "addAccount": "Agregar cuenta"
+    "addAccount": "Agregar cuenta",
+    "legacy": "heredado"
   },
   "modalToast": {
     "updateError": "No se pudo actualizar la cuenta",

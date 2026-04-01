@@ -35,12 +35,20 @@ export function CurrencyInput({ value, onChange, placeholder = "0", className, d
   // type the decimal part freely until blur.
   const [rawInput, setRawInput] = useState<string>(() => (value !== undefined ? formatCOPForInput(value) : ""));
   const inputRef = useRef<HTMLInputElement>(null);
+  const isFocusedRef = useRef(false);
 
   // Sync with external value changes (e.g. form reset / initialData applied).
-  const externalValueStr = value !== undefined ? formatCOPForInput(value) : "";
-  const rawAsNumber = parseCOPInput(rawInput);
-  const rawMatchesExternal = (isNaN(rawAsNumber) && value === undefined) || rawAsNumber === value;
-  const displayValue = rawMatchesExternal ? rawInput : externalValueStr;
+  // When the user is actively typing (focused), always trust rawInput to avoid
+  // reverting in-progress edits due to intermediate mismatches with the form value.
+  let displayValue: string;
+  if (isFocusedRef.current) {
+    displayValue = rawInput;
+  } else {
+    const externalValueStr = value !== undefined ? formatCOPForInput(value) : "";
+    const rawAsNumber = parseCOPInput(rawInput);
+    const rawMatchesExternal = (isNaN(rawAsNumber) && value === undefined) || rawAsNumber === value;
+    displayValue = rawMatchesExternal ? rawInput : externalValueStr;
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const typed = e.target.value;
@@ -85,6 +93,7 @@ export function CurrencyInput({ value, onChange, placeholder = "0", className, d
   };
 
   const handleBlur = () => {
+    isFocusedRef.current = false;
     if (rawInput === "" || rawInput === ",") {
       setRawInput("");
       onChange(undefined);
@@ -99,6 +108,7 @@ export function CurrencyInput({ value, onChange, placeholder = "0", className, d
   };
 
   const handleFocus = () => {
+    isFocusedRef.current = true;
     inputRef.current?.setSelectionRange(inputRef.current.value.length, inputRef.current.value.length);
   };
 

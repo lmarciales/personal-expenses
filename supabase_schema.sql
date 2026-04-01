@@ -14,7 +14,7 @@ create table accounts (
   id uuid primary key default uuid_generate_v4(),
   user_id uuid references auth.users not null,
   name text not null,
-  type text not null check (type in ('Checking', 'Savings', 'Credit Card', 'Cash', 'Other')),
+  type text not null,
   balance numeric(12, 2) not null default 0.00,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );

@@ -64,7 +64,8 @@
     "selectType": "Select type",
     "balance": "Balance",
     "initialBalance": "Initial Balance",
-    "addAccount": "Add Account"
+    "addAccount": "Add Account",
+    "legacy": "legacy"
   },
   "modalToast": {
     "updateError": "Could not update account",
