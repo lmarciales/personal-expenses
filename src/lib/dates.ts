@@ -7,14 +7,14 @@
  * creates a date in the browser's local timezone.
  */
 export function parseLocalDate(dateStr: string): Date {
-	const [y, m, d] = dateStr.split("-").map(Number);
-	return new Date(y, m - 1, d);
+  const [y, m, d] = dateStr.split("-").map(Number);
+  return new Date(y, m - 1, d);
 }
 
 /** Format a Date as "yyyy-MM-dd" in local time. */
 export function formatDateString(date: Date): string {
-	const y = date.getFullYear();
-	const m = String(date.getMonth() + 1).padStart(2, "0");
-	const d = String(date.getDate()).padStart(2, "0");
-	return `${y}-${m}-${d}`;
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
 }

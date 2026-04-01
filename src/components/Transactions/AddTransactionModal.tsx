@@ -565,10 +565,7 @@ export function AddTransactionModal({
                       <p className="text-xs text-muted-foreground">{t("transactions:modal.splitEquallyHint")}</p>
                     )}
                   </div>
-                  <Switch
-                    checked={splitEqually}
-                    onCheckedChange={setSplitEqually}
-                  />
+                  <Switch checked={splitEqually} onCheckedChange={setSplitEqually} />
                 </div>
               )}
 

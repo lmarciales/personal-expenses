@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
 import type { PersonDebtGroup, SimpleAccount } from "@/hooks/useDebtsData";
 import { formatCOPWithSymbol } from "@/lib/currency";
-import { parseLocalDate } from "@/lib/dates";
 import { getDateLocale } from "@/lib/dateFnsLocale";
+import { parseLocalDate } from "@/lib/dates";
 import { format } from "date-fns";
 import { CheckSquare, PartyPopper, Square, User } from "lucide-react";
 import { useState } from "react";
