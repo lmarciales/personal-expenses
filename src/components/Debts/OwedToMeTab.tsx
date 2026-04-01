@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import type { PersonDebtGroup, SimpleAccount } from "@/hooks/useDebtsData";
 import { formatCOPWithSymbol } from "@/lib/currency";
+import { parseLocalDate } from "@/lib/dates";
 import { getDateLocale } from "@/lib/dateFnsLocale";
 import { format } from "date-fns";
 import { CheckSquare, PartyPopper, Square, User } from "lucide-react";
@@ -144,7 +145,7 @@ export const OwedToMeTab = ({ groups, accounts, onSettled }: OwedToMeTabProps) =
                       <div>
                         <p className="text-sm font-medium text-foreground">{item.payee}</p>
                         <p className="text-xs text-muted-foreground">
-                          {format(new Date(item.date), "MMM d, yyyy", { locale: getDateLocale() })} &middot;{" "}
+                          {format(parseLocalDate(item.date), "MMM d, yyyy", { locale: getDateLocale() })} &middot;{" "}
                           {item.accountName}
                         </p>
                       </div>

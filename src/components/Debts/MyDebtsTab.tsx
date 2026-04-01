@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import type { AccountDebtGroup, SimpleAccount } from "@/hooks/useDebtsData";
 import { formatCOPWithSymbol } from "@/lib/currency";
+import { parseLocalDate } from "@/lib/dates";
 import { getDateLocale } from "@/lib/dateFnsLocale";
 import { format } from "date-fns";
 import { CheckCheck, CheckSquare, CreditCard, Square } from "lucide-react";
@@ -149,7 +150,7 @@ export const MyDebtsTab = ({ groups, accounts, onSettled }: MyDebtsTabProps) => 
                       <div>
                         <p className="text-sm font-medium text-foreground">{item.payee}</p>
                         <p className="text-xs text-muted-foreground">
-                          {format(new Date(item.date), "MMM d, yyyy", { locale: getDateLocale() })}
+                          {format(parseLocalDate(item.date), "MMM d, yyyy", { locale: getDateLocale() })}
                         </p>
                       </div>
                     </div>

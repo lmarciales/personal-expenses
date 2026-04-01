@@ -138,7 +138,7 @@ const Transactions = ({
             accountId: modalState.transaction.account_id,
             date:
               modalState.mode === "edit" && modalState.transaction.date
-                ? new Date(modalState.transaction.date).toISOString().split("T")[0]
+                ? modalState.transaction.date
                 : undefined,
             totalAmount: Math.abs(modalState.transaction.amount),
             type: modalState.transaction.type,

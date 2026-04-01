@@ -15,6 +15,7 @@ import { useCategories } from "@/hooks/useCategories";
 import { type TransactionFilters, useTransactionsData } from "@/hooks/useTransactionsData";
 import { formatCOPWithSymbol } from "@/lib/currency";
 import { getDateLocale } from "@/lib/dateFnsLocale";
+import { parseLocalDate } from "@/lib/dates";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/supabase/client";
 import { format } from "date-fns";
@@ -303,7 +304,7 @@ export function TransactionsView() {
                         <span className="font-medium">{txn.accounts?.name}</span>
                         <span>•</span>
                         <span>
-                          {new Date(txn.date).toLocaleDateString(undefined, {
+                          {parseLocalDate(txn.date).toLocaleDateString(undefined, {
                             month: "short",
                             day: "numeric",
                             year: "numeric",
@@ -441,7 +442,7 @@ export function TransactionsView() {
             accountId: modalState.transaction.account_id,
             date:
               modalState.mode === "edit"
-                ? new Date(modalState.transaction.date).toISOString().split("T")[0]
+                ? modalState.transaction.date
                 : undefined,
             totalAmount: Math.abs(modalState.transaction.total_amount),
             type: modalState.transaction.type,

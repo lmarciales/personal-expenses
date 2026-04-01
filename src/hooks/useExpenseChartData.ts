@@ -50,8 +50,7 @@ export function useExpenseChartData(year: number) {
       // Aggregate monthly expenses
       const monthlyMap = new Map<number, number>();
       for (const txn of expenseResult.data || []) {
-        const d = new Date(txn.date);
-        const month = d.getMonth();
+        const month = Number.parseInt(txn.date.split("-")[1], 10) - 1;
         monthlyMap.set(month, (monthlyMap.get(month) || 0) + Math.abs(txn.total_amount));
       }
       const monthlyExpenses = MONTH_NAMES.map((name, idx) => ({
@@ -62,7 +61,7 @@ export function useExpenseChartData(year: number) {
       // Available years
       const yearsSet = new Set<number>();
       for (const row of datesResult.data || []) {
-        if (row.date) yearsSet.add(new Date(row.date).getFullYear());
+        if (row.date) yearsSet.add(Number.parseInt(row.date.split("-")[0], 10));
       }
 
       setData({

@@ -96,11 +96,17 @@ export function useTransactionsData(filters: TransactionFilters) {
       }
 
       if (filters.startDate) {
-        query = query.gte("date", filters.startDate.toISOString());
+        const y = filters.startDate.getFullYear();
+        const m = String(filters.startDate.getMonth() + 1).padStart(2, "0");
+        const d = String(filters.startDate.getDate()).padStart(2, "0");
+        query = query.gte("date", `${y}-${m}-${d}`);
       }
 
       if (filters.endDate) {
-        query = query.lte("date", filters.endDate.toISOString());
+        const y = filters.endDate.getFullYear();
+        const m = String(filters.endDate.getMonth() + 1).padStart(2, "0");
+        const d = String(filters.endDate.getDate()).padStart(2, "0");
+        query = query.lte("date", `${y}-${m}-${d}`);
       }
 
       if (filters.categories && filters.categories.length > 0) {
