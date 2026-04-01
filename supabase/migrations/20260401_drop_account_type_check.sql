@@ -11,7 +11,8 @@ BEGIN
   FROM pg_constraint
   WHERE conrelid = 'accounts'::regclass
     AND contype = 'c'
-    AND pg_get_constraintdef(oid) LIKE '%type%';
+    AND pg_get_constraintdef(oid) LIKE '%accounts_type_check%'
+  LIMIT 1;
 
   IF v_constraint_name IS NOT NULL THEN
     EXECUTE format('ALTER TABLE accounts DROP CONSTRAINT %I', v_constraint_name);

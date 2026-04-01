@@ -228,6 +228,9 @@ export function AddAccountModal({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent className="glass-panel border-glass">
+                    {/* Intentional: when a legacy type (no longer in account_types) is present,
+                        show it as a disabled option so the form value passes through unchanged
+                        on submit. This is graceful degradation — not a bug. */}
                     {isLegacyType && initialData?.type && (
                       <SelectItem key={initialData.type} value={initialData.type} disabled>
                         {initialData.type} ({t("accounts:modal.legacy")})
