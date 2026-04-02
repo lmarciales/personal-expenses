@@ -40,6 +40,7 @@ export type Database = {
           balance: number
           color: string | null
           created_at: string
+          credit_limit: number | null
           id: string
           name: string
           type: string
@@ -49,6 +50,7 @@ export type Database = {
           balance?: number
           color?: string | null
           created_at?: string
+          credit_limit?: number | null
           id?: string
           name: string
           type: string
@@ -58,6 +60,7 @@ export type Database = {
           balance?: number
           color?: string | null
           created_at?: string
+          credit_limit?: number | null
           id?: string
           name?: string
           type?: string
