@@ -55,6 +55,50 @@ export function AddAccountModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [accountTypes, setAccountTypes] = useState<{ name: string; color: string }[]>([]);
+  const [creatingType, setCreatingType] = useState(false);
+  const [newTypeName, setNewTypeName] = useState("");
+  const [newTypeColor, setNewTypeColor] = useState("#6366f1");
+  const [isCreatingType, setIsCreatingType] = useState(false);
+
+  const TYPE_COLOR_PRESETS = [
+    "#6366f1", "#3b82f6", "#10b981", "#f59e0b",
+    "#ef4444", "#8b5cf6", "#ec4899", "#14b8a6",
+  ];
+
+  const handleCreateType = async () => {
+    if (!newTypeName.trim()) return;
+    setIsCreatingType(true);
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData?.user) throw new Error("Not authenticated");
+
+      const { error } = await supabase.from("account_types").insert({
+        name: newTypeName.trim(),
+        color: newTypeColor,
+        user_id: userData.user.id,
+      });
+      if (error) throw error;
+
+      // Refresh types list and select the new type
+      const { data: refreshed } = await supabase
+        .from("account_types")
+        .select("name, color")
+        .order("name");
+      if (refreshed) {
+        setAccountTypes(refreshed);
+        form.setValue("type", newTypeName.trim());
+      }
+
+      setCreatingType(false);
+      setNewTypeName("");
+      setNewTypeColor("#6366f1");
+    } catch (error) {
+      console.error("Failed to create account type", error);
+      toast.error("Could not create account type");
+    } finally {
+      setIsCreatingType(false);
+    }
+  };
 
   const form = useForm<FormValues>({
     resolver: zodResolver(createAccountSchema(t)),
@@ -244,11 +288,66 @@ export function AddAccountModal({
                     )}
                     {accountTypes.map((at) => (
                       <SelectItem key={at.name} value={at.name}>
-                        {at.name}
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: at.color }} />
+                          {at.name}
+                        </div>
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+                {!creatingType ? (
+                  <button
+                    type="button"
+                    onClick={() => setCreatingType(true)}
+                    className="text-xs text-primary hover:underline mt-1"
+                  >
+                    + {t("accounts:modal.createType")}
+                  </button>
+                ) : (
+                  <div className="mt-2 p-3 rounded-lg border border-glass bg-surface-overlay space-y-3">
+                    <Input
+                      value={newTypeName}
+                      onChange={(e) => setNewTypeName(e.target.value)}
+                      placeholder={t("accounts:modal.newTypeNamePlaceholder")}
+                      className="bg-surface-input border-glass text-sm"
+                    />
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1.5">{t("accounts:modal.newTypeColor")}</p>
+                      <div className="flex gap-2">
+                        {TYPE_COLOR_PRESETS.map((c) => (
+                          <button
+                            key={c}
+                            type="button"
+                            onClick={() => setNewTypeColor(c)}
+                            className={`w-6 h-6 rounded-full transition-all ${newTypeColor === c ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : ""}`}
+                            style={{ backgroundColor: c }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => { setCreatingType(false); setNewTypeName(""); }}
+                      >
+                        {t("accounts:modal.cancelCreateType")}
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={handleCreateType}
+                        disabled={isCreatingType || !newTypeName.trim()}
+                        className="bg-primary text-primary-foreground"
+                      >
+                        {isCreatingType ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : null}
+                        {t("accounts:modal.createTypeButton")}
+                      </Button>
+                    </div>
+                  </div>
+                )}
                 <FormMessage />
               </FormItem>
             )}
