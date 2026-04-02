@@ -15,6 +15,11 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import * as z from "zod";
 
+const TYPE_COLOR_PRESETS = [
+  "#6366f1", "#3b82f6", "#10b981", "#f59e0b",
+  "#ef4444", "#8b5cf6", "#ec4899", "#14b8a6",
+];
+
 const createAccountSchema = (t: TFunction) =>
   z.object({
     name: z.string().min(1, t("validation:nameRequired")),
@@ -77,17 +82,25 @@ export function AddAccountModal({
   const [isCreatingType, setIsCreatingType] = useState(false);
   const [linkedAccounts, setLinkedAccounts] = useState<{ id: string; name: string }[]>([]);
 
-  const TYPE_COLOR_PRESETS = ["#6366f1", "#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899", "#14b8a6"];
-
   const handleCreateType = async () => {
     if (!newTypeName.trim()) return;
+    const trimmedName = newTypeName.trim();
+    if (trimmedName.length > 50) {
+      toast.error(t("accounts:modalToast.createError"));
+      return;
+    }
+    // Check for duplicate among loaded types
+    if (accountTypes.some((at) => at.name.toLowerCase() === trimmedName.toLowerCase())) {
+      toast.error(t("accounts:modalToast.createError"));
+      return;
+    }
     setIsCreatingType(true);
     try {
       const { data: userData } = await supabase.auth.getUser();
       if (!userData?.user) throw new Error("Not authenticated");
 
       const { error } = await supabase.from("account_types").insert({
-        name: newTypeName.trim(),
+        name: trimmedName,
         color: newTypeColor,
         user_id: userData.user.id,
       });
@@ -97,7 +110,7 @@ export function AddAccountModal({
       const { data: refreshed } = await supabase.from("account_types").select("name, color").order("name");
       if (refreshed) {
         setAccountTypes(refreshed);
-        form.setValue("type", newTypeName.trim());
+        form.setValue("type", trimmedName);
       }
 
       setCreatingType(false);
@@ -105,7 +118,7 @@ export function AddAccountModal({
       setNewTypeColor("#6366f1");
     } catch (error) {
       console.error("Failed to create account type", error);
-      toast.error("Could not create account type");
+      toast.error(t("accounts:modalToast.createError"));
     } finally {
       setIsCreatingType(false);
     }
@@ -154,6 +167,22 @@ export function AddAccountModal({
       });
     }
   }, [open, editMode, initialData, form, accountTypes]);
+
+  // Clear type-specific fields when type changes
+  const watchedType = form.watch("type");
+  useEffect(() => {
+    if (watchedType === "Credit Card" || watchedType === "CDT") {
+      form.setValue("is_4x1000_subject", false);
+    }
+    if (watchedType !== "Credit Card") {
+      form.setValue("credit_limit", undefined);
+    }
+    if (watchedType !== "CDT") {
+      form.setValue("maturity_date", undefined);
+      form.setValue("on_maturity", undefined);
+      form.setValue("linked_account_id", undefined);
+    }
+  }, [watchedType, form]);
 
   useEffect(() => {
     const fetchTypes = async () => {
