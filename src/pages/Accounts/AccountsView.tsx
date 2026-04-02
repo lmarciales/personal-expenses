@@ -257,97 +257,99 @@ export const AccountsView = () => {
                 ? (account.credit_limit - account.balance) / account.credit_limit
                 : 0;
             return (
-            <div
-              key={account.id}
-              className="glass-card rounded-2xl p-5 group hover:border-primary/30 transition-all cursor-pointer relative"
-              onClick={() => setDetailAccount(account)}
-            >
-              {/* Dropdown - stop propagation to prevent detail modal */}
-              <div className="absolute top-4 right-4 z-10" onClick={(e) => e.stopPropagation()}>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity hover:bg-surface-hover-strong"
-                    >
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-44 glass-panel border-border z-50">
-                    <DropdownMenuItem onSelect={() => setEditState({ account })} className="cursor-pointer">
-                      <Pencil className="w-4 h-4 mr-2" />
-                      {t("common:actions.edit")}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onSelect={() => handleDelete(account)}
-                      className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive"
-                    >
-                      {deletingId === account.id ? (
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      ) : (
-                        <Trash2 className="w-4 h-4 mr-2" />
-                      )}
-                      {t("common:actions.delete")}
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
+              <div
+                key={account.id}
+                className="glass-card rounded-2xl p-5 group hover:border-primary/30 transition-all cursor-pointer relative"
+                onClick={() => setDetailAccount(account)}
+              >
+                {/* Dropdown - stop propagation to prevent detail modal */}
+                <div className="absolute top-4 right-4 z-10" onClick={(e) => e.stopPropagation()}>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity hover:bg-surface-hover-strong"
+                      >
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-44 glass-panel border-border z-50">
+                      <DropdownMenuItem onSelect={() => setEditState({ account })} className="cursor-pointer">
+                        <Pencil className="w-4 h-4 mr-2" />
+                        {t("common:actions.edit")}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onSelect={() => handleDelete(account)}
+                        className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive"
+                      >
+                        {deletingId === account.id ? (
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        ) : (
+                          <Trash2 className="w-4 h-4 mr-2" />
+                        )}
+                        {t("common:actions.delete")}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
 
-              {/* Card Content */}
-              <div className="flex items-center gap-3 mb-4">
-                <div
-                  className={`w-12 h-12 rounded-xl ${account.color} flex items-center justify-center shadow-lg transition-transform group-hover:scale-105`}
-                >
-                  <CreditCard className="w-6 h-6" />
+                {/* Card Content */}
+                <div className="flex items-center gap-3 mb-4">
+                  <div
+                    className={`w-12 h-12 rounded-xl ${account.color} flex items-center justify-center shadow-lg transition-transform group-hover:scale-105`}
+                  >
+                    <CreditCard className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-base group-hover:text-primary transition-colors">{account.name}</h3>
+                    <span className="text-xs text-muted-foreground">{account.type}</span>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-bold text-base group-hover:text-primary transition-colors">{account.name}</h3>
-                  <span className="text-xs text-muted-foreground">{account.type}</span>
-                </div>
-              </div>
 
-              <div className="flex items-end justify-between">
-                <div>
-                  {account.type === "Credit Card" ? (
-                    <>
-                      <p className="text-xs text-muted-foreground mb-0.5">{t("card.availableCredit")}</p>
-                      <p className="text-lg font-bold tabular-nums">{formatCOPWithSymbol(account.balance)}</p>
-                      {account.credit_limit != null && (
-                        <>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {t("card.currentDebt")}: {formatCOPWithSymbol(Math.max(0, account.credit_limit - account.balance))}
-                          </p>
-                          <div className="w-full bg-muted/50 rounded-full h-1.5 mt-1.5">
-                            <div
-                              className="h-1.5 rounded-full transition-all"
-                              style={{
-                                width: `${Math.min(100, Math.max(0, utilization * 100))}%`,
-                                backgroundColor: utilization > 0.8 ? '#ef4444' : utilization > 0.5 ? '#f59e0b' : '#22c55e',
-                              }}
-                            />
-                          </div>
-                        </>
-                      )}
-                    </>
-                  ) : (
-                    <>
-                      <p className="text-xs text-muted-foreground mb-0.5">{t("card.balance")}</p>
-                      <p className="text-lg font-bold tabular-nums">{formatCOPWithSymbol(account.balance)}</p>
-                    </>
-                  )}
-                </div>
-                <div className="text-right">
-                  <p className="text-xs text-muted-foreground">
-                    {account.transactionCount} {t("card.transactions")}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {t("card.since")}{" "}
-                    {new Date(account.created_at).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
-                  </p>
+                <div className="flex items-end justify-between">
+                  <div>
+                    {account.type === "Credit Card" ? (
+                      <>
+                        <p className="text-xs text-muted-foreground mb-0.5">{t("card.availableCredit")}</p>
+                        <p className="text-lg font-bold tabular-nums">{formatCOPWithSymbol(account.balance)}</p>
+                        {account.credit_limit != null && (
+                          <>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {t("card.currentDebt")}:{" "}
+                              {formatCOPWithSymbol(Math.max(0, account.credit_limit - account.balance))}
+                            </p>
+                            <div className="w-full bg-muted/50 rounded-full h-1.5 mt-1.5">
+                              <div
+                                className="h-1.5 rounded-full transition-all"
+                                style={{
+                                  width: `${Math.min(100, Math.max(0, utilization * 100))}%`,
+                                  backgroundColor:
+                                    utilization > 0.8 ? "#ef4444" : utilization > 0.5 ? "#f59e0b" : "#22c55e",
+                                }}
+                              />
+                            </div>
+                          </>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-xs text-muted-foreground mb-0.5">{t("card.balance")}</p>
+                        <p className="text-lg font-bold tabular-nums">{formatCOPWithSymbol(account.balance)}</p>
+                      </>
+                    )}
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-muted-foreground">
+                      {account.transactionCount} {t("card.transactions")}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {t("card.since")}{" "}
+                      {new Date(account.created_at).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
             );
           })}
         </div>

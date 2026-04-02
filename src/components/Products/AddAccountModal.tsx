@@ -15,10 +15,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import * as z from "zod";
 
-const TYPE_COLOR_PRESETS = [
-  "#6366f1", "#3b82f6", "#10b981", "#f59e0b",
-  "#ef4444", "#8b5cf6", "#ec4899", "#14b8a6",
-];
+const TYPE_COLOR_PRESETS = ["#6366f1", "#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899", "#14b8a6"];
 
 const createAccountSchema = (t: TFunction) =>
   z.object({
@@ -231,12 +228,12 @@ export function AddAccountModal({
             type: data.type,
             balance: data.balance,
             color: color,
-            credit_limit: data.type === "Credit Card" ? (data.credit_limit ?? null) : null,
+            credit_limit: data.type === "Credit Card" ? data.credit_limit ?? null : null,
             interest_rate: data.interest_rate ?? null,
             is_4x1000_subject: data.is_4x1000_subject ?? false,
-            maturity_date: data.type === "CDT" ? (data.maturity_date ?? null) : null,
-            on_maturity: data.type === "CDT" ? (data.on_maturity ?? null) : null,
-            linked_account_id: data.type === "CDT" ? (data.linked_account_id ?? null) : null,
+            maturity_date: data.type === "CDT" ? data.maturity_date ?? null : null,
+            on_maturity: data.type === "CDT" ? data.on_maturity ?? null : null,
+            linked_account_id: data.type === "CDT" ? data.linked_account_id ?? null : null,
           })
           .eq("id", accountId)
           .eq("user_id", userData.user.id);
@@ -249,12 +246,12 @@ export function AddAccountModal({
           type: data.type,
           balance: data.balance,
           color: color,
-          credit_limit: data.type === "Credit Card" ? (data.credit_limit ?? null) : null,
+          credit_limit: data.type === "Credit Card" ? data.credit_limit ?? null : null,
           interest_rate: data.interest_rate ?? null,
           is_4x1000_subject: data.is_4x1000_subject ?? false,
-          maturity_date: data.type === "CDT" ? (data.maturity_date ?? null) : null,
-          on_maturity: data.type === "CDT" ? (data.on_maturity ?? null) : null,
-          linked_account_id: data.type === "CDT" ? (data.linked_account_id ?? null) : null,
+          maturity_date: data.type === "CDT" ? data.maturity_date ?? null : null,
+          on_maturity: data.type === "CDT" ? data.on_maturity ?? null : null,
+          linked_account_id: data.type === "CDT" ? data.linked_account_id ?? null : null,
         });
 
         if (error) throw error;

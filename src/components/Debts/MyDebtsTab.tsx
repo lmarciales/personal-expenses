@@ -207,7 +207,11 @@ export const MyDebtsTab = ({ groups, accounts, onSettled }: MyDebtsTabProps) => 
         onOpenChange={(open) => setPaymentDialog((prev) => ({ ...prev, open }))}
         selectedSplitIds={paymentDialog.splitIds}
         totalAmount={paymentDialog.total}
-        targetAccount={{ id: paymentDialog.accountId, name: paymentDialog.accountName, type: paymentDialog.accountType }}
+        targetAccount={{
+          id: paymentDialog.accountId,
+          name: paymentDialog.accountName,
+          type: paymentDialog.accountType,
+        }}
         accounts={accounts}
         onSuccess={onSettled}
       />
