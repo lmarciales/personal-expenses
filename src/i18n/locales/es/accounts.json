@@ -41,7 +41,13 @@
     "currentDebt": "Deuda actual",
     "utilization": "Utilización",
     "projectedBalance": "Saldo proyectado",
-    "annualRate": "Tasa: {{rate}}% EA"
+    "annualRate": "Tasa: {{rate}}% EA",
+    "maturityDate": "Vencimiento: {{date}}",
+    "daysRemaining": "{{days}} días restantes",
+    "matured": "Vencido",
+    "linkedTo": "Vinculada a {{name}}",
+    "autoRenew": "Renovación auto.",
+    "transferBack": "Retorno a cuenta"
   },
   "deleteConfirm": {
     "withTransactions": "\"{{name}}\" tiene {{count}} transacción(es) vinculada(s). Al eliminarla también se eliminarán todas las transacciones asociadas. ¿Estás seguro?",
@@ -105,5 +111,9 @@
     "recentTransactions": "Transacciones recientes",
     "noTransactions": "Aún no hay transacciones para esta cuenta.",
     "created": "Creada"
+  },
+  "cdt": {
+    "maturedTransfer": "Tu CDT \"{{name}}\" ha vencido. Se transfirieron ${{amount}} a {{account}}.",
+    "maturedRenew": "Tu CDT \"{{name}}\" se ha renovado automáticamente. Nuevo vencimiento: {{date}}."
   }
 }

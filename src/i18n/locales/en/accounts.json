@@ -41,7 +41,13 @@
     "currentDebt": "Current Debt",
     "utilization": "Utilization",
     "projectedBalance": "Projected Balance",
-    "annualRate": "Rate: {{rate}}% EA"
+    "annualRate": "Rate: {{rate}}% EA",
+    "maturityDate": "Maturity: {{date}}",
+    "daysRemaining": "{{days}} days remaining",
+    "matured": "Matured",
+    "linkedTo": "Linked to {{name}}",
+    "autoRenew": "Auto-renew",
+    "transferBack": "Returns to account"
   },
   "deleteConfirm": {
     "withTransactions": "\"{{name}}\" has {{count}} linked transaction(s). Deleting it will also remove all associated transactions. Are you sure?",
@@ -105,5 +111,9 @@
     "recentTransactions": "Recent Transactions",
     "noTransactions": "No transactions yet for this account.",
     "created": "Created"
+  },
+  "cdt": {
+    "maturedTransfer": "Your CDT \"{{name}}\" has matured. ${{amount}} was transferred to {{account}}.",
+    "maturedRenew": "Your CDT \"{{name}}\" has been auto-renewed. New maturity: {{date}}."
   }
 }
