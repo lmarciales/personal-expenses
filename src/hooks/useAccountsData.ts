@@ -7,6 +7,11 @@ export interface AccountWithStats {
   type: string;
   balance: number;
   credit_limit: number | null;
+  interest_rate: number | null;
+  is_4x1000_subject: boolean;
+  maturity_date: string | null;
+  on_maturity: string | null;
+  linked_account_id: string | null;
   color: string;
   created_at: string;
   transactionCount: number;
@@ -106,6 +111,11 @@ export function useAccountsData(filters: AccountFilters) {
           type: acc.type,
           balance: acc.balance,
           credit_limit: acc.credit_limit ?? null,
+          interest_rate: acc.interest_rate ?? null,
+          is_4x1000_subject: acc.is_4x1000_subject ?? false,
+          maturity_date: acc.maturity_date ?? null,
+          on_maturity: acc.on_maturity ?? null,
+          linked_account_id: acc.linked_account_id ?? null,
           color: acc.color || FALLBACK_COLORS[idx % FALLBACK_COLORS.length],
           created_at: acc.created_at,
           transactionCount: stats.count,
