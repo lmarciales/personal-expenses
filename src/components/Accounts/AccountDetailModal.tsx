@@ -165,13 +165,15 @@ export function AccountDetailModal({ account, open, onOpenChange, onEdit, allAcc
   const isMatured = account != null && isCdtMatured(account);
 
   const fetchRecentTransactions = useCallback(async () => {
-    if (!account || isCdt) return;
+    const userId = session?.user?.id;
+    if (!account || isCdt || !userId) return;
     setLoadingTxns(true);
     try {
       const { data, error } = await supabase
         .from("transactions")
         .select("id, payee, total_amount, date, type")
         .eq("account_id", account.id)
+        .eq("user_id", userId)
         .order("date", { ascending: false })
         .limit(5);
 
@@ -182,7 +184,7 @@ export function AccountDetailModal({ account, open, onOpenChange, onEdit, allAcc
     } finally {
       setLoadingTxns(false);
     }
-  }, [account, isCdt]);
+  }, [account, isCdt, session?.user?.id]);
 
   useEffect(() => {
     if (open && account) {
@@ -195,7 +197,7 @@ export function AccountDetailModal({ account, open, onOpenChange, onEdit, allAcc
 
   const handleRedeem = async () => {
     const userId = session?.user?.id;
-    if (!account || !actionAmount || !account.linked_account_id || !userId) return;
+    if (!account || !actionAmount || actionAmount <= 0 || !account.linked_account_id || !userId) return;
     setActionLoading(true);
     try {
       const linkedName = allAccounts?.find((a) => a.id === account.linked_account_id)?.name ?? "";
@@ -224,7 +226,7 @@ export function AccountDetailModal({ account, open, onOpenChange, onEdit, allAcc
 
   const handleRenew = async () => {
     const userId = session?.user?.id;
-    if (!account || !actionAmount || !userId) return;
+    if (!account || !actionAmount || actionAmount <= 0 || !userId) return;
     setActionLoading(true);
     try {
       const newDate = await renewCdt({
