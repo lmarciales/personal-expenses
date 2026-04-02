@@ -43,6 +43,7 @@ export type Database = {
           interest_reference_balance: number | null;
           interest_reference_date: string | null;
           is_4x1000_subject: boolean | null;
+          is_archived: boolean;
           linked_account_id: string | null;
           maturity_date: string | null;
           name: string;
@@ -60,6 +61,7 @@ export type Database = {
           interest_reference_balance?: number | null;
           interest_reference_date?: string | null;
           is_4x1000_subject?: boolean | null;
+          is_archived?: boolean;
           linked_account_id?: string | null;
           maturity_date?: string | null;
           name: string;
@@ -77,6 +79,7 @@ export type Database = {
           interest_reference_balance?: number | null;
           interest_reference_date?: string | null;
           is_4x1000_subject?: boolean | null;
+          is_archived?: boolean;
           linked_account_id?: string | null;
           maturity_date?: string | null;
           name?: string;
@@ -143,21 +146,6 @@ export type Database = {
           id?: string;
           name?: string;
           user_id?: string;
-        };
-        Relationships: [];
-      };
-      Test_table: {
-        Row: {
-          created_at: string;
-          id: number;
-        };
-        Insert: {
-          created_at?: string;
-          id?: number;
-        };
-        Update: {
-          created_at?: string;
-          id?: number;
         };
         Relationships: [];
       };
@@ -328,69 +316,23 @@ export type Database = {
         Args: { p_account_id: string; p_user_id: string };
         Returns: undefined;
       };
-      add_transaction_with_splits:
-        | {
-            Args: {
-              p_account_id?: string;
-              p_category_ids?: string[];
-              p_date?: string;
-              p_is_recurring?: boolean;
-              p_notes?: string;
-              p_payee?: string;
-              p_recurrence_unit?: string;
-              p_recurrence_value?: number;
-              p_splits?: Json;
-              p_total_amount?: number;
-              p_type?: string;
-              p_user_id: string;
-            };
-            Returns: string;
-          }
-        | {
-            Args: {
-              p_account_id: string;
-              p_date: string;
-              p_is_recurring: boolean;
-              p_notes: string;
-              p_payee: string;
-              p_recurrence_interval: string;
-              p_splits: Json;
-              p_total_amount: number;
-              p_user_id: string;
-            };
-            Returns: string;
-          }
-        | {
-            Args: {
-              p_account_id: string;
-              p_date: string;
-              p_is_recurring: boolean;
-              p_notes: string;
-              p_payee: string;
-              p_recurrence_interval: string;
-              p_splits: Json;
-              p_total_amount: number;
-              p_type?: string;
-              p_user_id: string;
-            };
-            Returns: string;
-          }
-        | {
-            Args: {
-              p_account_id: string;
-              p_category_ids?: string[];
-              p_date: string;
-              p_is_recurring?: boolean;
-              p_notes: string;
-              p_payee: string;
-              p_recurrence_interval?: string;
-              p_splits?: Json;
-              p_total_amount: number;
-              p_type?: string;
-              p_user_id: string;
-            };
-            Returns: string;
-          };
+      add_transaction_with_splits: {
+        Args: {
+          p_account_id?: string;
+          p_category_ids?: string[];
+          p_date?: string;
+          p_is_recurring?: boolean;
+          p_notes?: string;
+          p_payee?: string;
+          p_recurrence_unit?: string;
+          p_recurrence_value?: number;
+          p_splits?: Json;
+          p_total_amount?: number;
+          p_type?: string;
+          p_user_id: string;
+        };
+        Returns: string;
+      };
       delete_account_cascade: {
         Args: { p_account_id: string; p_user_id: string };
         Returns: undefined;
@@ -400,7 +342,7 @@ export type Database = {
         Returns: undefined;
       };
       get_all_users_with_roles: {
-        Args: never;
+        Args: Record<string, never>;
         Returns: {
           created_at: string;
           email: string;
@@ -409,7 +351,7 @@ export type Database = {
           role: string;
         }[];
       };
-      is_admin: { Args: never; Returns: boolean };
+      is_admin: { Args: Record<string, never>; Returns: boolean };
       settle_debts: {
         Args: {
           p_notes?: string;
@@ -432,73 +374,24 @@ export type Database = {
         };
         Returns: string;
       };
-      update_transaction_with_splits:
-        | {
-            Args: {
-              p_account_id?: string;
-              p_category_ids?: string[];
-              p_date?: string;
-              p_is_recurring?: boolean;
-              p_notes?: string;
-              p_payee?: string;
-              p_recurrence_unit?: string;
-              p_recurrence_value?: number;
-              p_splits?: Json;
-              p_total_amount?: number;
-              p_transaction_id: string;
-              p_type?: string;
-              p_user_id: string;
-            };
-            Returns: undefined;
-          }
-        | {
-            Args: {
-              p_account_id: string;
-              p_date: string;
-              p_is_recurring: boolean;
-              p_notes: string;
-              p_payee: string;
-              p_recurrence_interval: string;
-              p_splits: Json;
-              p_total_amount: number;
-              p_transaction_id: string;
-              p_user_id: string;
-            };
-            Returns: undefined;
-          }
-        | {
-            Args: {
-              p_account_id: string;
-              p_date: string;
-              p_is_recurring: boolean;
-              p_notes: string;
-              p_payee: string;
-              p_recurrence_interval: string;
-              p_splits: Json;
-              p_total_amount: number;
-              p_transaction_id: string;
-              p_type?: string;
-              p_user_id: string;
-            };
-            Returns: undefined;
-          }
-        | {
-            Args: {
-              p_account_id: string;
-              p_category_ids?: string[];
-              p_date: string;
-              p_is_recurring?: boolean;
-              p_notes: string;
-              p_payee: string;
-              p_recurrence_interval?: string;
-              p_splits?: Json;
-              p_total_amount: number;
-              p_transaction_id: string;
-              p_type?: string;
-              p_user_id: string;
-            };
-            Returns: undefined;
-          };
+      update_transaction_with_splits: {
+        Args: {
+          p_account_id?: string;
+          p_category_ids?: string[];
+          p_date?: string;
+          p_is_recurring?: boolean;
+          p_notes?: string;
+          p_payee?: string;
+          p_recurrence_unit?: string;
+          p_recurrence_value?: number;
+          p_splits?: Json;
+          p_total_amount?: number;
+          p_transaction_id: string;
+          p_type?: string;
+          p_user_id: string;
+        };
+        Returns: undefined;
+      };
       update_user_role: {
         Args: { new_role: string; target_user_id: string };
         Returns: undefined;
@@ -545,7 +438,9 @@ export type Tables<
     : never;
 
 export type TablesInsert<
-  DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"] | { schema: keyof DatabaseWithoutInternals },
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals;
   }
@@ -568,7 +463,9 @@ export type TablesInsert<
     : never;
 
 export type TablesUpdate<
-  DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"] | { schema: keyof DatabaseWithoutInternals },
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals;
   }
@@ -591,7 +488,9 @@ export type TablesUpdate<
     : never;
 
 export type Enums<
-  DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"] | { schema: keyof DatabaseWithoutInternals },
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals;
   }
