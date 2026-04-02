@@ -39,7 +39,9 @@
     "since": "Desde",
     "availableCredit": "Crédito disponible",
     "currentDebt": "Deuda actual",
-    "utilization": "Utilización"
+    "utilization": "Utilización",
+    "projectedBalance": "Saldo proyectado",
+    "annualRate": "Tasa: {{rate}}% EA"
   },
   "deleteConfirm": {
     "withTransactions": "\"{{name}}\" tiene {{count}} transacción(es) vinculada(s). Al eliminarla también se eliminarán todas las transacciones asociadas. ¿Estás seguro?",

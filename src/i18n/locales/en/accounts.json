@@ -39,7 +39,9 @@
     "since": "Since",
     "availableCredit": "Available Credit",
     "currentDebt": "Current Debt",
-    "utilization": "Utilization"
+    "utilization": "Utilization",
+    "projectedBalance": "Projected Balance",
+    "annualRate": "Rate: {{rate}}% EA"
   },
   "deleteConfirm": {
     "withTransactions": "\"{{name}}\" has {{count}} linked transaction(s). Deleting it will also remove all associated transactions. Are you sure?",
