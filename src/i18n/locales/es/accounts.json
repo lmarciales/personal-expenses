@@ -36,7 +36,10 @@
   "card": {
     "balance": "Saldo",
     "transactions": "transacciones",
-    "since": "Desde"
+    "since": "Desde",
+    "availableCredit": "Crédito disponible",
+    "currentDebt": "Deuda actual",
+    "utilization": "Utilización"
   },
   "deleteConfirm": {
     "withTransactions": "\"{{name}}\" tiene {{count}} transacción(es) vinculada(s). Al eliminarla también se eliminarán todas las transacciones asociadas. ¿Estás seguro?",

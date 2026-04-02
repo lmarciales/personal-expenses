@@ -304,8 +304,33 @@ export const AccountsView = () => {
 
               <div className="flex items-end justify-between">
                 <div>
-                  <p className="text-xs text-muted-foreground mb-0.5">{t("card.balance")}</p>
-                  <p className="text-lg font-bold tabular-nums">{formatCOPWithSymbol(account.balance)}</p>
+                  {account.type === "Credit Card" ? (
+                    <>
+                      <p className="text-xs text-muted-foreground mb-0.5">{t("card.availableCredit")}</p>
+                      <p className="text-lg font-bold tabular-nums">{formatCOPWithSymbol(account.balance)}</p>
+                      {account.credit_limit != null && (
+                        <>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {t("card.currentDebt")}: {formatCOPWithSymbol(account.credit_limit - account.balance)}
+                          </p>
+                          <div className="w-full bg-muted/50 rounded-full h-1.5 mt-1.5">
+                            <div
+                              className="h-1.5 rounded-full transition-all"
+                              style={{
+                                width: `${Math.min(100, Math.max(0, ((account.credit_limit - account.balance) / account.credit_limit) * 100))}%`,
+                                backgroundColor: ((account.credit_limit - account.balance) / account.credit_limit) > 0.8 ? '#ef4444' : ((account.credit_limit - account.balance) / account.credit_limit) > 0.5 ? '#f59e0b' : '#22c55e',
+                              }}
+                            />
+                          </div>
+                        </>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-xs text-muted-foreground mb-0.5">{t("card.balance")}</p>
+                      <p className="text-lg font-bold tabular-nums">{formatCOPWithSymbol(account.balance)}</p>
+                    </>
+                  )}
                 </div>
                 <div className="text-right">
                   <p className="text-xs text-muted-foreground">
