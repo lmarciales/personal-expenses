@@ -6,6 +6,7 @@ export interface AccountWithStats {
   name: string;
   type: string;
   balance: number;
+  credit_limit: number | null;
   color: string;
   created_at: string;
   transactionCount: number;
@@ -104,6 +105,7 @@ export function useAccountsData(filters: AccountFilters) {
           name: acc.name,
           type: acc.type,
           balance: acc.balance,
+          credit_limit: acc.credit_limit ?? null,
           color: acc.color || FALLBACK_COLORS[idx % FALLBACK_COLORS.length],
           created_at: acc.created_at,
           transactionCount: stats.count,
