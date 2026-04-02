@@ -116,6 +116,19 @@
   },
   "cdt": {
     "maturedTransfer": "Your CDT \"{{name}}\" has matured. ${{amount}} was transferred to {{account}}.",
-    "maturedRenew": "Your CDT \"{{name}}\" has been auto-renewed. New maturity: {{date}}."
+    "maturedRenew": "Your CDT \"{{name}}\" has been auto-renewed. New maturity: {{date}}.",
+    "detailTitle": "CDT Details",
+    "principal": "Invested Capital",
+    "grossYield": "Gross Yield",
+    "retention": "Withholding Tax (4%)",
+    "netYield": "Net Yield",
+    "currentNetTotal": "Current Net Total",
+    "expectedAtMaturity": "Expected at Maturity",
+    "rate": "Rate",
+    "opening": "Opening",
+    "maturity": "Maturity",
+    "daysRemaining": "{{days}} days remaining",
+    "behavior": "On Maturity",
+    "linkedAccount": "Linked Account"
   }
 }

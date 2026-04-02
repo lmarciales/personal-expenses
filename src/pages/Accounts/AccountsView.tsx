@@ -260,7 +260,8 @@ export const AccountsView = () => {
             return (
               <div
                 key={account.id}
-                className="glass-card rounded-2xl p-5 group hover:border-primary/30 transition-all cursor-pointer relative"
+                className="glass-card rounded-2xl p-5 group hover:border-primary/30 transition-all cursor-pointer relative border-l-4"
+                style={{ borderLeftColor: account.color.startsWith("#") ? account.color : undefined }}
                 onClick={() => setDetailAccount(account)}
               >
                 {/* Dropdown - stop propagation to prevent detail modal */}
@@ -411,6 +412,7 @@ export const AccountsView = () => {
           setDetailAccount(null);
           setEditState({ account });
         }}
+        allAccounts={accounts}
       />
 
       {editState && (

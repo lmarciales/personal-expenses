@@ -116,6 +116,19 @@
   },
   "cdt": {
     "maturedTransfer": "Tu CDT \"{{name}}\" ha vencido. Se transfirieron ${{amount}} a {{account}}.",
-    "maturedRenew": "Tu CDT \"{{name}}\" se ha renovado automáticamente. Nuevo vencimiento: {{date}}."
+    "maturedRenew": "Tu CDT \"{{name}}\" se ha renovado automáticamente. Nuevo vencimiento: {{date}}.",
+    "detailTitle": "Detalle del CDT",
+    "principal": "Capital invertido",
+    "grossYield": "Rendimiento bruto",
+    "retention": "Retención en la fuente (4%)",
+    "netYield": "Rendimiento neto",
+    "currentNetTotal": "Total neto actual",
+    "expectedAtMaturity": "Total esperado al vencimiento",
+    "rate": "Tasa",
+    "opening": "Apertura",
+    "maturity": "Vencimiento",
+    "daysRemaining": "{{days}} días restantes",
+    "behavior": "Al vencimiento",
+    "linkedAccount": "Cuenta vinculada"
   }
 }
