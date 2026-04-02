@@ -11,6 +11,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { type AccountWithStats, useAccountsData } from "@/hooks/useAccountsData";
 import { formatCOPWithSymbol } from "@/lib/currency";
+import { getProjectedBalance } from "@/lib/projectedBalance";
 import { supabase } from "@/supabase/client";
 import {
   ArrowUpDown,
@@ -334,8 +335,22 @@ export const AccountsView = () => {
                       </>
                     ) : (
                       <>
-                        <p className="text-xs text-muted-foreground mb-0.5">{t("card.balance")}</p>
-                        <p className="text-lg font-bold tabular-nums">{formatCOPWithSymbol(account.balance)}</p>
+                        {account.interest_rate != null ? (
+                          <>
+                            <p className="text-xs text-muted-foreground mb-0.5">{t("card.projectedBalance")}</p>
+                            <p className="text-lg font-bold tabular-nums">
+                              ~{formatCOPWithSymbol(getProjectedBalance(account))}
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                              {t("card.annualRate", { rate: account.interest_rate })}
+                            </p>
+                          </>
+                        ) : (
+                          <>
+                            <p className="text-xs text-muted-foreground mb-0.5">{t("card.balance")}</p>
+                            <p className="text-lg font-bold tabular-nums">{formatCOPWithSymbol(account.balance)}</p>
+                          </>
+                        )}
                       </>
                     )}
                   </div>
