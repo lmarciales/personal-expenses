@@ -115,6 +115,17 @@ export const PaymentDialog = ({
                 />
               </span>
             </div>
+            <div className="flex items-start gap-2 text-sm text-muted-foreground">
+              <Info className="w-4 h-4 mt-0.5 shrink-0 text-success" />
+              <span>
+                <Trans
+                  i18nKey="payment.balanceIncreaseTarget"
+                  ns="debts"
+                  values={{ account: targetAccount.name, amount: formatCOPWithSymbol(actualAmount) }}
+                  components={{ bold: <strong className="text-foreground" /> }}
+                />
+              </span>
+            </div>
           </div>
 
           {/* Optional source account */}

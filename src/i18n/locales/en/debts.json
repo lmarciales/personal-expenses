@@ -52,6 +52,7 @@
     "expectedAmount": "Expected: {{amount}}",
     "expectedNote": "Expected",
     "paidNote": "Paid",
+    "balanceIncreaseTarget": "<bold>{{account}}</bold> available credit will increase by <bold>{{amount}}</bold>.",
     "processing": "Processing...",
     "confirm": "Confirm Payment"
   },
