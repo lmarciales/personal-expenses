@@ -70,7 +70,22 @@
     "addAccount": "Add Account",
     "legacy": "legacy",
     "creditLimit": "Credit Limit",
-    "creditLimitPlaceholder": "e.g. 1,000,000"
+    "creditLimitPlaceholder": "e.g. 1,000,000",
+    "interestRate": "Annual Interest Rate (%)",
+    "interestRatePlaceholder": "e.g. 8.75",
+    "is4x1000": "Subject to 4x1000 tax (GMF)",
+    "maturityDate": "Maturity Date",
+    "onMaturity": "On Maturity",
+    "onMaturityTransferBack": "Return to linked account",
+    "onMaturityAutoRenew": "Auto-renew",
+    "linkedAccount": "Linked Account",
+    "linkedAccountPlaceholder": "Select account",
+    "createType": "Create new type",
+    "newTypeName": "Type Name",
+    "newTypeNamePlaceholder": "e.g. Savings Account",
+    "newTypeColor": "Color",
+    "createTypeButton": "Create",
+    "cancelCreateType": "Cancel"
   },
   "modalToast": {
     "updateError": "Could not update account",

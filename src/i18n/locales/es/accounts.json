@@ -70,7 +70,22 @@
     "addAccount": "Agregar cuenta",
     "legacy": "heredado",
     "creditLimit": "Límite de crédito",
-    "creditLimitPlaceholder": "Ej: 1.000.000"
+    "creditLimitPlaceholder": "Ej: 1.000.000",
+    "interestRate": "Tasa de interés anual (%)",
+    "interestRatePlaceholder": "Ej: 8.75",
+    "is4x1000": "Sujeta a impuesto 4x1000 (GMF)",
+    "maturityDate": "Fecha de vencimiento",
+    "onMaturity": "Al vencimiento",
+    "onMaturityTransferBack": "Devolver a cuenta vinculada",
+    "onMaturityAutoRenew": "Renovar automáticamente",
+    "linkedAccount": "Cuenta vinculada",
+    "linkedAccountPlaceholder": "Seleccionar cuenta",
+    "createType": "Crear nuevo tipo",
+    "newTypeName": "Nombre del tipo",
+    "newTypeNamePlaceholder": "Ej: Cuenta de ahorros",
+    "newTypeColor": "Color",
+    "createTypeButton": "Crear",
+    "cancelCreateType": "Cancelar"
   },
   "modalToast": {
     "updateError": "No se pudo actualizar la cuenta",
