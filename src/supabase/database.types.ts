@@ -252,6 +252,7 @@ export type Database = {
           payee: string
           recurrence_unit: string | null
           recurrence_value: number | null
+          related_transaction_id: string | null
           total_amount: number
           type: string | null
           user_id: string
@@ -266,6 +267,7 @@ export type Database = {
           payee: string
           recurrence_unit?: string | null
           recurrence_value?: number | null
+          related_transaction_id?: string | null
           total_amount: number
           type?: string | null
           user_id: string
@@ -280,6 +282,7 @@ export type Database = {
           payee?: string
           recurrence_unit?: string | null
           recurrence_value?: number | null
+          related_transaction_id?: string | null
           total_amount?: number
           type?: string | null
           user_id?: string
@@ -290,6 +293,13 @@ export type Database = {
             columns: ["account_id"]
             isOneToOne: false
             referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_related_transaction_id_fkey"
+            columns: ["related_transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
             referencedColumns: ["id"]
           },
         ]
