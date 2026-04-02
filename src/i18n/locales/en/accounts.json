@@ -82,6 +82,8 @@
     "interestRate": "Annual Interest Rate (%)",
     "interestRatePlaceholder": "e.g. 8.75",
     "is4x1000": "Subject to 4x1000 tax (GMF)",
+    "openingDate": "Opening Date",
+    "createTransfer": "Create transfer from linked account",
     "maturityDate": "Maturity Date",
     "onMaturity": "On Maturity",
     "onMaturityTransferBack": "Return to linked account",

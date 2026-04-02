@@ -82,6 +82,8 @@
     "interestRate": "Tasa de interés anual (%)",
     "interestRatePlaceholder": "Ej: 8.75",
     "is4x1000": "Sujeta a impuesto 4x1000 (GMF)",
+    "openingDate": "Fecha de apertura",
+    "createTransfer": "Registrar transferencia desde cuenta vinculada",
     "maturityDate": "Fecha de vencimiento",
     "onMaturity": "Al vencimiento",
     "onMaturityTransferBack": "Devolver a cuenta vinculada",

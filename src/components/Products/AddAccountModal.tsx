@@ -28,9 +28,11 @@ const createAccountSchema = (t: TFunction) =>
     credit_limit: z.number().nonnegative().nullable().optional(),
     interest_rate: z.number().min(0).max(100).nullable().optional(),
     is_4x1000_subject: z.boolean().optional(),
+    opening_date: z.string().nullable().optional(),
     maturity_date: z.string().nullable().optional(),
     on_maturity: z.enum(["transfer_back", "auto_renew"]).nullable().optional(),
     linked_account_id: z.string().nullable().optional(),
+    create_transfer: z.boolean().optional(),
   });
 
 type FormValues = z.infer<ReturnType<typeof createAccountSchema>>;
@@ -47,6 +49,7 @@ interface AddAccountModalProps {
     credit_limit?: number | null;
     interest_rate?: number | null;
     is_4x1000_subject?: boolean;
+    opening_date?: string | null;
     maturity_date?: string | null;
     on_maturity?: "transfer_back" | "auto_renew" | null;
     linked_account_id?: string | null;
@@ -130,9 +133,11 @@ export function AddAccountModal({
       credit_limit: initialData?.credit_limit ?? undefined,
       interest_rate: initialData?.interest_rate ?? undefined,
       is_4x1000_subject: initialData?.is_4x1000_subject ?? false,
+      opening_date: initialData?.opening_date ?? undefined,
       maturity_date: initialData?.maturity_date ?? undefined,
       on_maturity: initialData?.on_maturity ?? undefined,
       linked_account_id: initialData?.linked_account_id ?? undefined,
+      create_transfer: true,
     },
   });
 
@@ -146,9 +151,11 @@ export function AddAccountModal({
         credit_limit: initialData.credit_limit ?? undefined,
         interest_rate: initialData.interest_rate ?? undefined,
         is_4x1000_subject: initialData.is_4x1000_subject ?? false,
+        opening_date: initialData.opening_date ?? undefined,
         maturity_date: initialData.maturity_date ?? undefined,
         on_maturity: initialData.on_maturity ?? undefined,
         linked_account_id: initialData.linked_account_id ?? undefined,
+        create_transfer: false,
       });
     } else if (open && !editMode) {
       form.reset({
@@ -158,9 +165,11 @@ export function AddAccountModal({
         credit_limit: undefined,
         interest_rate: undefined,
         is_4x1000_subject: false,
+        opening_date: undefined,
         maturity_date: undefined,
         on_maturity: undefined,
         linked_account_id: undefined,
+        create_transfer: true,
       });
     }
   }, [open, editMode, initialData, form, accountTypes]);
@@ -175,6 +184,7 @@ export function AddAccountModal({
       form.setValue("credit_limit", undefined);
     }
     if (watchedType !== "CDT") {
+      form.setValue("opening_date", undefined);
       form.setValue("maturity_date", undefined);
       form.setValue("on_maturity", undefined);
       form.setValue("linked_account_id", undefined);
@@ -220,6 +230,14 @@ export function AddAccountModal({
       const accountTypeObj = accountTypes.find((t) => t.name === data.type);
       const color = accountTypeObj ? accountTypeObj.color : "bg-primary";
 
+      // For CDTs with an opening date, use it as the interest reference date
+      const referenceDate =
+        data.type === "CDT" && data.opening_date
+          ? new Date(data.opening_date).toISOString()
+          : data.interest_rate != null
+            ? new Date().toISOString()
+            : null;
+
       if (editMode && accountId) {
         const { error } = await supabase
           .from("accounts")
@@ -231,7 +249,7 @@ export function AddAccountModal({
             credit_limit: data.type === "Credit Card" ? data.credit_limit ?? null : null,
             interest_rate: data.interest_rate ?? null,
             interest_reference_balance: data.interest_rate != null ? data.balance : null,
-            interest_reference_date: data.interest_rate != null ? new Date().toISOString() : null,
+            interest_reference_date: referenceDate,
             is_4x1000_subject: data.is_4x1000_subject ?? false,
             maturity_date: data.type === "CDT" ? data.maturity_date ?? null : null,
             on_maturity: data.type === "CDT" ? data.on_maturity ?? null : null,
@@ -251,7 +269,7 @@ export function AddAccountModal({
           credit_limit: data.type === "Credit Card" ? data.credit_limit ?? null : null,
           interest_rate: data.interest_rate ?? null,
           interest_reference_balance: data.interest_rate != null ? data.balance : null,
-          interest_reference_date: data.interest_rate != null ? new Date().toISOString() : null,
+          interest_reference_date: referenceDate,
           is_4x1000_subject: data.is_4x1000_subject ?? false,
           maturity_date: data.type === "CDT" ? data.maturity_date ?? null : null,
           on_maturity: data.type === "CDT" ? data.on_maturity ?? null : null,
@@ -259,6 +277,26 @@ export function AddAccountModal({
         });
 
         if (error) throw error;
+
+        // Auto-create transfer from linked account for new CDTs
+        if (
+          data.type === "CDT" &&
+          data.create_transfer &&
+          data.linked_account_id &&
+          data.balance > 0
+        ) {
+          await supabase.rpc("add_transaction_with_splits", {
+            p_user_id: userData.user.id,
+            p_account_id: data.linked_account_id,
+            p_date: data.opening_date ?? new Date().toISOString().split("T")[0],
+            p_total_amount: data.balance,
+            p_payee: `CDT - ${data.name}`,
+            p_notes: "Apertura de CDT",
+            p_type: "transfer",
+            p_splits: JSON.stringify([]),
+            p_category_ids: [],
+          });
+        }
       }
 
       setOpen(false);
@@ -518,6 +556,25 @@ export function AddAccountModal({
             <>
               <FormField
                 control={form.control}
+                name="opening_date"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("accounts:modal.openingDate")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="date"
+                        value={field.value ?? ""}
+                        onChange={(e) => field.onChange(e.target.value || null)}
+                        className="bg-surface-input border-glass"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
                 name="maturity_date"
                 render={({ field }) => (
                   <FormItem>
@@ -581,6 +638,23 @@ export function AddAccountModal({
                   </FormItem>
                 )}
               />
+
+              {!editMode && (
+                <FormField
+                  control={form.control}
+                  name="create_transfer"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center gap-3 space-y-0">
+                      <FormControl>
+                        <Checkbox checked={field.value ?? true} onCheckedChange={field.onChange} />
+                      </FormControl>
+                      <FormLabel className="text-sm font-normal cursor-pointer">
+                        {t("accounts:modal.createTransfer")}
+                      </FormLabel>
+                    </FormItem>
+                  )}
+                />
+              )}
             </>
           )}
 
