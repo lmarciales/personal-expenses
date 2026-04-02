@@ -1,4 +1,5 @@
 import type { CategorySpending } from "@/components/SpendingOverview";
+import { getProjectedBalance } from "@/lib/projectedBalance";
 import { supabase } from "@/supabase/client";
 import { useCallback, useEffect, useState } from "react";
 
@@ -7,6 +8,9 @@ export interface DashboardData {
     id: string;
     name: string;
     balance: number;
+    interest_rate: number | null;
+    interest_reference_balance: number | null;
+    interest_reference_date: string | null;
     type: string;
     color: string;
   }[];
@@ -126,11 +130,14 @@ export function useDashboardData() {
         id: acc.id,
         name: acc.name,
         balance: acc.balance,
+        interest_rate: acc.interest_rate ?? null,
+        interest_reference_balance: acc.interest_reference_balance ?? null,
+        interest_reference_date: acc.interest_reference_date ?? null,
         type: acc.type,
         color: acc.color || fallbackColors[idx % fallbackColors.length],
       }));
 
-      const totalBalance = accounts.reduce((acc, curr) => acc + curr.balance, 0);
+      const totalBalance = accounts.reduce((acc, curr) => acc + getProjectedBalance(curr), 0);
 
       // Map Transactions for UI
       const transactions = (transactionsResult.data || []).map((txn: any) => ({
