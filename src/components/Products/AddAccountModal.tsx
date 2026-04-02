@@ -1,5 +1,6 @@
 import { CurrencyInput } from "@/components/ui/CurrencyInput";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -23,6 +24,11 @@ const createAccountSchema = (t: TFunction) =>
     }),
     type: z.string().min(1, t("validation:typeRequired")),
     credit_limit: z.number().nonnegative().nullable().optional(),
+    interest_rate: z.number().min(0).max(100).nullable().optional(),
+    is_4x1000_subject: z.boolean().optional(),
+    maturity_date: z.string().nullable().optional(),
+    on_maturity: z.enum(["transfer_back", "auto_renew"]).nullable().optional(),
+    linked_account_id: z.string().nullable().optional(),
   });
 
 type FormValues = z.infer<ReturnType<typeof createAccountSchema>>;
@@ -32,7 +38,17 @@ interface AddAccountModalProps {
   children?: React.ReactNode;
   editMode?: boolean;
   accountId?: string;
-  initialData?: { name: string; type: string; balance: number; credit_limit?: number | null };
+  initialData?: {
+    name: string;
+    type: string;
+    balance: number;
+    credit_limit?: number | null;
+    interest_rate?: number | null;
+    is_4x1000_subject?: boolean;
+    maturity_date?: string | null;
+    on_maturity?: string | null;
+    linked_account_id?: string | null;
+  };
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }
@@ -59,11 +75,9 @@ export function AddAccountModal({
   const [newTypeName, setNewTypeName] = useState("");
   const [newTypeColor, setNewTypeColor] = useState("#6366f1");
   const [isCreatingType, setIsCreatingType] = useState(false);
+  const [linkedAccounts, setLinkedAccounts] = useState<{ id: string; name: string }[]>([]);
 
-  const TYPE_COLOR_PRESETS = [
-    "#6366f1", "#3b82f6", "#10b981", "#f59e0b",
-    "#ef4444", "#8b5cf6", "#ec4899", "#14b8a6",
-  ];
+  const TYPE_COLOR_PRESETS = ["#6366f1", "#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899", "#14b8a6"];
 
   const handleCreateType = async () => {
     if (!newTypeName.trim()) return;
@@ -80,10 +94,7 @@ export function AddAccountModal({
       if (error) throw error;
 
       // Refresh types list and select the new type
-      const { data: refreshed } = await supabase
-        .from("account_types")
-        .select("name, color")
-        .order("name");
+      const { data: refreshed } = await supabase.from("account_types").select("name, color").order("name");
       if (refreshed) {
         setAccountTypes(refreshed);
         form.setValue("type", newTypeName.trim());
@@ -107,6 +118,11 @@ export function AddAccountModal({
       balance: initialData?.balance ?? undefined,
       type: initialData?.type ?? "",
       credit_limit: initialData?.credit_limit ?? undefined,
+      interest_rate: initialData?.interest_rate ?? undefined,
+      is_4x1000_subject: initialData?.is_4x1000_subject ?? false,
+      maturity_date: initialData?.maturity_date ?? undefined,
+      on_maturity: initialData?.on_maturity ?? undefined,
+      linked_account_id: initialData?.linked_account_id ?? undefined,
     },
   });
 
@@ -118,6 +134,11 @@ export function AddAccountModal({
         balance: initialData.balance,
         type: initialData.type,
         credit_limit: initialData.credit_limit ?? undefined,
+        interest_rate: initialData.interest_rate ?? undefined,
+        is_4x1000_subject: initialData.is_4x1000_subject ?? false,
+        maturity_date: initialData.maturity_date ?? undefined,
+        on_maturity: initialData.on_maturity ?? undefined,
+        linked_account_id: initialData.linked_account_id ?? undefined,
       });
     } else if (open && !editMode) {
       form.reset({
@@ -125,6 +146,11 @@ export function AddAccountModal({
         balance: undefined,
         type: accountTypes.length > 0 ? accountTypes[0].name : "",
         credit_limit: undefined,
+        interest_rate: undefined,
+        is_4x1000_subject: false,
+        maturity_date: undefined,
+        on_maturity: undefined,
+        linked_account_id: undefined,
       });
     }
   }, [open, editMode, initialData, form, accountTypes]);
@@ -137,6 +163,17 @@ export function AddAccountModal({
         if (data.length > 0 && !editMode && !initialData) {
           form.setValue("type", data[0].name);
         }
+      }
+
+      // Fetch user accounts for CDT linked account dropdown
+      const { data: userData } = await supabase.auth.getUser();
+      if (userData?.user) {
+        const { data: accData } = await supabase
+          .from("accounts")
+          .select("id, name, type")
+          .eq("user_id", userData.user.id)
+          .neq("type", "CDT");
+        if (accData) setLinkedAccounts(accData.map((a) => ({ id: a.id, name: a.name })));
       }
     };
     fetchTypes();
@@ -165,7 +202,7 @@ export function AddAccountModal({
             type: data.type,
             balance: data.balance,
             color: color,
-            credit_limit: data.type === "Credit Card" ? (data.credit_limit ?? null) : null,
+            credit_limit: data.type === "Credit Card" ? data.credit_limit ?? null : null,
           })
           .eq("id", accountId)
           .eq("user_id", userData.user.id);
@@ -178,7 +215,7 @@ export function AddAccountModal({
           type: data.type,
           balance: data.balance,
           color: color,
-          credit_limit: data.type === "Credit Card" ? (data.credit_limit ?? null) : null,
+          credit_limit: data.type === "Credit Card" ? data.credit_limit ?? null : null,
         });
 
         if (error) throw error;
@@ -331,7 +368,10 @@ export function AddAccountModal({
                         type="button"
                         size="sm"
                         variant="ghost"
-                        onClick={() => { setCreatingType(false); setNewTypeName(""); }}
+                        onClick={() => {
+                          setCreatingType(false);
+                          setNewTypeName("");
+                        }}
                       >
                         {t("accounts:modal.cancelCreateType")}
                       </Button>
@@ -391,6 +431,117 @@ export function AddAccountModal({
                 </FormItem>
               )}
             />
+          )}
+
+          {/* Interest Rate — shown for all types */}
+          <FormField
+            control={form.control}
+            name="interest_rate"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t("accounts:modal.interestRate")}</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    max="100"
+                    value={field.value ?? ""}
+                    onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : null)}
+                    placeholder={t("accounts:modal.interestRatePlaceholder")}
+                    className="bg-surface-input border-glass"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* 4x1000 checkbox — shown for non-Credit Card, non-CDT types */}
+          {form.watch("type") !== "Credit Card" && form.watch("type") !== "CDT" && (
+            <FormField
+              control={form.control}
+              name="is_4x1000_subject"
+              render={({ field }) => (
+                <FormItem className="flex items-center gap-3 space-y-0">
+                  <FormControl>
+                    <Checkbox checked={field.value ?? false} onCheckedChange={field.onChange} />
+                  </FormControl>
+                  <FormLabel className="text-sm font-normal cursor-pointer">{t("accounts:modal.is4x1000")}</FormLabel>
+                </FormItem>
+              )}
+            />
+          )}
+
+          {/* CDT-specific fields */}
+          {form.watch("type") === "CDT" && (
+            <>
+              <FormField
+                control={form.control}
+                name="maturity_date"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("accounts:modal.maturityDate")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="date"
+                        value={field.value ?? ""}
+                        onChange={(e) => field.onChange(e.target.value || null)}
+                        className="bg-surface-input border-glass"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="on_maturity"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("accounts:modal.onMaturity")}</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value ?? ""}>
+                      <FormControl>
+                        <SelectTrigger className="bg-surface-input border-glass">
+                          <SelectValue />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="glass-panel border-glass">
+                        <SelectItem value="transfer_back">{t("accounts:modal.onMaturityTransferBack")}</SelectItem>
+                        <SelectItem value="auto_renew">{t("accounts:modal.onMaturityAutoRenew")}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="linked_account_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("accounts:modal.linkedAccount")}</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value ?? ""}>
+                      <FormControl>
+                        <SelectTrigger className="bg-surface-input border-glass">
+                          <SelectValue placeholder={t("accounts:modal.linkedAccountPlaceholder")} />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="glass-panel border-glass">
+                        {linkedAccounts.map((acc) => (
+                          <SelectItem key={acc.id} value={acc.id}>
+                            {acc.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </>
           )}
 
           <div className="flex justify-between gap-3 pt-4 border-t border-glass">
