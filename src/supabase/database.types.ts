@@ -324,6 +324,10 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      _update_interest_reference: {
+        Args: { p_account_id: string; p_user_id: string };
+        Returns: undefined;
+      };
       add_transaction_with_splits:
         | {
             Args: {
