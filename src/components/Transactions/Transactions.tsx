@@ -23,6 +23,7 @@ export interface Transaction {
   recurrence_unit?: string | null;
   transaction_splits?: { id: string; amount: number; assigned_to: string; status: string }[];
   transaction_categories?: { category_id: string; categories: { id: string; name: string; color: string | null } }[];
+  related_transaction_id?: string | null;
 }
 
 const Transactions = ({
@@ -57,70 +58,81 @@ const Transactions = ({
         {transactions.length === 0 ? (
           <EmptyState icon={Activity} title={t("recent.empty")} description={t("recent.emptyDescription")} />
         ) : (
-          transactions.map((transaction) => (
-            <DropdownMenu key={transaction.id}>
-              <DropdownMenuTrigger asChild>
-                <div className="group relative flex items-center gap-3 p-3 rounded-xl hover:bg-surface-hover transition-colors cursor-pointer overflow-hidden">
-                  {/* Avatar */}
-                  <div className="relative shrink-0">
-                    <div className="w-9 h-9 rounded-full bg-surface-overlay border-2 border-background shadow-sm flex items-center justify-center">
-                      <span className="text-xs font-bold text-muted-foreground">
-                        {transaction.name.charAt(0).toUpperCase()}
-                      </span>
-                    </div>
-                    {transaction.status === "Success" && (
-                      <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-primary border-2 border-background rounded-full"></div>
-                    )}
+          transactions.map((transaction) => {
+            const rowContent = (
+              <div className="group relative flex items-center gap-3 p-3 rounded-xl hover:bg-surface-hover transition-colors cursor-pointer overflow-hidden">
+                {/* Avatar */}
+                <div className="relative shrink-0">
+                  <div className="w-9 h-9 rounded-full bg-surface-overlay border-2 border-background shadow-sm flex items-center justify-center">
+                    <span className="text-xs font-bold text-muted-foreground">
+                      {transaction.name.charAt(0).toUpperCase()}
+                    </span>
                   </div>
+                  {transaction.status === "Success" && (
+                    <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-primary border-2 border-background rounded-full"></div>
+                  )}
+                </div>
 
-                  {/* Info - truncated */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="font-semibold text-sm truncate group-hover:text-primary transition-colors">
-                        {transaction.name}
-                      </span>
-                      <span
-                        className={`shrink-0 font-bold text-sm tabular-nums ${transaction.type === "income" ? "text-income" : "text-foreground"}`}
-                      >
-                        {transaction.type === "income" ? "+" : transaction.type === "expense" ? "-" : ""}
-                        {formatCOPWithSymbol(Math.abs(transaction.amount))}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between gap-2 mt-0.5">
-                      <span className="text-xs text-muted-foreground truncate">{transaction.email}</span>
-                      <span
-                        className={`shrink-0 text-[10px] font-medium uppercase tracking-wider ${
-                          transaction.status === "Success" ? "text-primary" : "text-warning animate-pulse"
-                        }`}
-                      >
-                        {transaction.status === "Success" ? t("status.success") : t("status.pending")}
-                      </span>
-                    </div>
+                {/* Info - truncated */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-semibold text-sm truncate group-hover:text-primary transition-colors">
+                      {transaction.name}
+                      {transaction.related_transaction_id && (
+                        <span className="ml-1.5 px-1.5 py-0.5 text-[10px] font-bold rounded bg-amber-500/20 text-amber-600">
+                          GMF
+                        </span>
+                      )}
+                    </span>
+                    <span
+                      className={`shrink-0 font-bold text-sm tabular-nums ${transaction.type === "income" ? "text-income" : "text-foreground"}`}
+                    >
+                      {transaction.type === "income" ? "+" : transaction.type === "expense" ? "-" : ""}
+                      {formatCOPWithSymbol(Math.abs(transaction.amount))}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-2 mt-0.5">
+                    <span className="text-xs text-muted-foreground truncate">{transaction.email}</span>
+                    <span
+                      className={`shrink-0 text-[10px] font-medium uppercase tracking-wider ${
+                        transaction.status === "Success" ? "text-primary" : "text-warning animate-pulse"
+                      }`}
+                    >
+                      {transaction.status === "Success" ? t("status.success") : t("status.pending")}
+                    </span>
                   </div>
                 </div>
-              </DropdownMenuTrigger>
+              </div>
+            );
 
-              {accounts && onSuccess && (
-                <DropdownMenuContent align="end" className="w-48 glass-panel border-border z-50">
-                  <DropdownMenuItem
-                    onSelect={() => setModalState({ mode: "edit", transaction })}
-                    className="cursor-pointer"
-                  >
-                    <Pencil className="w-4 h-4 mr-2" />
-                    <span>{t("common:actions.edit")}</span>
-                  </DropdownMenuItem>
+            return transaction.related_transaction_id ? (
+              <div key={transaction.id}>{rowContent}</div>
+            ) : (
+              <DropdownMenu key={transaction.id}>
+                <DropdownMenuTrigger asChild>{rowContent}</DropdownMenuTrigger>
 
-                  <DropdownMenuItem
-                    onSelect={() => setModalState({ mode: "duplicate", transaction })}
-                    className="cursor-pointer"
-                  >
-                    <CopyPlus className="w-4 h-4 mr-2" />
-                    <span>{t("common:actions.duplicate")}</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              )}
-            </DropdownMenu>
-          ))
+                {accounts && onSuccess && (
+                  <DropdownMenuContent align="end" className="w-48 glass-panel border-border z-50">
+                    <DropdownMenuItem
+                      onSelect={() => setModalState({ mode: "edit", transaction })}
+                      className="cursor-pointer"
+                    >
+                      <Pencil className="w-4 h-4 mr-2" />
+                      <span>{t("common:actions.edit")}</span>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem
+                      onSelect={() => setModalState({ mode: "duplicate", transaction })}
+                      className="cursor-pointer"
+                    >
+                      <CopyPlus className="w-4 h-4 mr-2" />
+                      <span>{t("common:actions.duplicate")}</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                )}
+              </DropdownMenu>
+            );
+          })
         )}
       </div>
 

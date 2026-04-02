@@ -23,6 +23,7 @@ export interface TransactionWithSplits {
     category_id: string;
     categories: { id: string; name: string; color: string | null };
   }[];
+  related_transaction_id: string | null;
 }
 
 export interface TransactionFilters {
@@ -70,6 +71,7 @@ export function useTransactionsData(filters: TransactionFilters) {
           recurrence_unit,
           notes,
           type,
+          related_transaction_id,
           accounts(name, color),
           transaction_splits!inner(
             id,

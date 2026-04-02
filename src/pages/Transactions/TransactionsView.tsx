@@ -303,6 +303,11 @@ export function TransactionsView() {
                     <div className="flex-1 min-w-0">
                       <div className="font-semibold text-sm flex items-center gap-2">
                         {txn.payee}
+                        {txn.related_transaction_id && (
+                          <span className="ml-1.5 px-1.5 py-0.5 text-[10px] font-bold rounded bg-amber-500/20 text-amber-600">
+                            GMF
+                          </span>
+                        )}
                         {txn.is_recurring && (
                           <span className="text-[9px] bg-primary/20 text-primary px-1.5 py-0.5 rounded-full uppercase font-bold tracking-wider">
                             {t("recurring")}
@@ -379,44 +384,46 @@ export function TransactionsView() {
                   </div>
 
                   <div className="shrink-0 flex items-center self-center">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-surface-hover-strong"
-                        >
-                          <MoreVertical className="w-4 h-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-48 glass-panel border-border z-50">
-                        <DropdownMenuItem
-                          onSelect={() => setModalState({ mode: "edit", transaction: txn })}
-                          className="cursor-pointer"
-                        >
-                          <Pencil className="w-4 h-4 mr-2" />
-                          <span>{t("common:actions.edit")}</span>
-                        </DropdownMenuItem>
+                    {!txn.related_transaction_id && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-surface-hover-strong"
+                          >
+                            <MoreVertical className="w-4 h-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48 glass-panel border-border z-50">
+                          <DropdownMenuItem
+                            onSelect={() => setModalState({ mode: "edit", transaction: txn })}
+                            className="cursor-pointer"
+                          >
+                            <Pencil className="w-4 h-4 mr-2" />
+                            <span>{t("common:actions.edit")}</span>
+                          </DropdownMenuItem>
 
-                        <DropdownMenuItem
-                          onSelect={() => setModalState({ mode: "duplicate", transaction: txn })}
-                          className="cursor-pointer"
-                        >
-                          <CopyPlus className="w-4 h-4 mr-2" />
-                          <span>{t("common:actions.duplicate")}</span>
-                        </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onSelect={() => setModalState({ mode: "duplicate", transaction: txn })}
+                            className="cursor-pointer"
+                          >
+                            <CopyPlus className="w-4 h-4 mr-2" />
+                            <span>{t("common:actions.duplicate")}</span>
+                          </DropdownMenuItem>
 
-                        <DropdownMenuSeparator className="bg-border/50" />
+                          <DropdownMenuSeparator className="bg-border/50" />
 
-                        <DropdownMenuItem
-                          onClick={(e) => handleDelete(txn.id, e)}
-                          className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer"
-                        >
-                          <Trash2 className="w-4 h-4 mr-2" />
-                          <span>{t("common:actions.delete")}</span>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                          <DropdownMenuItem
+                            onClick={(e) => handleDelete(txn.id, e)}
+                            className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer"
+                          >
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            <span>{t("common:actions.delete")}</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
                   </div>
                 </div>
               ))}

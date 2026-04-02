@@ -22,6 +22,8 @@
     "success": "Success",
     "pending": "Pending"
   },
+  "gmfBadge": "GMF",
+  "autoTax": "Auto-generated tax",
   "modal": {
     "addTitle": "Add Transaction",
     "editTitle": "Edit Transaction",
