@@ -97,7 +97,7 @@ export function AccountDetailModal({ account, open, onOpenChange, onUpdated }: A
                   <span className="text-xs text-muted-foreground">{t("detail.availableCredit")}</span>
                   {account.credit_limit != null && (
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      {t("detail.currentDebt")}: {formatCOPWithSymbol(account.credit_limit - account.balance)}
+                      {t("detail.currentDebt")}: {formatCOPWithSymbol(Math.max(0, account.credit_limit - account.balance))}
                     </p>
                   )}
                 </>

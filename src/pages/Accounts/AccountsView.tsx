@@ -251,7 +251,12 @@ export const AccountsView = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {accounts.map((account) => (
+          {accounts.map((account) => {
+            const utilization =
+              account.credit_limit != null && account.credit_limit > 0
+                ? (account.credit_limit - account.balance) / account.credit_limit
+                : 0;
+            return (
             <div
               key={account.id}
               className="glass-card rounded-2xl p-5 group hover:border-primary/30 transition-all cursor-pointer relative"
@@ -311,14 +316,14 @@ export const AccountsView = () => {
                       {account.credit_limit != null && (
                         <>
                           <p className="text-xs text-muted-foreground mt-1">
-                            {t("card.currentDebt")}: {formatCOPWithSymbol(account.credit_limit - account.balance)}
+                            {t("card.currentDebt")}: {formatCOPWithSymbol(Math.max(0, account.credit_limit - account.balance))}
                           </p>
                           <div className="w-full bg-muted/50 rounded-full h-1.5 mt-1.5">
                             <div
                               className="h-1.5 rounded-full transition-all"
                               style={{
-                                width: `${Math.min(100, Math.max(0, ((account.credit_limit - account.balance) / account.credit_limit) * 100))}%`,
-                                backgroundColor: ((account.credit_limit - account.balance) / account.credit_limit) > 0.8 ? '#ef4444' : ((account.credit_limit - account.balance) / account.credit_limit) > 0.5 ? '#f59e0b' : '#22c55e',
+                                width: `${Math.min(100, Math.max(0, utilization * 100))}%`,
+                                backgroundColor: utilization > 0.8 ? '#ef4444' : utilization > 0.5 ? '#f59e0b' : '#22c55e',
                               }}
                             />
                           </div>
@@ -343,7 +348,8 @@ export const AccountsView = () => {
                 </div>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
 

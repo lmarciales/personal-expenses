@@ -22,7 +22,7 @@ const createAccountSchema = (t: TFunction) =>
       invalid_type_error: t("validation:balanceRequired"),
     }),
     type: z.string().min(1, t("validation:typeRequired")),
-    credit_limit: z.number().nullable().optional(),
+    credit_limit: z.number().nonnegative().nullable().optional(),
   });
 
 type FormValues = z.infer<ReturnType<typeof createAccountSchema>>;

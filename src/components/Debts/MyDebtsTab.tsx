@@ -22,9 +22,10 @@ export const MyDebtsTab = ({ groups, accounts, onSettled }: MyDebtsTabProps) => 
     open: boolean;
     accountId: string;
     accountName: string;
+    accountType: string;
     splitIds: string[];
     total: number;
-  }>({ open: false, accountId: "", accountName: "", splitIds: [], total: 0 });
+  }>({ open: false, accountId: "", accountName: "", accountType: "", splitIds: [], total: 0 });
 
   if (groups.length === 0) {
     return (
@@ -75,6 +76,7 @@ export const MyDebtsTab = ({ groups, accounts, onSettled }: MyDebtsTabProps) => 
       open: true,
       accountId: group.account.id,
       accountName: group.account.name,
+      accountType: group.account.type,
       splitIds,
       total,
     });
@@ -205,7 +207,7 @@ export const MyDebtsTab = ({ groups, accounts, onSettled }: MyDebtsTabProps) => 
         onOpenChange={(open) => setPaymentDialog((prev) => ({ ...prev, open }))}
         selectedSplitIds={paymentDialog.splitIds}
         totalAmount={paymentDialog.total}
-        targetAccount={{ id: paymentDialog.accountId, name: paymentDialog.accountName }}
+        targetAccount={{ id: paymentDialog.accountId, name: paymentDialog.accountName, type: paymentDialog.accountType }}
         accounts={accounts}
         onSuccess={onSettled}
       />
