@@ -1,127 +1,105 @@
-import { getProjectedBalance } from "@/lib/projectedBalance";
+import { formatDateString } from "@/lib/dates";
+import type { AccountWithStats } from "@/hooks/useAccountsData";
 import { supabase } from "@/supabase/client";
 
-export interface CdtAccount {
-  id: string;
-  name: string;
-  balance: number;
-  interest_rate: number | null;
-  interest_reference_balance: number | null;
-  interest_reference_date: string | null;
-  maturity_date: string | null;
-  on_maturity: string | null;
-  linked_account_id: string | null;
-  type: string;
+interface RedeemCdtParams {
+  cdtId: string;
+  userId: string;
+  actualAmount: number;
+  linkedAccountId: string;
+  payee: string;
+  note: string;
 }
 
-export interface MaturityResult {
-  type: "transfer_back" | "auto_renew";
-  cdtName: string;
-  amount?: number;
-  linkedAccountName?: string;
-  newMaturityDate?: string;
+interface RenewCdtParams {
+  cdtId: string;
+  userId: string;
+  newPrincipal: number;
+  originalMaturityDate: string;
+  originalRefDate: string | null;
+}
+
+/** Check whether an account is a matured (but not archived) CDT. */
+export function isCdtMatured(account: AccountWithStats): boolean {
+  const today = formatDateString(new Date());
+  return account.type === "CDT" && account.maturity_date != null && account.maturity_date <= today && !account.is_archived;
 }
 
 /**
- * Processes all matured CDTs for the current user.
- * Returns an array of results describing what happened, for toast notifications.
+ * Redeems a matured CDT: creates transfer + income transactions,
+ * then archives the CDT account.
  */
-export async function processMaturedCdts(
-  accounts: CdtAccount[],
-  userId: string,
-): Promise<MaturityResult[]> {
-  const today = new Date().toISOString().split("T")[0];
-  const results: MaturityResult[] = [];
+export async function redeemCdt(params: RedeemCdtParams): Promise<void> {
+  const { cdtId, userId, actualAmount, linkedAccountId, payee, note } = params;
+  const today = formatDateString(new Date());
 
-  const maturedCdts = accounts.filter(
-    (a) => a.type === "CDT" && a.maturity_date != null && a.maturity_date <= today,
-  );
+  const [txResult, incResult] = await Promise.all([
+    supabase.rpc("add_transaction_with_splits", {
+      p_user_id: userId,
+      p_account_id: cdtId,
+      p_date: today,
+      p_total_amount: actualAmount,
+      p_payee: payee,
+      p_notes: note,
+      p_type: "transfer",
+      p_splits: JSON.stringify([]),
+      p_category_ids: [],
+    }),
+    supabase.rpc("add_transaction_with_splits", {
+      p_user_id: userId,
+      p_account_id: linkedAccountId,
+      p_date: today,
+      p_total_amount: actualAmount,
+      p_payee: payee,
+      p_notes: note,
+      p_type: "income",
+      p_splits: JSON.stringify([]),
+      p_category_ids: [],
+    }),
+  ]);
 
-  for (const cdt of maturedCdts) {
-    const projectedBalance = getProjectedBalance(cdt);
+  if (txResult.error) throw txResult.error;
+  if (incResult.error) throw incResult.error;
 
-    if (cdt.on_maturity === "transfer_back" && cdt.linked_account_id) {
-      const linkedAccount = accounts.find((a) => a.id === cdt.linked_account_id);
+  const { error: archiveError } = await supabase
+    .from("accounts")
+    .update({ is_archived: true, balance: 0 })
+    .eq("id", cdtId)
+    .eq("user_id", userId);
 
-      // Create transfer transaction from CDT (expense on CDT account)
-      const { error: txError } = await supabase.rpc("add_transaction_with_splits", {
-        p_user_id: userId,
-        p_account_id: cdt.id,
-        p_date: today,
-        p_total_amount: projectedBalance,
-        p_payee: `CDT Maturity - ${cdt.name}`,
-        p_notes: "Transferencia automática por vencimiento de CDT",
-        p_type: "transfer",
-        p_splits: JSON.stringify([]),
-        p_category_ids: [],
-      });
+  if (archiveError) throw archiveError;
+}
 
-      if (txError) {
-        console.error(`Failed to process CDT maturity transfer for ${cdt.name}:`, txError);
-        continue;
-      }
+/**
+ * Renews a matured CDT: updates balance to new principal,
+ * resets reference, and extends maturity by the original term.
+ * Returns the new maturity date string.
+ */
+export async function renewCdt(params: RenewCdtParams): Promise<string> {
+  const { cdtId, userId, newPrincipal, originalMaturityDate, originalRefDate } = params;
 
-      // Add income to linked account
-      const { error: incError } = await supabase.rpc("add_transaction_with_splits", {
-        p_user_id: userId,
-        p_account_id: cdt.linked_account_id,
-        p_date: today,
-        p_total_amount: projectedBalance,
-        p_payee: `CDT Maturity - ${cdt.name}`,
-        p_notes: "Ingreso automático por vencimiento de CDT",
-        p_type: "income",
-        p_splits: JSON.stringify([]),
-        p_category_ids: [],
-      });
+  // Calculate original term duration
+  const refDate = originalRefDate ? new Date(originalRefDate) : new Date(originalMaturityDate);
+  const matDate = new Date(originalMaturityDate);
+  const termMs = matDate.getTime() - refDate.getTime();
+  const termDays = Math.max(30, Math.round(termMs / (1000 * 60 * 60 * 24)));
 
-      if (incError) {
-        console.error(`Failed to add CDT maturity income for ${cdt.name}:`, incError);
-        continue;
-      }
+  // New maturity = old maturity + term
+  const newMaturity = new Date(matDate.getTime() + termDays * 24 * 60 * 60 * 1000);
+  const newMaturityStr = formatDateString(newMaturity);
 
-      results.push({
-        type: "transfer_back",
-        cdtName: cdt.name,
-        amount: Math.round(projectedBalance),
-        linkedAccountName: linkedAccount?.name ?? "cuenta vinculada",
-      });
-    } else if (cdt.on_maturity === "auto_renew") {
-      // Calculate original term duration
-      const refDate = cdt.interest_reference_date
-        ? new Date(cdt.interest_reference_date)
-        : new Date(cdt.maturity_date!);
-      const matDate = new Date(cdt.maturity_date!);
-      const termMs = matDate.getTime() - refDate.getTime();
-      const termDays = Math.max(30, Math.round(termMs / (1000 * 60 * 60 * 24)));
+  const { error } = await supabase
+    .from("accounts")
+    .update({
+      balance: newPrincipal,
+      interest_reference_balance: newPrincipal,
+      interest_reference_date: originalMaturityDate,
+      maturity_date: newMaturityStr,
+    })
+    .eq("id", cdtId)
+    .eq("user_id", userId);
 
-      // New maturity = old maturity + term
-      const newMaturity = new Date(matDate.getTime() + termDays * 24 * 60 * 60 * 1000);
-      const newMaturityStr = newMaturity.toISOString().split("T")[0];
+  if (error) throw error;
 
-      // Update CDT: lock in interest as new principal, reset reference, extend maturity
-      const { error } = await supabase
-        .from("accounts")
-        .update({
-          balance: projectedBalance,
-          interest_reference_balance: projectedBalance,
-          interest_reference_date: cdt.maturity_date,
-          maturity_date: newMaturityStr,
-        })
-        .eq("id", cdt.id)
-        .eq("user_id", userId);
-
-      if (error) {
-        console.error(`Failed to auto-renew CDT ${cdt.name}:`, error);
-        continue;
-      }
-
-      results.push({
-        type: "auto_renew",
-        cdtName: cdt.name,
-        newMaturityDate: newMaturityStr,
-      });
-    }
-  }
-
-  return results;
+  return newMaturityStr;
 }

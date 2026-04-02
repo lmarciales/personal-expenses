@@ -115,8 +115,6 @@
     "created": "Creada"
   },
   "cdt": {
-    "maturedTransfer": "Tu CDT \"{{name}}\" ha vencido. Se transfirieron ${{amount}} a {{account}}.",
-    "maturedRenew": "Tu CDT \"{{name}}\" se ha renovado automáticamente. Nuevo vencimiento: {{date}}.",
     "detailTitle": "Detalle del CDT",
     "principal": "Capital invertido",
     "grossYield": "Rendimiento bruto",
@@ -129,6 +127,18 @@
     "maturity": "Vencimiento",
     "daysRemaining": "{{days}} días restantes",
     "behavior": "Al vencimiento",
-    "linkedAccount": "Cuenta vinculada"
+    "linkedAccount": "Cuenta vinculada",
+    "bannerTitle": "Tienes CDTs vencidos que requieren tu atención",
+    "viewDetails": "Ver detalles",
+    "redeemTitle": "Redimir CDT",
+    "renewTitle": "Renovar CDT",
+    "actualAmount": "Monto real redimido",
+    "newPrincipal": "Nuevo capital para renovación",
+    "projectedNote": "Proyectado: {{projected}}, Redimido: {{actual}}",
+    "renewNote": "Renovación CDT — Proyectado: {{projected}}, Renovado con: {{actual}}",
+    "redeemConfirm": "Redimir",
+    "renewConfirm": "Renovar",
+    "redeemSuccess": "CDT \"{{name}}\" redimido. {{amount}} transferidos a {{account}}.",
+    "renewSuccess": "CDT \"{{name}}\" renovado. Nuevo vencimiento: {{date}}."
   }
 }

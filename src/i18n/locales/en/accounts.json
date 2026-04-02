@@ -115,8 +115,6 @@
     "created": "Created"
   },
   "cdt": {
-    "maturedTransfer": "Your CDT \"{{name}}\" has matured. ${{amount}} was transferred to {{account}}.",
-    "maturedRenew": "Your CDT \"{{name}}\" has been auto-renewed. New maturity: {{date}}.",
     "detailTitle": "CDT Details",
     "principal": "Invested Capital",
     "grossYield": "Gross Yield",
@@ -129,6 +127,18 @@
     "maturity": "Maturity",
     "daysRemaining": "{{days}} days remaining",
     "behavior": "On Maturity",
-    "linkedAccount": "Linked Account"
+    "linkedAccount": "Linked Account",
+    "bannerTitle": "You have matured CDTs that need your attention",
+    "viewDetails": "View details",
+    "redeemTitle": "Redeem CDT",
+    "renewTitle": "Renew CDT",
+    "actualAmount": "Actual amount redeemed",
+    "newPrincipal": "New principal for renewal",
+    "projectedNote": "Projected: {{projected}}, Redeemed: {{actual}}",
+    "renewNote": "CDT Renewal — Projected: {{projected}}, Renewed with: {{actual}}",
+    "redeemConfirm": "Redeem",
+    "renewConfirm": "Renew",
+    "redeemSuccess": "CDT \"{{name}}\" redeemed. {{amount}} transferred to {{account}}.",
+    "renewSuccess": "CDT \"{{name}}\" renewed. New maturity: {{date}}."
   }
 }

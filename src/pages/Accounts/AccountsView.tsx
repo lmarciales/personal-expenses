@@ -1,5 +1,7 @@
 import { AccountDetailModal } from "@/components/Accounts/AccountDetailModal";
+import { MaturedCdtsBanner } from "@/components/Accounts/MaturedCdtsBanner";
 import { AddAccountModal } from "@/components/Products/AddAccountModal";
+import { isCdtMatured } from "@/lib/cdtMaturity";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Button } from "@/components/ui/button";
 import {
@@ -91,6 +93,8 @@ export const AccountsView = () => {
     .map(([type, count]) => `${count} ${type}`)
     .join(" · ");
 
+  const maturedCdts = accounts.filter(isCdtMatured);
+
   const isFiltered = search.length > 0 || typeFilter.length > 0;
   const filteredBalance = accounts.reduce((sum, a) => sum + a.balance, 0);
 
@@ -121,6 +125,9 @@ export const AccountsView = () => {
           </Button>
         </AddAccountModal>
       </header>
+
+      {/* Matured CDTs Banner */}
+      <MaturedCdtsBanner maturedCdts={maturedCdts} onViewDetails={setDetailAccount} />
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -413,6 +420,7 @@ export const AccountsView = () => {
           setEditState({ account });
         }}
         allAccounts={accounts}
+        onRefetch={refetch}
       />
 
       {editState && (

@@ -1,13 +1,17 @@
 import { Button } from "@/components/ui/button";
+import { CurrencyInput } from "@/components/ui/CurrencyInput";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useAuth } from "@/hooks/useAuth";
 import type { AccountWithStats } from "@/hooks/useAccountsData";
+import { isCdtMatured, redeemCdt, renewCdt } from "@/lib/cdtMaturity";
 import { formatCOPWithSymbol } from "@/lib/currency";
 import { getProjectedBalance } from "@/lib/projectedBalance";
 import { supabase } from "@/supabase/client";
-import { ArrowUpRight, CreditCard, Pencil, Receipt, TrendingDown, TrendingUp } from "lucide-react";
+import { ArrowUpRight, CreditCard, Loader2 as Spinner, Pencil, Receipt, TrendingDown, TrendingUp } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 interface RecentTransaction {
   id: string;
@@ -23,6 +27,7 @@ interface AccountDetailModalProps {
   onOpenChange: (open: boolean) => void;
   onEdit: (account: AccountWithStats) => void;
   allAccounts?: AccountWithStats[];
+  onRefetch?: () => void;
 }
 
 const RETENCION_RATE = 0.04;
@@ -147,13 +152,17 @@ function CdtDetail({
   );
 }
 
-export function AccountDetailModal({ account, open, onOpenChange, onEdit, allAccounts }: AccountDetailModalProps) {
+export function AccountDetailModal({ account, open, onOpenChange, onEdit, allAccounts, onRefetch }: AccountDetailModalProps) {
   const { t, i18n } = useTranslation("accounts");
+  const { session } = useAuth();
   const navigate = useNavigate();
   const [recentTransactions, setRecentTransactions] = useState<RecentTransaction[]>([]);
   const [loadingTxns, setLoadingTxns] = useState(false);
+  const [actionAmount, setActionAmount] = useState<number | undefined>(undefined);
+  const [actionLoading, setActionLoading] = useState(false);
 
   const isCdt = account?.type === "CDT";
+  const isMatured = account != null && isCdtMatured(account);
 
   const fetchRecentTransactions = useCallback(async () => {
     if (!account || isCdt) return;
@@ -178,8 +187,68 @@ export function AccountDetailModal({ account, open, onOpenChange, onEdit, allAcc
   useEffect(() => {
     if (open && account) {
       fetchRecentTransactions();
+      if (account.type === "CDT") {
+        setActionAmount(Math.round(getProjectedBalance(account)));
+      }
     }
   }, [open, account, fetchRecentTransactions]);
+
+  const handleRedeem = async () => {
+    const userId = session?.user?.id;
+    if (!account || !actionAmount || !account.linked_account_id || !userId) return;
+    setActionLoading(true);
+    try {
+      const linkedName = allAccounts?.find((a) => a.id === account.linked_account_id)?.name ?? "";
+      const projected = formatCOPWithSymbol(getProjectedBalance(account));
+      const actual = formatCOPWithSymbol(actionAmount);
+      await redeemCdt({
+        cdtId: account.id,
+        userId,
+        actualAmount: actionAmount,
+        linkedAccountId: account.linked_account_id,
+        payee: `${t("cdt.redeemTitle")} - ${account.name}`,
+        note: t("cdt.projectedNote", { projected, actual }),
+      });
+      toast.success(
+        t("cdt.redeemSuccess", { name: account.name, amount: actual, account: linkedName }),
+      );
+      onOpenChange(false);
+      onRefetch?.();
+    } catch (err: any) {
+      console.error("Redeem CDT failed:", err);
+      toast.error(err.message);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleRenew = async () => {
+    const userId = session?.user?.id;
+    if (!account || !actionAmount || !userId) return;
+    setActionLoading(true);
+    try {
+      const newDate = await renewCdt({
+        cdtId: account.id,
+        userId,
+        newPrincipal: actionAmount,
+        originalMaturityDate: account.maturity_date!,
+        originalRefDate: account.interest_reference_date,
+      });
+      toast.success(
+        t("cdt.renewSuccess", {
+          name: account.name,
+          date: new Date(newDate).toLocaleDateString(i18n.language, { year: "numeric", month: "short", day: "numeric" }),
+        }),
+      );
+      onOpenChange(false);
+      onRefetch?.();
+    } catch (err: any) {
+      console.error("Renew CDT failed:", err);
+      toast.error(err.message);
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   if (!account) return null;
 
@@ -247,7 +316,39 @@ export function AccountDetailModal({ account, open, onOpenChange, onEdit, allAcc
 
         {/* CDT-specific detail OR standard account detail */}
         {isCdt ? (
-          <CdtDetail account={account} linkedAccountName={linkedAccountName} t={t} i18n={i18n} />
+          <>
+            <CdtDetail account={account} linkedAccountName={linkedAccountName} t={t} i18n={i18n} />
+            {isMatured && (
+              <div className="glass-card rounded-xl p-4 space-y-3 border border-amber-500/30 bg-amber-500/5">
+                <h4 className="text-sm font-semibold text-amber-600 dark:text-amber-400">
+                  {account.on_maturity === "transfer_back" ? t("cdt.redeemTitle") : t("cdt.renewTitle")}
+                </h4>
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1 block">
+                    {account.on_maturity === "transfer_back" ? t("cdt.actualAmount") : t("cdt.newPrincipal")}
+                  </label>
+                  <CurrencyInput
+                    value={actionAmount}
+                    onChange={setActionAmount}
+                    disabled={actionLoading}
+                  />
+                </div>
+                {account.on_maturity === "transfer_back" && linkedAccountName && (
+                  <p className="text-xs text-muted-foreground">
+                    → {linkedAccountName}
+                  </p>
+                )}
+                <Button
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                  disabled={!actionAmount || actionLoading}
+                  onClick={account.on_maturity === "transfer_back" ? handleRedeem : handleRenew}
+                >
+                  {actionLoading && <Spinner className="w-4 h-4 mr-2 animate-spin" />}
+                  {account.on_maturity === "transfer_back" ? t("cdt.redeemConfirm") : t("cdt.renewConfirm")}
+                </Button>
+              </div>
+            )}
+          </>
         ) : (
           <>
             {/* Quick Stats */}
