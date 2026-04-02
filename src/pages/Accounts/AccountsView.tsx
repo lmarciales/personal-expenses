@@ -360,9 +360,9 @@ export const AccountsView = () => {
         onOpenChange={(open) => {
           if (!open) setDetailAccount(null);
         }}
-        onUpdated={() => {
+        onEdit={(account) => {
           setDetailAccount(null);
-          refetch();
+          setEditState({ account });
         }}
       />
 

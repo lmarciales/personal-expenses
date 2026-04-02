@@ -1,4 +1,3 @@
-import { AddAccountModal } from "@/components/Products/AddAccountModal";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import type { AccountWithStats } from "@/hooks/useAccountsData";
@@ -21,15 +20,14 @@ interface AccountDetailModalProps {
   account: AccountWithStats | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onUpdated: () => void;
+  onEdit: (account: AccountWithStats) => void;
 }
 
-export function AccountDetailModal({ account, open, onOpenChange, onUpdated }: AccountDetailModalProps) {
+export function AccountDetailModal({ account, open, onOpenChange, onEdit }: AccountDetailModalProps) {
   const { t, i18n } = useTranslation("accounts");
   const navigate = useNavigate();
   const [recentTransactions, setRecentTransactions] = useState<RecentTransaction[]>([]);
   const [loadingTxns, setLoadingTxns] = useState(false);
-  const [editModalOpen, setEditModalOpen] = useState(false);
 
   const fetchRecentTransactions = useCallback(async () => {
     if (!account) return;
@@ -71,7 +69,7 @@ export function AccountDetailModal({ account, open, onOpenChange, onUpdated }: A
                 size="sm"
                 onClick={() => {
                   onOpenChange(false);
-                  setTimeout(() => setEditModalOpen(true), 150);
+                  onEdit(account);
                 }}
                 className="text-muted-foreground hover:text-foreground rounded-full"
               >
@@ -204,18 +202,6 @@ export function AccountDetailModal({ account, open, onOpenChange, onUpdated }: A
         </DialogContent>
       </Dialog>
 
-      {/* Edit modal — lifted outside detail modal to avoid Radix focus conflicts */}
-      <AddAccountModal
-        editMode
-        accountId={account.id}
-        initialData={{ name: account.name, type: account.type, balance: account.balance, credit_limit: account.credit_limit }}
-        open={editModalOpen}
-        onOpenChange={setEditModalOpen}
-        onSuccess={() => {
-          setEditModalOpen(false);
-          onUpdated();
-        }}
-      />
     </>
   );
 }
