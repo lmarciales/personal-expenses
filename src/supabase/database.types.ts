@@ -20,18 +20,21 @@ export type Database = {
           created_at: string
           id: string
           name: string
+          user_id: string | null
         }
         Insert: {
           color: string
           created_at?: string
           id?: string
           name: string
+          user_id?: string | null
         }
         Update: {
           color?: string
           created_at?: string
           id?: string
           name?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -42,7 +45,14 @@ export type Database = {
           created_at: string
           credit_limit: number | null
           id: string
+          interest_rate: number | null
+          interest_reference_balance: number | null
+          interest_reference_date: string | null
+          is_4x1000_subject: boolean | null
+          linked_account_id: string | null
+          maturity_date: string | null
           name: string
+          on_maturity: string | null
           type: string
           user_id: string
         }
@@ -52,7 +62,14 @@ export type Database = {
           created_at?: string
           credit_limit?: number | null
           id?: string
+          interest_rate?: number | null
+          interest_reference_balance?: number | null
+          interest_reference_date?: string | null
+          is_4x1000_subject?: boolean | null
+          linked_account_id?: string | null
+          maturity_date?: string | null
           name: string
+          on_maturity?: string | null
           type: string
           user_id: string
         }
@@ -62,11 +79,25 @@ export type Database = {
           created_at?: string
           credit_limit?: number | null
           id?: string
+          interest_rate?: number | null
+          interest_reference_balance?: number | null
+          interest_reference_date?: string | null
+          is_4x1000_subject?: boolean | null
+          linked_account_id?: string | null
+          maturity_date?: string | null
           name?: string
+          on_maturity?: string | null
           type?: string
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "accounts_linked_account_id_fkey"
+            columns: ["linked_account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "accounts_type_fkey"
             columns: ["type"]
