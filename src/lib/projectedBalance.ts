@@ -4,15 +4,15 @@
  * Uses the reference-point system:
  * - interest_reference_balance: last known real balance (after a transaction)
  * - interest_reference_date: when that reference was established
- * - interest_rate: annual rate as a percentage (e.g. 8.75 means 8.75%)
+ * - interest_rate: annual rate as a percentage (e.g. 8.75 means 8.75% EA)
  *
- * CDTs use simple interest with 4% retención en la fuente:
- *   gross = principal × rate × days / 365
- *   net   = gross × 0.96 (after 4% withholding tax)
- *   total = principal + net
+ * CDTs use daily compounding with retención deducted each day:
+ *   effective_daily_rate = (1 + EA)^(1/365) - 1
+ *   net_daily_rate = effective_daily_rate × (1 - 0.04)
+ *   total = principal × (1 + net_daily_rate) ^ days
  *
- * Other accounts use daily compound interest:
- *   total = principal × (1 + rate/365) ^ days
+ * Other accounts use daily compound interest (no retención):
+ *   total = principal × (1 + daily_rate) ^ days
  */
 
 const RETENCION_RATE = 0.04;
@@ -42,16 +42,16 @@ export function getProjectedBalance(account: {
   }
 
   const principal = account.interest_reference_balance;
-  const annualRate = account.interest_rate / 100;
+  const ea = account.interest_rate / 100;
 
   if (account.type === "CDT") {
-    // Simple interest + 4% retención en la fuente
-    const grossInterest = principal * annualRate * daysElapsed / 365;
-    const netInterest = grossInterest * (1 - RETENCION_RATE);
-    return principal + netInterest;
+    // Effective daily rate from EA, with retención deducted daily
+    const effectiveDailyRate = Math.pow(1 + ea, 1 / 365) - 1;
+    const netDailyRate = effectiveDailyRate * (1 - RETENCION_RATE);
+    return principal * Math.pow(1 + netDailyRate, Math.floor(daysElapsed));
   }
 
   // Compound interest for savings and other accounts
-  const dailyRate = annualRate / 365;
+  const dailyRate = ea / 365;
   return principal * Math.pow(1 + dailyRate, daysElapsed);
 }

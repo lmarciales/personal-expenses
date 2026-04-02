@@ -39,18 +39,26 @@ function CdtDetail({
   const maturityDate = account.maturity_date ? new Date(account.maturity_date) : null;
   const now = new Date();
 
-  const daysElapsed = refDate ? Math.max(0, (now.getTime() - refDate.getTime()) / (1000 * 60 * 60 * 24)) : 0;
-  const grossYield = principal * (rate / 100) * (daysElapsed / 365);
-  const retention = grossYield * RETENCION_RATE;
-  const netYield = grossYield - retention;
-  const currentNetTotal = principal + netYield;
+  // Daily compounding with retención deducted each day (matches Colombian bank CDT calculation)
+  const ea = rate / 100;
+  const effectiveDailyRate = Math.pow(1 + ea, 1 / 365) - 1;
+  const daysElapsed = refDate ? Math.max(0, Math.floor((now.getTime() - refDate.getTime()) / (1000 * 60 * 60 * 24))) : 0;
+
+  // Gross: compound without retención
+  const grossTotal = principal * Math.pow(1 + effectiveDailyRate, daysElapsed);
+  const grossYield = grossTotal - principal;
+
+  // Net: compound with retención deducted daily
+  const netDailyRate = effectiveDailyRate * (1 - RETENCION_RATE);
+  const netTotal = principal * Math.pow(1 + netDailyRate, daysElapsed);
+  const netYield = netTotal - principal;
+  const retention = grossYield - netYield;
+  const currentNetTotal = netTotal;
 
   // Expected at maturity
   const totalDays =
-    refDate && maturityDate ? Math.max(0, (maturityDate.getTime() - refDate.getTime()) / (1000 * 60 * 60 * 24)) : 0;
-  const grossAtMaturity = principal * (rate / 100) * (totalDays / 365);
-  const netAtMaturity = grossAtMaturity * (1 - RETENCION_RATE);
-  const expectedTotal = principal + netAtMaturity;
+    refDate && maturityDate ? Math.max(0, Math.floor((maturityDate.getTime() - refDate.getTime()) / (1000 * 60 * 60 * 24))) : 0;
+  const expectedTotal = principal * Math.pow(1 + netDailyRate, totalDays);
 
   const daysRemaining = maturityDate ? Math.ceil((maturityDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)) : 0;
 
