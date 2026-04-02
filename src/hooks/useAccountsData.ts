@@ -1,3 +1,4 @@
+import { getProjectedBalance } from "@/lib/projectedBalance";
 import { supabase } from "@/supabase/client";
 import { useCallback, useEffect, useState } from "react";
 
@@ -12,6 +13,8 @@ export interface AccountWithStats {
   maturity_date: string | null;
   on_maturity: string | null;
   linked_account_id: string | null;
+  interest_reference_balance: number | null;
+  interest_reference_date: string | null;
   color: string;
   created_at: string;
   transactionCount: number;
@@ -116,6 +119,8 @@ export function useAccountsData(filters: AccountFilters) {
           maturity_date: acc.maturity_date ?? null,
           on_maturity: acc.on_maturity ?? null,
           linked_account_id: acc.linked_account_id ?? null,
+          interest_reference_balance: acc.interest_reference_balance ?? null,
+          interest_reference_date: acc.interest_reference_date ?? null,
           color: acc.color || FALLBACK_COLORS[idx % FALLBACK_COLORS.length],
           created_at: acc.created_at,
           transactionCount: stats.count,
@@ -157,7 +162,7 @@ export function useAccountsData(filters: AccountFilters) {
       });
 
       // Compute aggregates from ALL accounts (unfiltered)
-      const totalBalance = accounts.reduce((sum, a) => sum + a.balance, 0);
+      const totalBalance = accounts.reduce((sum, a) => sum + getProjectedBalance(a), 0);
       const countByType: Record<string, number> = {};
       for (const a of accounts) {
         countByType[a.type] = (countByType[a.type] || 0) + 1;
