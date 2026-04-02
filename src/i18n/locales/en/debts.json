@@ -49,6 +49,9 @@
     "noSourceAccount": "No source account (just settle)",
     "noSourceAccountShort": "No source account",
     "balanceDecreaseInfo": "<bold>{{account}}</bold> balance will decrease by <bold>{{amount}}</bold> and a transfer transaction will be auto-created.",
+    "expectedAmount": "Expected: {{amount}}",
+    "expectedNote": "Expected",
+    "paidNote": "Paid",
     "processing": "Processing...",
     "confirm": "Confirm Payment"
   },

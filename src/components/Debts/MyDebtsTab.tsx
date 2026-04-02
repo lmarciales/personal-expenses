@@ -62,15 +62,15 @@ export const MyDebtsTab = ({ groups, accounts, onSettled }: MyDebtsTabProps) => 
 
   const getSelectedForAccount = (accountId: string) => selectedSplits.get(accountId) || new Set<string>();
 
-  const getSelectedTotal = (accountId: string, items: { splitId: string; amount: number }[]) => {
+  const getSelectedTotal = (accountId: string, items: { splitId: string; transactionTotal: number }[]) => {
     const selected = getSelectedForAccount(accountId);
-    return items.filter((i) => selected.has(i.splitId)).reduce((sum, i) => sum + i.amount, 0);
+    return items.filter((i) => selected.has(i.splitId)).reduce((sum, i) => sum + i.transactionTotal, 0);
   };
 
   const openPayment = (group: AccountDebtGroup) => {
     const selected = getSelectedForAccount(group.account.id);
     const splitIds = Array.from(selected);
-    const total = group.items.filter((i) => selected.has(i.splitId)).reduce((s, i) => s + i.amount, 0);
+    const total = getSelectedTotal(group.account.id, group.items);
     setPaymentDialog({
       open: true,
       accountId: group.account.id,

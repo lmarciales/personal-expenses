@@ -13,7 +13,7 @@ import type { SimpleAccount } from "@/hooks/useDebtsData";
 import { formatCOPWithSymbol } from "@/lib/currency";
 import { ArrowRight, Info, Loader2 } from "lucide-react";
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 
 interface SettlementDialogProps {
   open: boolean;
@@ -72,7 +72,13 @@ export const SettlementDialog = ({
           {/* Info */}
           <div className="flex items-start gap-2 text-sm text-muted-foreground">
             <Info className="w-4 h-4 mt-0.5 shrink-0 text-primary" />
-            <span>{t("settlement.description")}</span>
+            <span>
+              <Trans
+                i18nKey="settlement.description"
+                ns="debts"
+                components={{ bold: <strong className="text-foreground" /> }}
+              />
+            </span>
           </div>
 
           {/* Optional receiving account */}
@@ -98,10 +104,12 @@ export const SettlementDialog = ({
               <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1 pl-1">
                 <ArrowRight className="w-3 h-3" />
                 <span>
-                  {t("settlement.balanceIncreaseInfo", {
-                    account: receivingAccount.name,
-                    amount: formatCOPWithSymbol(totalAmount),
-                  })}
+                  <Trans
+                    i18nKey="settlement.balanceIncreaseInfo"
+                    ns="debts"
+                    values={{ account: receivingAccount.name, amount: formatCOPWithSymbol(totalAmount) }}
+                    components={{ bold: <strong className="text-foreground" /> }}
+                  />
                 </span>
               </div>
             )}

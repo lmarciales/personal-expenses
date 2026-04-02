@@ -63,7 +63,15 @@ export type Database = {
           type?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "accounts_type_fkey"
+            columns: ["type"]
+            isOneToOne: false
+            referencedRelation: "account_types"
+            referencedColumns: ["name"]
+          },
+        ]
       }
       assignees: {
         Row: {

@@ -49,6 +49,9 @@
     "noSourceAccount": "Sin cuenta de origen (solo liquidar)",
     "noSourceAccountShort": "Sin cuenta de origen",
     "balanceDecreaseInfo": "El saldo de <bold>{{account}}</bold> disminuirá en <bold>{{amount}}</bold> y se creará una transacción de transferencia automáticamente.",
+    "expectedAmount": "Esperado: {{amount}}",
+    "expectedNote": "Esperado",
+    "paidNote": "Pagado",
     "processing": "Procesando...",
     "confirm": "Confirmar pago"
   },

@@ -69,7 +69,7 @@ export const OwedToMeTab = ({ groups, accounts, onSettled }: OwedToMeTabProps) =
   const openSettlement = (group: PersonDebtGroup) => {
     const selected = getSelectedForPerson(group.person);
     const splitIds = Array.from(selected);
-    const total = group.items.filter((i) => selected.has(i.splitId)).reduce((s, i) => s + i.amount, 0);
+    const total = getSelectedTotal(group.person, group.items);
     setSettlementDialog({
       open: true,
       person: group.person,
