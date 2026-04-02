@@ -65,7 +65,9 @@
     "balance": "Saldo",
     "initialBalance": "Saldo inicial",
     "addAccount": "Agregar cuenta",
-    "legacy": "heredado"
+    "legacy": "heredado",
+    "creditLimit": "Límite de crédito",
+    "creditLimitPlaceholder": "Ej: 1.000.000"
   },
   "modalToast": {
     "updateError": "No se pudo actualizar la cuenta",

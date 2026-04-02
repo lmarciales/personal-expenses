@@ -22,6 +22,7 @@ const createAccountSchema = (t: TFunction) =>
       invalid_type_error: t("validation:balanceRequired"),
     }),
     type: z.string().min(1, t("validation:typeRequired")),
+    credit_limit: z.number().nullable().optional(),
   });
 
 type FormValues = z.infer<ReturnType<typeof createAccountSchema>>;
@@ -31,7 +32,7 @@ interface AddAccountModalProps {
   children?: React.ReactNode;
   editMode?: boolean;
   accountId?: string;
-  initialData?: { name: string; type: string; balance: number };
+  initialData?: { name: string; type: string; balance: number; credit_limit?: number | null };
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }
@@ -61,6 +62,7 @@ export function AddAccountModal({
       name: initialData?.name ?? "",
       balance: initialData?.balance ?? undefined,
       type: initialData?.type ?? "",
+      credit_limit: initialData?.credit_limit ?? undefined,
     },
   });
 
@@ -71,12 +73,14 @@ export function AddAccountModal({
         name: initialData.name,
         balance: initialData.balance,
         type: initialData.type,
+        credit_limit: initialData.credit_limit ?? undefined,
       });
     } else if (open && !editMode) {
       form.reset({
         name: "",
         balance: undefined,
         type: accountTypes.length > 0 ? accountTypes[0].name : "",
+        credit_limit: undefined,
       });
     }
   }, [open, editMode, initialData, form, accountTypes]);
@@ -117,6 +121,7 @@ export function AddAccountModal({
             type: data.type,
             balance: data.balance,
             color: color,
+            credit_limit: data.type === "Credit Card" ? (data.credit_limit ?? null) : null,
           })
           .eq("id", accountId)
           .eq("user_id", userData.user.id);
@@ -129,6 +134,7 @@ export function AddAccountModal({
           type: data.type,
           balance: data.balance,
           color: color,
+          credit_limit: data.type === "Credit Card" ? (data.credit_limit ?? null) : null,
         });
 
         if (error) throw error;
@@ -266,6 +272,27 @@ export function AddAccountModal({
               </FormItem>
             )}
           />
+
+          {form.watch("type") === "Credit Card" && (
+            <FormField
+              control={form.control}
+              name="credit_limit"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("accounts:modal.creditLimit")}</FormLabel>
+                  <FormControl>
+                    <CurrencyInput
+                      value={field.value ?? undefined}
+                      onChange={(val) => field.onChange(val ?? null)}
+                      placeholder={t("accounts:modal.creditLimitPlaceholder")}
+                      className="bg-surface-input border-glass"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
 
           <div className="flex justify-between gap-3 pt-4 border-t border-glass">
             <div>
