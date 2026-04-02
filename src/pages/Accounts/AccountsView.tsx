@@ -344,6 +344,36 @@ export const AccountsView = () => {
                             <p className="text-xs text-muted-foreground mt-0.5">
                               {t("card.annualRate", { rate: account.interest_rate })}
                             </p>
+                            {account.type === "CDT" && (
+                              <div className="mt-1.5 space-y-0.5">
+                                {account.maturity_date && (
+                                  <p className="text-xs text-muted-foreground">
+                                    {new Date(account.maturity_date) > new Date() ? (
+                                      <>
+                                        {t("card.maturityDate", {
+                                          date: new Date(account.maturity_date).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }),
+                                        })}
+                                        {" · "}
+                                        {t("card.daysRemaining", {
+                                          days: Math.ceil((new Date(account.maturity_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)),
+                                        })}
+                                      </>
+                                    ) : (
+                                      <span className="text-amber-500 font-medium">{t("card.matured")}</span>
+                                    )}
+                                  </p>
+                                )}
+                                {account.on_maturity && (
+                                  <span className={`inline-block px-1.5 py-0.5 text-[10px] font-medium rounded ${
+                                    account.on_maturity === "auto_renew"
+                                      ? "bg-blue-500/20 text-blue-600"
+                                      : "bg-green-500/20 text-green-600"
+                                  }`}>
+                                    {account.on_maturity === "auto_renew" ? t("card.autoRenew") : t("card.transferBack")}
+                                  </span>
+                                )}
+                              </div>
+                            )}
                           </>
                         ) : (
                           <>
