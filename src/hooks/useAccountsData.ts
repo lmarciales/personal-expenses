@@ -1,6 +1,9 @@
+import i18n from "@/i18n";
+import { processMaturedCdts } from "@/lib/cdtMaturity";
 import { getProjectedBalance } from "@/lib/projectedBalance";
 import { supabase } from "@/supabase/client";
 import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export interface AccountWithStats {
   id: string;
@@ -129,8 +132,63 @@ export function useAccountsData(filters: AccountFilters) {
         };
       });
 
+      // Process matured CDTs (runs once per data load)
+      const maturityResults = await processMaturedCdts(accounts, userId);
+      for (const result of maturityResults) {
+        if (result.type === "transfer_back") {
+          toast.success(
+            i18n.t("accounts:cdt.maturedTransfer", {
+              name: result.cdtName,
+              amount: result.amount?.toLocaleString("es-CO"),
+              account: result.linkedAccountName,
+            }),
+          );
+        } else if (result.type === "auto_renew") {
+          toast.success(
+            i18n.t("accounts:cdt.maturedRenew", {
+              name: result.cdtName,
+              date: result.newMaturityDate,
+            }),
+          );
+        }
+      }
+
+      // Re-fetch if CDTs were processed (balances changed)
+      let finalAccounts = accounts;
+      if (maturityResults.length > 0) {
+        const { data: refreshedData } = await supabase
+          .from("accounts")
+          .select("*")
+          .eq("user_id", userId);
+
+        if (refreshedData) {
+          finalAccounts = refreshedData.map((acc, idx) => {
+            const stats = statsMap.get(acc.id) || { count: 0, income: 0, expenses: 0 };
+            return {
+              id: acc.id,
+              name: acc.name,
+              type: acc.type,
+              balance: acc.balance,
+              credit_limit: acc.credit_limit ?? null,
+              interest_rate: acc.interest_rate ?? null,
+              is_4x1000_subject: acc.is_4x1000_subject ?? false,
+              maturity_date: acc.maturity_date ?? null,
+              on_maturity: acc.on_maturity ?? null,
+              linked_account_id: acc.linked_account_id ?? null,
+              interest_reference_balance: acc.interest_reference_balance ?? null,
+              interest_reference_date: acc.interest_reference_date ?? null,
+              color: acc.color || FALLBACK_COLORS[idx % FALLBACK_COLORS.length],
+              created_at: acc.created_at,
+              transactionCount: stats.count,
+              totalIncome: stats.income,
+              totalExpenses: stats.expenses,
+            };
+          });
+        }
+      }
+
       // Apply client-side filtering
-      let filtered = accounts;
+      let filtered = finalAccounts;
 
       if (filters.search) {
         const q = filters.search.toLowerCase();
@@ -162,9 +220,9 @@ export function useAccountsData(filters: AccountFilters) {
       });
 
       // Compute aggregates from ALL accounts (unfiltered)
-      const totalBalance = accounts.reduce((sum, a) => sum + getProjectedBalance(a), 0);
+      const totalBalance = finalAccounts.reduce((sum, a) => sum + getProjectedBalance(a), 0);
       const countByType: Record<string, number> = {};
-      for (const a of accounts) {
+      for (const a of finalAccounts) {
         countByType[a.type] = (countByType[a.type] || 0) + 1;
       }
 
