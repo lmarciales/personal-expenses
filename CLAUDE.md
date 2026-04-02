@@ -42,11 +42,31 @@ When using the preview browser to test the app:
 
 ### Hooks (`.claude/settings.json`)
 - **PreToolUse**: Blocks edits to `.env*` files (credential protection)
+- **PreToolUse**: Blocks `git commit` and `git push` unless `.claude/.commit-in-progress` marker exists (commit-agent creates it)
 - **PostToolUse**: Auto-runs Biome check on edited files (formatting + linting)
 - **PostToolUse**: Auto-runs `tsc --noEmit` on TypeScript file edits (type checking)
 
 ### Subagents (`.claude/agents/`)
 - **security-reviewer**: Reviews code for Supabase RLS gaps, auth issues, input validation, and exposed credentials
+- **commit-agent**: Handles all git commits and pushes. Runs `/simplify` and `/pre-commit-check` before committing. **Must be invoked with `model: "sonnet"`.**
 
 ### Skills (`.claude/skills/`)
 - **create-migration**: Invoke with `/create-migration` to scaffold Supabase SQL migration files and regenerate TypeScript types
+
+## Git Commit Policy
+
+**Never run `git commit` or `git push` directly.** A PreToolUse hook enforces this — direct attempts will be blocked.
+
+Always delegate to a general-purpose agent with the commit-agent instructions:
+```
+Agent tool:
+  description: "Commit current changes"
+  model: "sonnet"
+  prompt: "Read .claude/agents/commit-agent.md and follow its workflow exactly. Context: <describe what was done>"
+```
+
+The commit-agent will:
+1. Run `/simplify` — review and improve changed code
+2. Run `/pre-commit-check` — validate build, security, and hygiene
+3. Fix any issues found in steps 1-2
+4. Stage, commit (with Co-Authored-By trailer), and push
