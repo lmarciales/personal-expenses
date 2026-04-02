@@ -79,6 +79,9 @@
   "detail": {
     "title": "Detalle de la cuenta",
     "currentBalance": "Saldo actual",
+    "availableCredit": "Crédito disponible",
+    "currentDebt": "Deuda actual",
+    "creditLimit": "Límite de crédito",
     "income": "Ingresos",
     "expenses": "Gastos",
     "transactions": "Transacciones",

@@ -368,6 +368,7 @@ export const AccountsView = () => {
             name: editState.account.name,
             type: editState.account.type,
             balance: editState.account.balance,
+            credit_limit: editState.account.credit_limit,
           }}
           open={true}
           onOpenChange={(open) => {

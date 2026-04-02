@@ -79,6 +79,9 @@
   "detail": {
     "title": "Account Details",
     "currentBalance": "Current Balance",
+    "availableCredit": "Available Credit",
+    "currentDebt": "Current Debt",
+    "creditLimit": "Credit Limit",
     "income": "Income",
     "expenses": "Expenses",
     "transactions": "Transactions",

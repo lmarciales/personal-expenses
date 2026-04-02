@@ -91,8 +91,22 @@ export function AccountDetailModal({ account, open, onOpenChange, onUpdated }: A
               <span className="text-sm text-muted-foreground">{account.type}</span>
             </div>
             <div className="ml-auto text-right">
-              <p className="text-xl font-bold">{formatCOPWithSymbol(account.balance)}</p>
-              <span className="text-xs text-muted-foreground">{t("detail.currentBalance")}</span>
+              {account.type === "Credit Card" ? (
+                <>
+                  <p className="text-xl font-bold">{formatCOPWithSymbol(account.balance)}</p>
+                  <span className="text-xs text-muted-foreground">{t("detail.availableCredit")}</span>
+                  {account.credit_limit != null && (
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {t("detail.currentDebt")}: {formatCOPWithSymbol(account.credit_limit - account.balance)}
+                    </p>
+                  )}
+                </>
+              ) : (
+                <>
+                  <p className="text-xl font-bold">{formatCOPWithSymbol(account.balance)}</p>
+                  <span className="text-xs text-muted-foreground">{t("detail.currentBalance")}</span>
+                </>
+              )}
             </div>
           </div>
 
@@ -194,7 +208,7 @@ export function AccountDetailModal({ account, open, onOpenChange, onUpdated }: A
       <AddAccountModal
         editMode
         accountId={account.id}
-        initialData={{ name: account.name, type: account.type, balance: account.balance }}
+        initialData={{ name: account.name, type: account.type, balance: account.balance, credit_limit: account.credit_limit }}
         open={editModalOpen}
         onOpenChange={setEditModalOpen}
         onSuccess={() => {
