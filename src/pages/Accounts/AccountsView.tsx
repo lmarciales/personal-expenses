@@ -375,6 +375,11 @@ export const AccountsView = () => {
             type: editState.account.type,
             balance: editState.account.balance,
             credit_limit: editState.account.credit_limit,
+            interest_rate: editState.account.interest_rate,
+            is_4x1000_subject: editState.account.is_4x1000_subject,
+            maturity_date: editState.account.maturity_date,
+            on_maturity: editState.account.on_maturity as "transfer_back" | "auto_renew" | null,
+            linked_account_id: editState.account.linked_account_id,
           }}
           open={true}
           onOpenChange={(open) => {

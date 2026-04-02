@@ -46,7 +46,7 @@ interface AddAccountModalProps {
     interest_rate?: number | null;
     is_4x1000_subject?: boolean;
     maturity_date?: string | null;
-    on_maturity?: string | null;
+    on_maturity?: "transfer_back" | "auto_renew" | null;
     linked_account_id?: string | null;
   };
   open?: boolean;
@@ -202,7 +202,12 @@ export function AddAccountModal({
             type: data.type,
             balance: data.balance,
             color: color,
-            credit_limit: data.type === "Credit Card" ? data.credit_limit ?? null : null,
+            credit_limit: data.type === "Credit Card" ? (data.credit_limit ?? null) : null,
+            interest_rate: data.interest_rate ?? null,
+            is_4x1000_subject: data.is_4x1000_subject ?? false,
+            maturity_date: data.type === "CDT" ? (data.maturity_date ?? null) : null,
+            on_maturity: data.type === "CDT" ? (data.on_maturity ?? null) : null,
+            linked_account_id: data.type === "CDT" ? (data.linked_account_id ?? null) : null,
           })
           .eq("id", accountId)
           .eq("user_id", userData.user.id);
@@ -215,7 +220,12 @@ export function AddAccountModal({
           type: data.type,
           balance: data.balance,
           color: color,
-          credit_limit: data.type === "Credit Card" ? data.credit_limit ?? null : null,
+          credit_limit: data.type === "Credit Card" ? (data.credit_limit ?? null) : null,
+          interest_rate: data.interest_rate ?? null,
+          is_4x1000_subject: data.is_4x1000_subject ?? false,
+          maturity_date: data.type === "CDT" ? (data.maturity_date ?? null) : null,
+          on_maturity: data.type === "CDT" ? (data.on_maturity ?? null) : null,
+          linked_account_id: data.type === "CDT" ? (data.linked_account_id ?? null) : null,
         });
 
         if (error) throw error;
