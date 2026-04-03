@@ -104,15 +104,14 @@ export function useDashboardData() {
         const cats = txn.transaction_categories || [];
         const amount = Math.abs(txn.total_amount);
         if (cats.length === 0) continue;
-        const perCat = amount / cats.length;
         for (const tc of cats) {
           const cat = tc.categories;
           if (!cat) continue;
           const existing = categoryMap.get(cat.id);
           if (existing) {
-            existing.amount += perCat;
+            existing.amount += amount;
           } else {
-            categoryMap.set(cat.id, { name: cat.name, color: cat.color, amount: perCat });
+            categoryMap.set(cat.id, { name: cat.name, color: cat.color, amount });
           }
         }
       }

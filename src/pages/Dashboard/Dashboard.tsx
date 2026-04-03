@@ -15,7 +15,8 @@ import { useTranslation } from "react-i18next";
 export const Dashboard = () => {
   const { t } = useTranslation("dashboard");
   const [chartYear, setChartYear] = useState(new Date().getFullYear());
-  const { accounts, transactions, totalExpense, categorySpending, isLoading, error, refetch } = useDashboardData();
+  const { accounts, transactions, totalBalance, totalExpense, categorySpending, isLoading, error, refetch } =
+    useDashboardData();
   const chartData = useExpenseChartData(chartYear);
 
   if (isLoading) {
@@ -62,7 +63,7 @@ export const Dashboard = () => {
       {/* Dashboard Grid */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
         <div className="md:col-span-6">
-          <Products products={accounts} onAccountAdded={refetch} />
+          <Products products={accounts} totalBalance={totalBalance} onAccountAdded={refetch} />
         </div>
         <div className="md:col-span-6 relative">
           <div className="md:absolute md:inset-0">

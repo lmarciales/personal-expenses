@@ -23,10 +23,13 @@ export interface Product {
   linked_account_id?: string | null;
 }
 
-const Products = ({ products, onAccountAdded }: { products: Product[]; onAccountAdded: () => void }) => {
+const Products = ({
+  products,
+  totalBalance,
+  onAccountAdded,
+}: { products: Product[]; totalBalance: number; onAccountAdded: () => void }) => {
   const { t } = useTranslation("accounts");
   const navigate = useNavigate();
-  const totalBalance = products.reduce((sum, p) => sum + p.balance, 0);
 
   // Lifted modal state for edit
   const [editState, setEditState] = useState<{ product: Product } | null>(null);
