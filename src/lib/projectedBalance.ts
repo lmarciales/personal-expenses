@@ -33,7 +33,8 @@ export function getProjectedBalance(account: {
   }
 
   const now = new Date();
-  const refDate = new Date(account.interest_reference_date);
+  const [y, m, d] = account.interest_reference_date.split("-").map(Number);
+  const refDate = new Date(y, m - 1, d);
   const msPerDay = 1000 * 60 * 60 * 24;
   const daysElapsed = Math.max(0, (now.getTime() - refDate.getTime()) / msPerDay);
 

@@ -13,7 +13,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { signOut } from "@/supabase/auth";
 import { supabase } from "@/supabase/client";
 import { Bell, LogOut, Monitor, Moon, Plus, Sun } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
@@ -24,6 +24,13 @@ export default function Navbar() {
   const { t } = useTranslation();
 
   const [accounts, setAccounts] = useState<{ id: string; name: string; balance: number; type: string }[]>([]);
+  const [now, setNow] = useState(new Date());
+  const timerRef = useRef<ReturnType<typeof setInterval>>();
+
+  useEffect(() => {
+    timerRef.current = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(timerRef.current);
+  }, []);
 
   useEffect(() => {
     const fetchAccounts = async () => {
@@ -53,6 +60,13 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-20 shell-navbar px-4 md:px-8 h-14 flex items-center justify-end shrink-0">
       <div className="flex items-center gap-2">
+        {/* Live Clock */}
+        <span className="hidden lg:block text-xs text-muted-foreground tabular-nums tracking-wide mr-2">
+          {now.toLocaleDateString("es-CO", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+          {" — "}
+          {now.toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true })}
+        </span>
+
         {/* Add Transaction */}
         {accounts.length > 0 ? (
           <AddTransactionModal accounts={accounts} onSuccess={handleTransactionSuccess}>

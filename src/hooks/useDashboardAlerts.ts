@@ -1,6 +1,7 @@
 import { getProjectedBalance } from "@/lib/projectedBalance";
 import { supabase } from "@/supabase/client";
-import { differenceInDays, differenceInMonths, differenceInWeeks, differenceInYears, format, parseISO } from "date-fns";
+import { parseLocalDate } from "@/lib/dates";
+import { differenceInDays, differenceInMonths, differenceInWeeks, differenceInYears, format } from "date-fns";
 import { es } from "date-fns/locale/es";
 import { useCallback, useEffect, useState } from "react";
 
@@ -75,7 +76,7 @@ export function useDashboardAlerts() {
         }
 
         for (const txn of latestPayments.values()) {
-          const lastPaidDate = parseISO(txn.date);
+          const lastPaidDate = parseLocalDate(txn.date);
           const value = txn.recurrence_value ?? 1;
           const unit = txn.recurrence_unit ?? "Months";
           let isDue = false;
@@ -164,7 +165,7 @@ export function useDashboardAlerts() {
         for (const account of cdtResult.data) {
           if (!account.maturity_date) continue;
 
-          const maturityDate = new Date(account.maturity_date);
+          const maturityDate = parseLocalDate(account.maturity_date);
           const daysUntilMaturity = differenceInDays(maturityDate, now);
 
           if (daysUntilMaturity <= 60) {
