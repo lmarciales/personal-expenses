@@ -31,6 +31,7 @@ export interface TransactionFilters {
   categories: string[]; // category UUIDs
   startDate: Date | undefined;
   endDate: Date | undefined;
+  accountId?: string;
   limit?: number;
 }
 
@@ -111,6 +112,10 @@ export function useTransactionsData(filters: TransactionFilters) {
         query = query.lte("date", `${y}-${m}-${d}`);
       }
 
+      if (filters.accountId) {
+        query = query.eq("account_id", filters.accountId);
+      }
+
       if (filters.categories && filters.categories.length > 0) {
         query = query.in("transaction_categories.category_id", filters.categories);
       }
@@ -141,7 +146,7 @@ export function useTransactionsData(filters: TransactionFilters) {
     } catch (err: any) {
       setData((prev) => ({ ...prev, isLoading: false, error: err.message }));
     }
-  }, [filters.search, filters.categories, filters.startDate, filters.endDate, filters.limit]);
+  }, [filters.search, filters.categories, filters.startDate, filters.endDate, filters.accountId, filters.limit]);
 
   useEffect(() => {
     fetchData();

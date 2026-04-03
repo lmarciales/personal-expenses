@@ -5,6 +5,8 @@
   },
   "search": "Search payees or notes...",
   "categories": "Categories",
+  "account": "Account",
+  "allAccounts": "All accounts",
   "pickDateRange": "Pick a date range",
   "showing": "Showing {{shown}} of {{total}} transactions",
   "recurring": "Recurring",

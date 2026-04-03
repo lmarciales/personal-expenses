@@ -390,7 +390,7 @@ export function AccountDetailModal({ account, open, onOpenChange, onEdit, allAcc
                   className="text-xs rounded-full hover:bg-surface-hover-strong text-muted-foreground hover:text-foreground"
                   onClick={() => {
                     onOpenChange(false);
-                    navigate("/transactions");
+                    navigate(`/transactions?accountId=${account.id}`);
                   }}
                 >
                   {t("common:actions.viewAll")} <ArrowUpRight className="ml-1 h-3 w-3" />

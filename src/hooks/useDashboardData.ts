@@ -13,6 +13,11 @@ export interface DashboardData {
     interest_reference_date: string | null;
     type: string;
     color: string;
+    credit_limit: number | null;
+    is_4x1000_subject: boolean | null;
+    maturity_date: string | null;
+    on_maturity: string | null;
+    linked_account_id: string | null;
   }[];
   transactions: {
     id: string;
@@ -135,6 +140,11 @@ export function useDashboardData() {
         interest_reference_date: acc.interest_reference_date ?? null,
         type: acc.type,
         color: acc.color || fallbackColors[idx % fallbackColors.length],
+        credit_limit: acc.credit_limit ?? null,
+        is_4x1000_subject: acc.is_4x1000_subject ?? null,
+        maturity_date: acc.maturity_date ?? null,
+        on_maturity: acc.on_maturity ?? null,
+        linked_account_id: acc.linked_account_id ?? null,
       }));
 
       const totalBalance = accounts.reduce((acc, curr) => acc + getProjectedBalance(curr), 0);

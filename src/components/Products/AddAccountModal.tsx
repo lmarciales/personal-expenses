@@ -183,6 +183,9 @@ export function AddAccountModal({
     if (watchedType !== "Credit Card") {
       form.setValue("credit_limit", undefined);
     }
+    if (watchedType === "Credit Card") {
+      form.setValue("interest_rate", undefined);
+    }
     if (watchedType !== "CDT") {
       form.setValue("opening_date", undefined);
       form.setValue("maturity_date", undefined);
@@ -511,29 +514,31 @@ export function AddAccountModal({
             />
           )}
 
-          {/* Interest Rate — shown for all types */}
-          <FormField
-            control={form.control}
-            name="interest_rate"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t("accounts:modal.interestRate")}</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    max="100"
-                    value={field.value ?? ""}
-                    onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : null)}
-                    placeholder={t("accounts:modal.interestRatePlaceholder")}
-                    className="bg-surface-input border-glass"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {/* Interest Rate — hidden for Credit Cards */}
+          {form.watch("type") !== "Credit Card" && (
+            <FormField
+              control={form.control}
+              name="interest_rate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("accounts:modal.interestRate")}</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      max="100"
+                      value={field.value ?? ""}
+                      onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : null)}
+                      placeholder={t("accounts:modal.interestRatePlaceholder")}
+                      className="bg-surface-input border-glass"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
 
           {/* 4x1000 checkbox — shown for non-Credit Card, non-CDT types */}
           {form.watch("type") !== "Credit Card" && form.watch("type") !== "CDT" && (

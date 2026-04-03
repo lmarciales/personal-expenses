@@ -5,6 +5,8 @@
   },
   "search": "Buscar beneficiarios o notas...",
   "categories": "Categorías",
+  "account": "Cuenta",
+  "allAccounts": "Todas las cuentas",
   "pickDateRange": "Seleccionar rango de fechas",
   "showing": "Mostrando {{shown}} de {{total}} transacciones",
   "recurring": "Recurrente",

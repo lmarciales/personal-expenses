@@ -6,6 +6,8 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -29,6 +31,7 @@ import {
   Pencil,
   Search,
   Trash2,
+  Wallet,
   X,
   XCircle,
 } from "lucide-react";
@@ -47,16 +50,13 @@ export function TransactionsView() {
   const [filters, setFilters] = useState<TransactionFilters>(() => {
     const startParam = searchParams.get("startDate");
     const endParam = searchParams.get("endDate");
-    // Parse as local date (YYYY-MM-DD) to avoid timezone offset issues
-    const parseLocal = (s: string) => {
-      const [y, m, d] = s.split("-").map(Number);
-      return new Date(y, m - 1, d);
-    };
+    const accountIdParam = searchParams.get("accountId");
     return {
       search: "",
       categories: [],
-      startDate: startParam ? parseLocal(startParam) : undefined,
-      endDate: endParam ? parseLocal(endParam) : undefined,
+      startDate: startParam ? parseLocalDate(startParam) : undefined,
+      endDate: endParam ? parseLocalDate(endParam) : undefined,
+      accountId: accountIdParam || undefined,
       limit: 20,
     };
   });
@@ -64,14 +64,10 @@ export function TransactionsView() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
     const startParam = searchParams.get("startDate");
     const endParam = searchParams.get("endDate");
-    const parseLocal = (s: string) => {
-      const [y, m, d] = s.split("-").map(Number);
-      return new Date(y, m - 1, d);
-    };
     if (startParam) {
       return {
-        from: parseLocal(startParam),
-        to: endParam ? parseLocal(endParam) : undefined,
+        from: parseLocalDate(startParam),
+        to: endParam ? parseLocalDate(endParam) : undefined,
       };
     }
     return undefined;
@@ -93,10 +89,11 @@ export function TransactionsView() {
     });
   };
 
-  const hasActiveFilters = filters.search.length > 0 || filters.categories.length > 0 || dateRange !== undefined;
+  const hasActiveFilters =
+    filters.search.length > 0 || filters.categories.length > 0 || dateRange !== undefined || !!filters.accountId;
 
   const clearFilters = () => {
-    setFilters({ search: "", categories: [], startDate: undefined, endDate: undefined, limit: 20 });
+    setFilters({ search: "", categories: [], startDate: undefined, endDate: undefined, accountId: undefined, limit: 20 });
     setDateRange(undefined);
   };
 
@@ -202,6 +199,33 @@ export function TransactionsView() {
                   </DropdownMenuCheckboxItem>
                 ))
               )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="border-glass bg-surface-hover hidden sm:flex">
+                <Wallet className="h-4 w-4 mr-2" />
+                {filters.accountId
+                  ? accounts.find((a) => a.id === filters.accountId)?.name ?? t("account")
+                  : t("account")}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56 border-glass bg-background/95 backdrop-blur z-50">
+              <DropdownMenuRadioGroup
+                value={filters.accountId ?? ""}
+                onValueChange={(val) =>
+                  setFilters((prev) => ({ ...prev, accountId: val || undefined, limit: 20 }))
+                }
+              >
+                <DropdownMenuRadioItem value="">{t("allAccounts")}</DropdownMenuRadioItem>
+                <DropdownMenuSeparator />
+                {accounts.map((acc) => (
+                  <DropdownMenuRadioItem key={acc.id} value={acc.id}>
+                    {acc.name}
+                  </DropdownMenuRadioItem>
+                ))}
+              </DropdownMenuRadioGroup>
             </DropdownMenuContent>
           </DropdownMenu>
 

@@ -15,6 +15,12 @@ export interface Product {
   balance: number;
   color: string;
   type?: string;
+  credit_limit?: number | null;
+  interest_rate?: number | null;
+  is_4x1000_subject?: boolean | null;
+  maturity_date?: string | null;
+  on_maturity?: string | null;
+  linked_account_id?: string | null;
 }
 
 const Products = ({ products, onAccountAdded }: { products: Product[]; onAccountAdded: () => void }) => {
@@ -194,6 +200,12 @@ const Products = ({ products, onAccountAdded }: { products: Product[]; onAccount
             name: editState.product.name,
             type: editState.product.type || "",
             balance: editState.product.balance,
+            credit_limit: editState.product.credit_limit,
+            interest_rate: editState.product.interest_rate,
+            is_4x1000_subject: editState.product.is_4x1000_subject ?? undefined,
+            maturity_date: editState.product.maturity_date,
+            on_maturity: editState.product.on_maturity as "transfer_back" | "auto_renew" | null,
+            linked_account_id: editState.product.linked_account_id,
           }}
           open={true}
           onOpenChange={(open) => {
