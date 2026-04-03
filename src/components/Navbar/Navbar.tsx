@@ -21,7 +21,7 @@ export default function Navbar() {
   const navigate = useNavigate();
   const { session } = useAuth();
   const { theme, setTheme } = useTheme();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const [accounts, setAccounts] = useState<{ id: string; name: string; balance: number; type: string }[]>([]);
   const [now, setNow] = useState(new Date());
@@ -62,9 +62,9 @@ export default function Navbar() {
       <div className="flex items-center gap-2">
         {/* Live Clock */}
         <span className="hidden lg:block text-xs text-muted-foreground tabular-nums tracking-wide mr-2">
-          {now.toLocaleDateString("es-CO", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+          {now.toLocaleDateString(i18n.language, { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
           {" — "}
-          {now.toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true })}
+          {now.toLocaleTimeString(i18n.language, { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true })}
         </span>
 
         {/* Add Transaction */}

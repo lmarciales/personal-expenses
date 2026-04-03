@@ -33,10 +33,10 @@ export function getProjectedBalance(account: {
   }
 
   const now = new Date();
-  const [y, m, d] = account.interest_reference_date.split("-").map(Number);
-  const refDate = new Date(y, m - 1, d);
+  const refDate = new Date(account.interest_reference_date);
+  // Use floor to get whole days — handles both full timestamps and date-only strings
   const msPerDay = 1000 * 60 * 60 * 24;
-  const daysElapsed = Math.max(0, (now.getTime() - refDate.getTime()) / msPerDay);
+  const daysElapsed = Math.max(0, Math.floor((now.getTime() - refDate.getTime()) / msPerDay));
 
   if (daysElapsed === 0) {
     return account.interest_reference_balance;
