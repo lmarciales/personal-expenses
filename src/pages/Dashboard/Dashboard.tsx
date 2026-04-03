@@ -1,23 +1,32 @@
-import ExpenseChart from "@/components/ExpenseChart";
+import { AlertsSection } from "@/components/Dashboard/AlertsSection";
+import { FinancialInsights } from "@/components/Dashboard/FinancialInsights";
+import { GroupedSpending } from "@/components/Dashboard/GroupedSpending";
+import { MonthlyHealthBar } from "@/components/Dashboard/MonthlyHealthBar";
 import Products from "@/components/Products/Products";
-import { RecurringRecommendations } from "@/components/RecurringRecommendations";
-import SpendingOverview from "@/components/SpendingOverview";
 import { AddTransactionModal } from "@/components/Transactions/AddTransactionModal";
 import Transactions from "@/components/Transactions/Transactions";
 import { DashboardSkeleton } from "@/components/ui/Skeleton";
 import { Button } from "@/components/ui/button";
+import { useDashboardAlerts } from "@/hooks/useDashboardAlerts";
 import { useDashboardData } from "@/hooks/useDashboardData";
-import { useExpenseChartData } from "@/hooks/useExpenseChartData";
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 
 export const Dashboard = () => {
   const { t } = useTranslation("dashboard");
-  const [chartYear, setChartYear] = useState(new Date().getFullYear());
-  const { accounts, transactions, totalBalance, totalExpense, categorySpending, isLoading, error, refetch } =
-    useDashboardData();
-  const chartData = useExpenseChartData(chartYear);
+  const {
+    accounts, transactions, totalBalance, totalExpense,
+    monthlyIncome, monthlyExpense, monthlyNet, prevMonthExpense, momChange,
+    groupedSpending, insights,
+    isLoading, error, refetch,
+  } = useDashboardData();
+  const { alerts, refetch: refetchAlerts } = useDashboardAlerts();
+
+  const handleRefresh = useCallback(() => {
+    refetch();
+    refetchAlerts();
+  }, [refetch, refetchAlerts]);
 
   if (isLoading) {
     return <DashboardSkeleton />;
@@ -44,7 +53,7 @@ export const Dashboard = () => {
           <p className="typo-page-subtitle">{t("header.subtitle")}</p>
         </div>
         {accounts.length > 0 ? (
-          <AddTransactionModal accounts={accounts} onSuccess={refetch}>
+          <AddTransactionModal accounts={accounts} onSuccess={handleRefresh}>
             <Button className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-glow-xl transition-all">
               <Plus className="w-4 h-4 mr-2" />
               {t("common:navbar.addTransaction")}
@@ -58,30 +67,35 @@ export const Dashboard = () => {
         )}
       </header>
 
-      <RecurringRecommendations accounts={accounts} onSuccess={refetch} />
+      {/* Row 1: Monthly Health Bar */}
+      <MonthlyHealthBar
+        monthlyIncome={monthlyIncome}
+        monthlyExpense={monthlyExpense}
+        monthlyNet={monthlyNet}
+        totalBalance={totalBalance}
+        momChange={momChange}
+        prevMonthExpense={prevMonthExpense}
+        savingsRate={insights.savingsRate}
+        accountCount={accounts.length}
+      />
 
-      {/* Dashboard Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-        <div className="md:col-span-6">
-          <Products products={accounts} totalBalance={totalBalance} onAccountAdded={refetch} />
-        </div>
-        <div className="md:col-span-6 relative">
-          <div className="md:absolute md:inset-0">
-            <SpendingOverview totalExpense={totalExpense} categorySpending={categorySpending} />
-          </div>
-        </div>
+      {/* Row 2: Alerts */}
+      <AlertsSection alerts={alerts} accounts={accounts} onSuccess={handleRefresh} />
 
-        <div className="md:col-span-4">
-          <Transactions transactions={transactions} accounts={accounts} onSuccess={refetch} />
-        </div>
-        <div className="md:col-span-8">
-          <ExpenseChart
-            data={chartData.monthlyExpenses}
-            availableYears={chartData.availableYears}
-            selectedYear={chartYear}
-            onYearChange={setChartYear}
-          />
-        </div>
+      {/* Row 3: Spending + Accounts */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <GroupedSpending
+          groupedSpending={groupedSpending}
+          monthlyExpense={monthlyExpense}
+          totalExpenseYTD={totalExpense}
+        />
+        <Products products={accounts} onAccountAdded={handleRefresh} />
+      </div>
+
+      {/* Row 4: Transactions + Insights */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Transactions transactions={transactions} accounts={accounts} onSuccess={handleRefresh} />
+        <FinancialInsights insights={insights} />
       </div>
     </>
   );

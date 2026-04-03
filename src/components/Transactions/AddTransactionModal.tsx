@@ -104,7 +104,7 @@ export function AddTransactionModal({
   const setOpen = isControlled ? controlledOnOpenChange ?? (() => {}) : setInternalOpen;
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const { categories, createCategory } = useCategories();
+  const { categories, groups, createCategory } = useCategories();
   const { assignees, createAssignee } = useAssignees();
 
   const form = useForm<FormValues>({
@@ -421,6 +421,7 @@ export function AddTransactionModal({
                   <FormControl>
                     <CategoryMultiSelect
                       categories={categories}
+                      groups={groups}
                       selectedIds={field.value}
                       onChange={(ids) => field.onChange(ids)}
                       onCreateCategory={createCategory}

@@ -10,7 +10,8 @@ interface CategoryMultiSelectProps {
   categories: Category[];
   selectedIds: string[];
   onChange: (ids: string[]) => void;
-  onCreateCategory: (name: string) => Promise<Category>;
+  onCreateCategory: (name: string, parentId?: string) => Promise<Category>;
+  groups?: { id: string; name: string; color: string | null }[];
   placeholder?: string;
   disabled?: boolean;
 }
@@ -20,12 +21,14 @@ export function CategoryMultiSelect({
   selectedIds,
   onChange,
   onCreateCategory,
+  groups = [],
   placeholder = "Select categories...",
   disabled = false,
 }: CategoryMultiSelectProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [isCreating, setIsCreating] = useState(false);
+  const [pendingCreate, setPendingCreate] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const filtered = categories.filter((c) => c.name.toLowerCase().includes(search.toLowerCase()));
@@ -43,17 +46,28 @@ export function CategoryMultiSelect({
     }
   };
 
-  const handleCreate = async () => {
-    if (!search.trim() || isCreating) return;
+  const handleCreate = async (name: string, parentId?: string) => {
+    if (!name || isCreating) return;
     setIsCreating(true);
     try {
-      const newCat = await onCreateCategory(search.trim());
+      const newCat = await onCreateCategory(name, parentId);
       onChange([...selectedIds, newCat.id]);
       setSearch("");
+      setPendingCreate(null);
     } catch (err) {
       console.error("Failed to create category:", err);
     } finally {
       setIsCreating(false);
+    }
+  };
+
+  const handleCreateClick = () => {
+    const name = search.trim();
+    if (!name) return;
+    if (groups.length > 0) {
+      setPendingCreate(name);
+    } else {
+      handleCreate(name);
     }
   };
 
@@ -68,6 +82,7 @@ export function CategoryMultiSelect({
       setTimeout(() => inputRef.current?.focus(), 50);
     } else {
       setSearch("");
+      setPendingCreate(null);
     }
   }, [open]);
 
@@ -126,11 +141,14 @@ export function CategoryMultiSelect({
             ref={inputRef}
             placeholder="Search or create..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPendingCreate(null);
+            }}
             onKeyDown={(e) => {
-              if (e.key === "Enter" && showCreate) {
+              if (e.key === "Enter" && showCreate && !pendingCreate) {
                 e.preventDefault();
-                handleCreate();
+                handleCreateClick();
               }
             }}
             className="bg-surface-input border-glass text-sm h-8"
@@ -169,16 +187,53 @@ export function CategoryMultiSelect({
               </button>
             );
           })}
-          {showCreate && (
+          {showCreate && !pendingCreate && (
             <button
               type="button"
               className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm cursor-pointer transition-colors hover:bg-surface-hover text-primary"
-              onClick={handleCreate}
+              onClick={handleCreateClick}
               disabled={isCreating}
             >
               <PlusCircle className="w-4 h-4 flex-shrink-0" />
               <span className="truncate">{isCreating ? "Creating..." : `Create "${search.trim()}"`}</span>
             </button>
+          )}
+          {pendingCreate && (
+            <div className="px-2 py-2 border-t border-glass mt-1">
+              <p className="text-xs text-muted-foreground mb-1.5">
+                Grupo para <span className="text-foreground font-medium">"{pendingCreate}"</span>:
+              </p>
+              <div className="flex flex-wrap gap-1">
+                <button
+                  type="button"
+                  disabled={isCreating}
+                  className="text-xs px-2 py-1 rounded border border-glass hover:bg-surface-hover transition-colors text-muted-foreground"
+                  onClick={() => handleCreate(pendingCreate)}
+                >
+                  Ninguno
+                </button>
+                {groups.map((group) => (
+                  <button
+                    key={group.id}
+                    type="button"
+                    disabled={isCreating}
+                    className="text-xs px-2 py-1 rounded border transition-colors"
+                    style={
+                      group.color
+                        ? {
+                            backgroundColor: `${group.color}15`,
+                            borderColor: `${group.color}50`,
+                            color: group.color,
+                          }
+                        : undefined
+                    }
+                    onClick={() => handleCreate(pendingCreate, group.id)}
+                  >
+                    {group.name}
+                  </button>
+                ))}
+              </div>
+            </div>
           )}
         </div>
       </PopoverContent>

@@ -1,4 +1,4 @@
-import { formatDateString } from "@/lib/dates";
+import { formatDateString, parseLocalDate } from "@/lib/dates";
 import type { AccountWithStats } from "@/hooks/useAccountsData";
 import { supabase } from "@/supabase/client";
 
@@ -79,8 +79,9 @@ export async function renewCdt(params: RenewCdtParams): Promise<string> {
   const { cdtId, userId, newPrincipal, originalMaturityDate, originalRefDate } = params;
 
   // Calculate original term duration
-  const refDate = originalRefDate ? new Date(originalRefDate) : new Date(originalMaturityDate);
-  const matDate = new Date(originalMaturityDate);
+  // originalRefDate is a timestamptz (full timestamp), originalMaturityDate is date-only
+  const refDate = originalRefDate ? new Date(originalRefDate) : parseLocalDate(originalMaturityDate);
+  const matDate = parseLocalDate(originalMaturityDate);
   const termMs = matDate.getTime() - refDate.getTime();
   const termDays = Math.max(30, Math.round(termMs / (1000 * 60 * 60 * 24)));
 

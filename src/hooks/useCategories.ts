@@ -7,10 +7,13 @@ export interface Category {
   name: string;
   color: string | null;
   created_at: string;
+  is_group: boolean;
+  parent_id: string | null;
 }
 
 export function useCategories() {
   const [categories, setCategories] = useState<Category[]>([]);
+  const [groups, setGroups] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchCategories = useCallback(async () => {
@@ -21,12 +24,15 @@ export function useCategories() {
 
       const { data, error } = await supabase
         .from("categories")
-        .select("*")
+        .select("id, user_id, name, color, created_at, is_group, parent_id")
         .eq("user_id", userData.user.id)
         .order("name");
 
       if (error) throw error;
-      setCategories((data || []) as Category[]);
+
+      const all = (data || []) as Category[];
+      setCategories(all.filter((c) => !c.is_group));
+      setGroups(all.filter((c) => c.is_group));
     } catch (err) {
       console.error("Failed to fetch categories:", err);
     } finally {
@@ -38,16 +44,21 @@ export function useCategories() {
     fetchCategories();
   }, [fetchCategories]);
 
-  const createCategory = useCallback(async (name: string): Promise<Category> => {
+  const createCategory = useCallback(async (name: string, parentId?: string): Promise<Category> => {
     const { data: userData, error: userError } = await supabase.auth.getUser();
     if (userError || !userData?.user) throw new Error("User not authenticated");
 
     const userId = userData.user.id;
 
+    const upsertData: { user_id: string; name: string; parent_id?: string } = { user_id: userId, name };
+    if (parentId) {
+      upsertData.parent_id = parentId;
+    }
+
     // Try insert; on conflict return existing
     const { data, error } = await supabase
       .from("categories")
-      .upsert({ user_id: userId, name }, { onConflict: "user_id,name" })
+      .upsert(upsertData, { onConflict: "user_id,name" })
       .select()
       .single();
 
@@ -55,7 +66,7 @@ export function useCategories() {
 
     const newCategory = data as Category;
 
-    // Update local state
+    // Update local state — tags only (is_group defaults to false on new rows)
     setCategories((prev) => {
       const exists = prev.some((c) => c.id === newCategory.id);
       if (exists) return prev;
@@ -65,5 +76,5 @@ export function useCategories() {
     return newCategory;
   }, []);
 
-  return { categories, isLoading, createCategory, refetch: fetchCategories };
+  return { categories, groups, isLoading, createCategory, refetch: fetchCategories };
 }

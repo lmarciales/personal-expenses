@@ -1,7 +1,28 @@
-import type { CategorySpending } from "@/components/SpendingOverview";
 import { getProjectedBalance } from "@/lib/projectedBalance";
 import { supabase } from "@/supabase/client";
 import { useCallback, useEffect, useState } from "react";
+
+export interface CategorySpending {
+  name: string;
+  color: string | null;
+  amount: number;
+}
+
+export interface GroupedSpending {
+  groupId: string | null;
+  groupName: string;
+  groupColor: string;
+  amount: number;
+}
+
+export interface DashboardInsights {
+  savingsRate: number;
+  savingsRatePrev: number;
+  savingsRateTrend: number[];
+  topGroup: { name: string; amount: number; pctOfTotal: number } | null;
+  momExpenseChange: number;
+  momExpenseAbs: [number, number];
+}
 
 export interface DashboardData {
   accounts: {
@@ -39,6 +60,13 @@ export interface DashboardData {
   totalIncome: number;
   totalExpense: number;
   categorySpending: CategorySpending[];
+  monthlyIncome: number;
+  monthlyExpense: number;
+  monthlyNet: number;
+  prevMonthExpense: number;
+  momChange: number;
+  groupedSpending: GroupedSpending[];
+  insights: DashboardInsights;
   isLoading: boolean;
   error: string | null;
   refetch: () => Promise<void>;
@@ -52,6 +80,20 @@ export function useDashboardData() {
     totalIncome: 0,
     totalExpense: 0,
     categorySpending: [],
+    monthlyIncome: 0,
+    monthlyExpense: 0,
+    monthlyNet: 0,
+    prevMonthExpense: 0,
+    momChange: 0,
+    groupedSpending: [],
+    insights: {
+      savingsRate: 0,
+      savingsRatePrev: 0,
+      savingsRateTrend: [0, 0],
+      topGroup: null,
+      momExpenseChange: 0,
+      momExpenseAbs: [0, 0],
+    },
     isLoading: true,
     error: null,
   });
@@ -67,8 +109,27 @@ export function useDashboardData() {
       const startDate = `${currentYear}-01-01`;
       const endDate = `${currentYear}-12-31`;
 
-      // Fetch Accounts, Transactions (last 5), and current-year expenses in parallel
-      const [accountsResult, transactionsResult, expenseResult] = await Promise.all([
+      const now = new Date();
+      const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
+      const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+      const monthEnd = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
+
+      const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const prevMonthStart = `${prevMonth.getFullYear()}-${String(prevMonth.getMonth() + 1).padStart(2, "0")}-01`;
+      const prevLastDay = new Date(prevMonth.getFullYear(), prevMonth.getMonth() + 1, 0).getDate();
+      const prevMonthEnd = `${prevMonth.getFullYear()}-${String(prevMonth.getMonth() + 1).padStart(2, "0")}-${String(prevLastDay).padStart(2, "0")}`;
+
+      // Fetch all queries in parallel
+      const [
+        accountsResult,
+        transactionsResult,
+        expenseResult,
+        monthlyIncomeResult,
+        monthlyExpenseResult,
+        prevMonthExpenseResult,
+        prevMonthIncomeResult,
+        groupsResult,
+      ] = await Promise.all([
         supabase.from("accounts").select("*").eq("user_id", userId),
         supabase
           .from("transactions")
@@ -92,13 +153,54 @@ export function useDashboardData() {
           .eq("type", "expense")
           .gte("date", startDate)
           .lte("date", endDate),
+        supabase
+          .from("transactions")
+          .select("id, total_amount")
+          .eq("user_id", userId)
+          .eq("type", "income")
+          .gte("date", monthStart)
+          .lte("date", monthEnd),
+        supabase
+          .from("transactions")
+          .select(`
+                        id, total_amount,
+                        transaction_categories(category_id, categories(id, name, color, parent_id, is_group))
+                    `)
+          .eq("user_id", userId)
+          .eq("type", "expense")
+          .gte("date", monthStart)
+          .lte("date", monthEnd),
+        supabase
+          .from("transactions")
+          .select("id, total_amount")
+          .eq("user_id", userId)
+          .eq("type", "expense")
+          .gte("date", prevMonthStart)
+          .lte("date", prevMonthEnd),
+        supabase
+          .from("transactions")
+          .select("id, total_amount")
+          .eq("user_id", userId)
+          .eq("type", "income")
+          .gte("date", prevMonthStart)
+          .lte("date", prevMonthEnd),
+        supabase
+          .from("categories")
+          .select("id, name, color")
+          .eq("user_id", userId)
+          .eq("is_group", true),
       ]);
 
       if (accountsResult.error) throw accountsResult.error;
       if (transactionsResult.error) throw transactionsResult.error;
       if (expenseResult.error) throw expenseResult.error;
+      if (monthlyIncomeResult.error) throw monthlyIncomeResult.error;
+      if (monthlyExpenseResult.error) throw monthlyExpenseResult.error;
+      if (prevMonthExpenseResult.error) throw prevMonthExpenseResult.error;
+      if (prevMonthIncomeResult.error) throw prevMonthIncomeResult.error;
+      if (groupsResult.error) throw groupsResult.error;
 
-      // Aggregate spending by category
+      // Aggregate spending by category (annual, flat — kept for backward compatibility)
       const categoryMap = new Map<string, { name: string; color: string | null; amount: number }>();
       for (const txn of (expenseResult.data || []) as any[]) {
         const cats = txn.transaction_categories || [];
@@ -166,6 +268,85 @@ export function useDashboardData() {
         transaction_categories: txn.transaction_categories || [],
       }));
 
+      // Monthly totals
+      const monthlyIncome = (monthlyIncomeResult.data || []).reduce(
+        (sum: number, t: any) => sum + Math.abs(t.total_amount),
+        0,
+      );
+      const monthlyExpenseTotal = (monthlyExpenseResult.data || []).reduce(
+        (sum: number, t: any) => sum + Math.abs(t.total_amount),
+        0,
+      );
+      const monthlyNet = monthlyIncome - monthlyExpenseTotal;
+      const prevMonthExpenseTotal = (prevMonthExpenseResult.data || []).reduce(
+        (sum: number, t: any) => sum + Math.abs(t.total_amount),
+        0,
+      );
+      const momChange =
+        prevMonthExpenseTotal > 0
+          ? ((monthlyExpenseTotal - prevMonthExpenseTotal) / prevMonthExpenseTotal) * 100
+          : 0;
+
+      // Grouped spending — aggregate by parent group
+      const groups = (groupsResult.data || []) as { id: string; name: string; color: string }[];
+      const groupMap = new Map<string, GroupedSpending>();
+
+      for (const txn of (monthlyExpenseResult.data || []) as any[]) {
+        const cats = txn.transaction_categories || [];
+        const amount = Math.abs(txn.total_amount);
+        if (cats.length === 0) continue;
+
+        for (const tc of cats) {
+          const cat = tc.categories;
+          if (!cat || cat.is_group) continue;
+
+          const parentId = cat.parent_id;
+          const group = parentId ? groups.find((g) => g.id === parentId) : null;
+          const key = group ? group.id : `ungrouped-${cat.id}`;
+
+          const existing = groupMap.get(key);
+          if (existing) {
+            existing.amount += amount;
+          } else {
+            groupMap.set(key, {
+              groupId: group?.id ?? null,
+              groupName: group?.name ?? cat.name,
+              groupColor: group?.color ?? cat.color ?? "#666",
+              amount,
+            });
+          }
+        }
+      }
+
+      const groupedSpending = Array.from(groupMap.values()).sort((a, b) => b.amount - a.amount);
+
+      // Insights
+      const prevMonthIncomeTotal = (prevMonthIncomeResult.data || []).reduce(
+        (sum: number, t: any) => sum + Math.abs(t.total_amount),
+        0,
+      );
+      const savingsRate = monthlyIncome > 0 ? (monthlyNet / monthlyIncome) * 100 : 0;
+      const prevNet = prevMonthIncomeTotal - prevMonthExpenseTotal;
+      const savingsRatePrev = prevMonthIncomeTotal > 0 ? (prevNet / prevMonthIncomeTotal) * 100 : 0;
+
+      const topGroupEntry = groupedSpending[0] ?? null;
+      const topGroup = topGroupEntry
+        ? {
+            name: topGroupEntry.groupName,
+            amount: topGroupEntry.amount,
+            pctOfTotal: monthlyExpenseTotal > 0 ? (topGroupEntry.amount / monthlyExpenseTotal) * 100 : 0,
+          }
+        : null;
+
+      const insights: DashboardInsights = {
+        savingsRate,
+        savingsRatePrev,
+        savingsRateTrend: [savingsRatePrev, savingsRate],
+        topGroup,
+        momExpenseChange: momChange,
+        momExpenseAbs: [monthlyExpenseTotal, prevMonthExpenseTotal],
+      };
+
       setData({
         accounts,
         transactions,
@@ -175,6 +356,13 @@ export function useDashboardData() {
           : 0,
         totalExpense: allExpenseTotal,
         categorySpending,
+        monthlyIncome,
+        monthlyExpense: monthlyExpenseTotal,
+        monthlyNet,
+        prevMonthExpense: prevMonthExpenseTotal,
+        momChange,
+        groupedSpending,
+        insights,
         isLoading: false,
         error: null,
       });
