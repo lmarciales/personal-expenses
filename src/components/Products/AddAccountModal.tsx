@@ -1,4 +1,5 @@
 import { CurrencyInput } from "@/components/ui/CurrencyInput";
+import { formatDateString } from "@/lib/dates";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -234,9 +235,11 @@ export function AddAccountModal({
       const color = accountTypeObj ? accountTypeObj.color : "bg-primary";
 
       // For CDTs with an opening date, use it as the interest reference date
+      // Store as local midnight to avoid timezone shifts (e.g., "2026-03-13" parsed as
+      // UTC midnight becomes Mar 12 in UTC-5 timezones)
       const referenceDate =
         data.type === "CDT" && data.opening_date
-          ? new Date(data.opening_date).toISOString()
+          ? `${data.opening_date}T12:00:00`
           : data.interest_rate != null
             ? new Date().toISOString()
             : null;
@@ -291,7 +294,7 @@ export function AddAccountModal({
           await supabase.rpc("add_transaction_with_splits", {
             p_user_id: userData.user.id,
             p_account_id: data.linked_account_id,
-            p_date: data.opening_date ?? new Date().toISOString().split("T")[0],
+            p_date: data.opening_date ?? formatDateString(new Date()),
             p_total_amount: data.balance,
             p_payee: `CDT - ${data.name}`,
             p_notes: "Apertura de CDT",
