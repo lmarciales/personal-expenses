@@ -2,6 +2,7 @@ import { AccountDetailModal } from "@/components/Accounts/AccountDetailModal";
 import { MaturedCdtsBanner } from "@/components/Accounts/MaturedCdtsBanner";
 import { AddAccountModal } from "@/components/Products/AddAccountModal";
 import { isCdtMatured } from "@/lib/cdtMaturity";
+import { parseLocalDate } from "@/lib/dates";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Button } from "@/components/ui/button";
 import {
@@ -356,14 +357,14 @@ export const AccountsView = () => {
                               <div className="mt-1.5 space-y-0.5">
                                 {account.maturity_date && (
                                   <p className="text-xs text-muted-foreground">
-                                    {new Date(account.maturity_date) > new Date() ? (
+                                    {parseLocalDate(account.maturity_date) > new Date() ? (
                                       <>
                                         {t("card.maturityDate", {
-                                          date: new Date(account.maturity_date).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }),
+                                          date: parseLocalDate(account.maturity_date).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }),
                                         })}
                                         {" · "}
                                         {t("card.daysRemaining", {
-                                          days: Math.ceil((new Date(account.maturity_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)),
+                                          days: Math.ceil((parseLocalDate(account.maturity_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)),
                                         })}
                                       </>
                                     ) : (

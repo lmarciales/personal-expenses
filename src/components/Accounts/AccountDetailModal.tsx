@@ -1,3 +1,4 @@
+import { parseLocalDate } from "@/lib/dates";
 import { Button } from "@/components/ui/button";
 import { CurrencyInput } from "@/components/ui/CurrencyInput";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -41,7 +42,7 @@ function CdtDetail({
   const principal = account.interest_reference_balance ?? account.balance;
   const rate = account.interest_rate ?? 0;
   const refDate = account.interest_reference_date ? new Date(account.interest_reference_date) : null;
-  const maturityDate = account.maturity_date ? new Date(account.maturity_date) : null;
+  const maturityDate = account.maturity_date ? parseLocalDate(account.maturity_date) : null;
   const now = new Date();
 
   // Daily compounding with retención deducted each day (matches Colombian bank CDT calculation)
