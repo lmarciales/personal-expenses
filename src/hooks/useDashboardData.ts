@@ -1,7 +1,12 @@
-import type { CategorySpending } from "@/components/SpendingOverview";
 import { getProjectedBalance } from "@/lib/projectedBalance";
 import { supabase } from "@/supabase/client";
 import { useCallback, useEffect, useState } from "react";
+
+export interface CategorySpending {
+  name: string;
+  color: string | null;
+  amount: number;
+}
 
 export interface GroupedSpending {
   groupId: string | null;

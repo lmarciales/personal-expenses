@@ -1,6 +1,6 @@
 import { formatCOPWithSymbol } from "@/lib/currency";
 import { supabase } from "@/supabase/client";
-import { ArrowUpRight, CreditCard, Loader2, MoreVertical, Pencil, Plus, Trash2, Wallet } from "lucide-react";
+import { ArrowUpRight, CreditCard, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -25,9 +25,8 @@ export interface Product {
 
 const Products = ({
   products,
-  totalBalance,
   onAccountAdded,
-}: { products: Product[]; totalBalance: number; onAccountAdded: () => void }) => {
+}: { products: Product[]; onAccountAdded: () => void }) => {
   const { t } = useTranslation("accounts");
   const navigate = useNavigate();
 
@@ -75,28 +74,7 @@ const Products = ({
 
   return (
     <div className="glass-card rounded-2xl flex flex-col p-6">
-      <div className="flex flex-row items-start justify-between pb-4">
-        <div>
-          <h2 className="typo-section-label flex items-center gap-2">
-            <Wallet className="w-4 h-4 text-primary" /> {t("products.totalBalance")}
-          </h2>
-          <div className="mt-3 flex items-baseline gap-1">
-            <span className="typo-amount-xl">{formatCOPWithSymbol(totalBalance)}</span>
-            <span className="text-sm text-primary font-medium tracking-wide">COP</span>
-          </div>
-        </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8 text-muted-foreground hover:text-foreground rounded-full hover:bg-surface-hover-strong"
-          onClick={() => navigate("/accounts")}
-          title={t("products.manageAccounts")}
-        >
-          <MoreVertical className="h-4 w-4" />
-        </Button>
-      </div>
-
-      <div className="mt-2 min-h-[280px] space-y-3">
+      <div className="min-h-[280px] space-y-3">
         <div className="flex items-center justify-between mb-2">
           <h3 className="typo-section-label">{t("products.myAccounts")}</h3>
           <div className="flex items-center gap-1">
