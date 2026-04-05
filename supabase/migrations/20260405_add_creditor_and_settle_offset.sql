@@ -4,6 +4,18 @@
 -- 1. Add creditor column (nullable, only meaningful when account_id IS NULL)
 ALTER TABLE transactions ADD COLUMN creditor text;
 
+-- Drop legacy overloads of add_transaction_with_splits to avoid PGRST203 ambiguity
+DROP FUNCTION IF EXISTS add_transaction_with_splits(uuid, uuid, date, numeric, text, text, boolean, text, jsonb);
+DROP FUNCTION IF EXISTS add_transaction_with_splits(uuid, uuid, date, numeric, text, text, boolean, text, jsonb, text);
+DROP FUNCTION IF EXISTS add_transaction_with_splits(uuid, uuid, date, numeric, text, text, text, boolean, text, json, uuid[]);
+DROP FUNCTION IF EXISTS add_transaction_with_splits(uuid, uuid, date, numeric, text, text, text, boolean, integer, text, json, uuid[]);
+
+-- Drop legacy overloads of update_transaction_with_splits
+DROP FUNCTION IF EXISTS update_transaction_with_splits(uuid, uuid, uuid, date, numeric, text, text, boolean, text, jsonb);
+DROP FUNCTION IF EXISTS update_transaction_with_splits(uuid, uuid, uuid, date, numeric, text, text, boolean, text, jsonb, text);
+DROP FUNCTION IF EXISTS update_transaction_with_splits(uuid, uuid, uuid, date, numeric, text, text, text, boolean, text, json, uuid[]);
+DROP FUNCTION IF EXISTS update_transaction_with_splits(uuid, uuid, uuid, date, numeric, text, text, text, boolean, integer, text, json, uuid[]);
+
 -- 2. Update add_transaction_with_splits to accept p_creditor
 CREATE OR REPLACE FUNCTION add_transaction_with_splits(
   p_user_id uuid,
