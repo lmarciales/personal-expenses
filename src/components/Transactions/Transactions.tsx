@@ -24,6 +24,7 @@ export interface Transaction {
   transaction_splits?: { id: string; amount: number; assigned_to: string; status: string }[];
   transaction_categories?: { category_id: string; categories: { id: string; name: string; color: string | null } }[];
   related_transaction_id?: string | null;
+  creditor?: string | null;
 }
 
 const Transactions = ({
@@ -159,6 +160,7 @@ const Transactions = ({
             recurrenceUnit:
               modalState.mode === "edit" ? (modalState.transaction.recurrence_unit as any) ?? undefined : undefined,
             categoryIds: modalState.transaction.transaction_categories?.map((tc) => tc.category_id) || [],
+            creditor: modalState.mode === "edit" ? modalState.transaction.creditor || null : null,
             splits:
               modalState.mode === "edit"
                 ? modalState.transaction.transaction_splits?.length

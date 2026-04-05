@@ -10,7 +10,11 @@ interface GroupedSpendingProps {
 
 const MAX_VISIBLE = 5;
 
-export function GroupedSpending({ groupedSpending, monthlyExpense: _monthlyExpense, totalExpenseYTD }: GroupedSpendingProps) {
+export function GroupedSpending({
+  groupedSpending,
+  monthlyExpense: _monthlyExpense,
+  totalExpenseYTD,
+}: GroupedSpendingProps) {
   const now = new Date();
   const monthName = now.toLocaleDateString("es-CO", { month: "long" });
   const capitalizedMonth = monthName.charAt(0).toUpperCase() + monthName.slice(1);
@@ -46,10 +50,7 @@ export function GroupedSpending({ groupedSpending, monthlyExpense: _monthlyExpen
               <div key={group.groupId ?? group.groupName}>
                 <div className="flex items-center justify-between mb-1">
                   <div className="flex items-center gap-2 min-w-0">
-                    <span
-                      className="w-2.5 h-2.5 rounded-full shrink-0"
-                      style={{ backgroundColor: group.groupColor }}
-                    />
+                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: group.groupColor }} />
                     <span className="text-sm text-foreground/80 truncate">{group.groupName}</span>
                   </div>
                   <span className="text-sm font-semibold tabular-nums text-foreground ml-2 shrink-0">
@@ -69,10 +70,7 @@ export function GroupedSpending({ groupedSpending, monthlyExpense: _monthlyExpen
       )}
 
       {hiddenCount > 0 && (
-        <button
-          type="button"
-          className="mt-3 text-xs text-primary hover:text-primary/80 transition-colors font-medium"
-        >
+        <button type="button" className="mt-3 text-xs text-primary hover:text-primary/80 transition-colors font-medium">
           + {hiddenCount} grupos más
         </button>
       )}

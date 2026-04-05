@@ -50,6 +50,7 @@ const createFormSchema = (t: TFunction) => {
       recurrenceValue: z.number().int().min(1).default(1),
       recurrenceUnit: z.enum(["Days", "Weeks", "Months", "Years"]).default("Months"),
       categoryIds: z.array(z.string()).default([]),
+      creditor: z.string().nullable().optional(),
       splits: z.array(splitSchema).min(1, t("validation:splitsRequired")),
     })
     .refine(
@@ -120,6 +121,7 @@ export function AddTransactionModal({
       recurrenceValue: initialData?.recurrenceValue || 1,
       recurrenceUnit: initialData?.recurrenceUnit || "Months",
       categoryIds: initialData?.categoryIds || [],
+      creditor: initialData?.creditor || null,
       splits: initialData?.splits || [
         {
           amount: initialData?.totalAmount ?? undefined,
@@ -161,6 +163,12 @@ export function AddTransactionModal({
     const selectedAccount = accounts.find((a) => a.id === accountId);
     const isExternal = !accountId || accountId === "none";
     const isCreditCard = selectedAccount?.type === "Credit Card";
+
+    // Clear creditor when switching to a real account
+    if (!isExternal) {
+      form.setValue("creditor", null);
+    }
+
     for (let i = 0; i < fields.length; i++) {
       const assignee = form.getValues(`splits.${i}.assigned_to`);
       if (assignee === "Me") {
@@ -192,6 +200,8 @@ export function AddTransactionModal({
         status: s.status,
       }));
 
+      const creditorValue = data.accountId === "none" ? data.creditor || undefined : undefined;
+
       if (editMode && transactionId) {
         const { error } = await supabase.rpc("update_transaction_with_splits", {
           p_transaction_id: transactionId,
@@ -207,6 +217,7 @@ export function AddTransactionModal({
           p_recurrence_unit: data.isRecurring ? data.recurrenceUnit : (null as any),
           p_splits: splitsPayload as any,
           p_category_ids: data.categoryIds,
+          p_creditor: creditorValue,
         });
         if (error) throw error;
       } else {
@@ -223,6 +234,7 @@ export function AddTransactionModal({
           p_recurrence_unit: data.isRecurring ? data.recurrenceUnit : (null as any),
           p_splits: splitsPayload as any,
           p_category_ids: data.categoryIds,
+          p_creditor: creditorValue,
         });
         if (error) throw error;
       }
@@ -346,6 +358,29 @@ export function AddTransactionModal({
                 )}
               />
             </div>
+
+            {/* Creditor field - only for external debts */}
+            {accountId === "none" && (
+              <FormField
+                control={form.control}
+                name="creditor"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("debts:creditor.label")}</FormLabel>
+                    <FormControl>
+                      <AssigneeSelect
+                        assignees={assignees.filter((a) => a.name !== "Me")}
+                        value={field.value || ""}
+                        onChange={(val) => field.onChange(val || null)}
+                        onCreateAssignee={createAssignee}
+                        placeholder={t("debts:creditor.placeholder")}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
 
             <div className="grid grid-cols-2 gap-4">
               <FormField

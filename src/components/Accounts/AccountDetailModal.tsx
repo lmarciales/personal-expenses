@@ -1,14 +1,14 @@
-import { parseLocalDate } from "@/lib/dates";
-import { Button } from "@/components/ui/button";
 import { CurrencyInput } from "@/components/ui/CurrencyInput";
+import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useAuth } from "@/hooks/useAuth";
 import type { AccountWithStats } from "@/hooks/useAccountsData";
+import { useAuth } from "@/hooks/useAuth";
 import { isCdtMatured, redeemCdt, renewCdt } from "@/lib/cdtMaturity";
 import { formatCOPWithSymbol } from "@/lib/currency";
+import { parseLocalDate } from "@/lib/dates";
 import { getProjectedBalance } from "@/lib/projectedBalance";
 import { supabase } from "@/supabase/client";
-import { ArrowUpRight, CreditCard, Loader2 as Spinner, Pencil, Receipt, TrendingDown, TrendingUp } from "lucide-react";
+import { ArrowUpRight, CreditCard, Pencil, Receipt, Loader2 as Spinner, TrendingDown, TrendingUp } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -48,7 +48,9 @@ function CdtDetail({
   // Daily compounding with retención deducted each day (matches Colombian bank CDT calculation)
   const ea = rate / 100;
   const effectiveDailyRate = Math.pow(1 + ea, 1 / 365) - 1;
-  const daysElapsed = refDate ? Math.max(0, Math.floor((now.getTime() - refDate.getTime()) / (1000 * 60 * 60 * 24))) : 0;
+  const daysElapsed = refDate
+    ? Math.max(0, Math.floor((now.getTime() - refDate.getTime()) / (1000 * 60 * 60 * 24)))
+    : 0;
 
   // Gross: compound without retención
   const grossTotal = principal * Math.pow(1 + effectiveDailyRate, daysElapsed);
@@ -63,7 +65,9 @@ function CdtDetail({
 
   // Expected at maturity
   const totalDays =
-    refDate && maturityDate ? Math.max(0, Math.floor((maturityDate.getTime() - refDate.getTime()) / (1000 * 60 * 60 * 24))) : 0;
+    refDate && maturityDate
+      ? Math.max(0, Math.floor((maturityDate.getTime() - refDate.getTime()) / (1000 * 60 * 60 * 24)))
+      : 0;
   const expectedTotal = principal * Math.pow(1 + netDailyRate, totalDays);
 
   const daysRemaining = maturityDate ? Math.ceil((maturityDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)) : 0;
@@ -124,9 +128,7 @@ function CdtDetail({
             <p className="text-xs text-muted-foreground">{t("cdt.maturity")}</p>
             <p className="text-sm font-bold">{formatDate(maturityDate)}</p>
             {daysRemaining > 0 && (
-              <p className="text-xs text-muted-foreground mt-0.5">
-                {t("cdt.daysRemaining", { days: daysRemaining })}
-              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">{t("cdt.daysRemaining", { days: daysRemaining })}</p>
             )}
           </div>
         )}
@@ -153,7 +155,14 @@ function CdtDetail({
   );
 }
 
-export function AccountDetailModal({ account, open, onOpenChange, onEdit, allAccounts, onRefetch }: AccountDetailModalProps) {
+export function AccountDetailModal({
+  account,
+  open,
+  onOpenChange,
+  onEdit,
+  allAccounts,
+  onRefetch,
+}: AccountDetailModalProps) {
   const { t, i18n } = useTranslation("accounts");
   const { session } = useAuth();
   const navigate = useNavigate();
@@ -212,9 +221,7 @@ export function AccountDetailModal({ account, open, onOpenChange, onEdit, allAcc
         payee: `${t("cdt.redeemTitle")} - ${account.name}`,
         note: t("cdt.projectedNote", { projected, actual }),
       });
-      toast.success(
-        t("cdt.redeemSuccess", { name: account.name, amount: actual, account: linkedName }),
-      );
+      toast.success(t("cdt.redeemSuccess", { name: account.name, amount: actual, account: linkedName }));
       onOpenChange(false);
       onRefetch?.();
     } catch (err: any) {
@@ -240,7 +247,11 @@ export function AccountDetailModal({ account, open, onOpenChange, onEdit, allAcc
       toast.success(
         t("cdt.renewSuccess", {
           name: account.name,
-          date: new Date(newDate).toLocaleDateString(i18n.language, { year: "numeric", month: "short", day: "numeric" }),
+          date: new Date(newDate).toLocaleDateString(i18n.language, {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          }),
         }),
       );
       onOpenChange(false);
@@ -256,7 +267,7 @@ export function AccountDetailModal({ account, open, onOpenChange, onEdit, allAcc
   if (!account) return null;
 
   const linkedAccountName = account.linked_account_id
-    ? (allAccounts?.find((a) => a.id === account.linked_account_id)?.name ?? null)
+    ? allAccounts?.find((a) => a.id === account.linked_account_id)?.name ?? null
     : null;
 
   return (
@@ -264,9 +275,7 @@ export function AccountDetailModal({ account, open, onOpenChange, onEdit, allAcc
       <DialogContent className="sm:max-w-[500px] glass-panel border-glass text-foreground">
         <DialogHeader>
           <div className="flex items-center justify-between">
-            <DialogTitle className="text-xl font-bold">
-              {isCdt ? t("cdt.detailTitle") : t("detail.title")}
-            </DialogTitle>
+            <DialogTitle className="text-xl font-bold">{isCdt ? t("cdt.detailTitle") : t("detail.title")}</DialogTitle>
             <Button
               variant="ghost"
               size="sm"
@@ -330,16 +339,10 @@ export function AccountDetailModal({ account, open, onOpenChange, onEdit, allAcc
                   <label className="text-xs text-muted-foreground mb-1 block">
                     {account.on_maturity === "transfer_back" ? t("cdt.actualAmount") : t("cdt.newPrincipal")}
                   </label>
-                  <CurrencyInput
-                    value={actionAmount}
-                    onChange={setActionAmount}
-                    disabled={actionLoading}
-                  />
+                  <CurrencyInput value={actionAmount} onChange={setActionAmount} disabled={actionLoading} />
                 </div>
                 {account.on_maturity === "transfer_back" && linkedAccountName && (
-                  <p className="text-xs text-muted-foreground">
-                    → {linkedAccountName}
-                  </p>
+                  <p className="text-xs text-muted-foreground">→ {linkedAccountName}</p>
                 )}
                 <Button
                   className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"

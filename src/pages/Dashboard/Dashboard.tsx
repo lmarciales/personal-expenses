@@ -16,10 +16,20 @@ import { useTranslation } from "react-i18next";
 export const Dashboard = () => {
   const { t } = useTranslation("dashboard");
   const {
-    accounts, transactions, totalBalance, totalExpense,
-    monthlyIncome, monthlyExpense, monthlyNet, prevMonthExpense, momChange,
-    groupedSpending, insights,
-    isLoading, error, refetch,
+    accounts,
+    transactions,
+    totalBalance,
+    totalExpense,
+    monthlyIncome,
+    monthlyExpense,
+    monthlyNet,
+    prevMonthExpense,
+    momChange,
+    groupedSpending,
+    insights,
+    isLoading,
+    error,
+    refetch,
   } = useDashboardData();
   const { alerts, refetch: refetchAlerts } = useDashboardAlerts();
 

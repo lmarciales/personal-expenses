@@ -184,11 +184,7 @@ export function useDashboardData() {
           .eq("type", "income")
           .gte("date", prevMonthStart)
           .lte("date", prevMonthEnd),
-        supabase
-          .from("categories")
-          .select("id, name, color")
-          .eq("user_id", userId)
-          .eq("is_group", true),
+        supabase.from("categories").select("id, name, color").eq("user_id", userId).eq("is_group", true),
       ]);
 
       if (accountsResult.error) throw accountsResult.error;
@@ -283,9 +279,7 @@ export function useDashboardData() {
         0,
       );
       const momChange =
-        prevMonthExpenseTotal > 0
-          ? ((monthlyExpenseTotal - prevMonthExpenseTotal) / prevMonthExpenseTotal) * 100
-          : 0;
+        prevMonthExpenseTotal > 0 ? ((monthlyExpenseTotal - prevMonthExpenseTotal) / prevMonthExpenseTotal) * 100 : 0;
 
       // Grouped spending — aggregate by parent group
       const groups = (groupsResult.data || []) as { id: string; name: string; color: string }[];

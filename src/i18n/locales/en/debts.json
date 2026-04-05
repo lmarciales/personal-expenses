@@ -8,7 +8,8 @@
   },
   "tabs": {
     "myDebts": "My Debts",
-    "owedToMe": "Owed to Me"
+    "owedToMe": "Owed to Me",
+    "people": "People"
   },
   "summary": {
     "iOwe": "I Owe",
@@ -55,6 +56,45 @@
     "balanceIncreaseTarget": "<bold>{{account}}</bold> available credit will increase by <bold>{{amount}}</bold>.",
     "processing": "Processing...",
     "confirm": "Confirm Payment"
+  },
+  "creditor": {
+    "label": "Creditor",
+    "placeholder": "Who do you owe?"
+  },
+  "people": {
+    "title": "People",
+    "pendingItems_one": "{{count}} pending item",
+    "pendingItems_other": "{{count}} pending items",
+    "iOwe": "I Owe",
+    "owedToMe": "Owed to Me",
+    "net": "Net",
+    "empty": "No pending balances with people",
+    "emptyDescription": "Debts with people will appear here when you assign a creditor to your external debts."
+  },
+  "offset": {
+    "suggestedSettlement": "Suggested Settlement",
+    "offsetAmount": "Offset <bold>{{amount}}</bold> from both sides.",
+    "remainingIOwe": "Remaining: you owe {{person}} <bold>{{amount}}</bold>",
+    "remainingOwedToMe": "Remaining: {{person}} owes you <bold>{{amount}}</bold>",
+    "fullyOffset": "Both sides fully offset — no payment needed.",
+    "settleAll": "Settle All",
+    "payDifference": "Pay Difference ({{amount}})",
+    "receiveDifference": "Receive Difference ({{amount}})",
+    "confirmTitle": "Confirm Settlement",
+    "confirmDescription": "Settle balance with {{person}}",
+    "netAmount": "Net Amount",
+    "youOwe": "You owe {{person}}",
+    "theyOwe": "{{person}} owes you",
+    "selectAccount": "Select account",
+    "sourceAccount": "Pay from account",
+    "receivingAccount": "Receive into account",
+    "optional": "(optional)",
+    "noAccount": "No account (just settle)",
+    "noAccountShort": "No account",
+    "balanceDecreaseInfo": "<bold>{{account}}</bold> balance will decrease by <bold>{{amount}}</bold>.",
+    "balanceIncreaseInfo": "<bold>{{account}}</bold> balance will increase by <bold>{{amount}}</bold>.",
+    "processing": "Processing...",
+    "confirm": "Confirm Settlement"
   },
   "settlement": {
     "title": "Mark as Received",

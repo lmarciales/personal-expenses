@@ -1,6 +1,6 @@
+import { parseLocalDate } from "@/lib/dates";
 import { getProjectedBalance } from "@/lib/projectedBalance";
 import { supabase } from "@/supabase/client";
-import { parseLocalDate } from "@/lib/dates";
 import { differenceInDays, differenceInMonths, differenceInWeeks, differenceInYears, format } from "date-fns";
 import { es } from "date-fns/locale/es";
 import { useCallback, useEffect, useState } from "react";
@@ -122,9 +122,7 @@ export function useDashboardAlerts() {
 
       // --- Debt Pending ---
       if (!splitsResult.error && splitsResult.data && splitsResult.data.length > 0) {
-        const iOweSplits = splitsResult.data.filter(
-          (s) => s.assigned_to === "Me" && s.status === "Pending Payment",
-        );
+        const iOweSplits = splitsResult.data.filter((s) => s.assigned_to === "Me" && s.status === "Pending Payment");
         const owedToMeSplits = splitsResult.data.filter(
           (s) => s.assigned_to !== "Me" && s.status === "Pending Receival",
         );

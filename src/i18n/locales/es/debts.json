@@ -8,7 +8,8 @@
   },
   "tabs": {
     "myDebts": "Mis deudas",
-    "owedToMe": "Me deben"
+    "owedToMe": "Me deben",
+    "people": "Personas"
   },
   "summary": {
     "iOwe": "Yo debo",
@@ -55,6 +56,45 @@
     "balanceIncreaseTarget": "El crédito disponible de <bold>{{account}}</bold> aumentará en <bold>{{amount}}</bold>.",
     "processing": "Procesando...",
     "confirm": "Confirmar pago"
+  },
+  "creditor": {
+    "label": "Acreedor",
+    "placeholder": "¿A quién le debes?"
+  },
+  "people": {
+    "title": "Personas",
+    "pendingItems_one": "{{count}} item pendiente",
+    "pendingItems_other": "{{count}} items pendientes",
+    "iOwe": "Debo",
+    "owedToMe": "Me deben",
+    "net": "Neto",
+    "empty": "No hay saldos pendientes con personas",
+    "emptyDescription": "Las deudas con personas aparecerán aquí cuando asignes un acreedor a tus deudas externas."
+  },
+  "offset": {
+    "suggestedSettlement": "Liquidación Sugerida",
+    "offsetAmount": "Compensar <bold>{{amount}}</bold> de ambos lados.",
+    "remainingIOwe": "Restante: le debes a {{person}} <bold>{{amount}}</bold>",
+    "remainingOwedToMe": "Restante: {{person}} te debe <bold>{{amount}}</bold>",
+    "fullyOffset": "Ambos lados completamente compensados — no se necesita pago.",
+    "settleAll": "Liquidar Todo",
+    "payDifference": "Pagar Diferencia ({{amount}})",
+    "receiveDifference": "Recibir Diferencia ({{amount}})",
+    "confirmTitle": "Confirmar Liquidación",
+    "confirmDescription": "Liquidar saldo con {{person}}",
+    "netAmount": "Monto neto",
+    "youOwe": "Le debes a {{person}}",
+    "theyOwe": "{{person}} te debe",
+    "selectAccount": "Seleccionar cuenta",
+    "sourceAccount": "Pagar desde cuenta",
+    "receivingAccount": "Recibir en cuenta",
+    "optional": "(opcional)",
+    "noAccount": "Sin cuenta (solo liquidar)",
+    "noAccountShort": "Sin cuenta",
+    "balanceDecreaseInfo": "El saldo de <bold>{{account}}</bold> disminuirá en <bold>{{amount}}</bold>.",
+    "balanceIncreaseInfo": "El saldo de <bold>{{account}}</bold> aumentará en <bold>{{amount}}</bold>.",
+    "processing": "Procesando...",
+    "confirm": "Confirmar Liquidación"
   },
   "settlement": {
     "title": "Marcar como recibido",

@@ -30,6 +30,15 @@ export interface PersonDebtGroup {
   total: number;
 }
 
+export interface PersonCombinedGroup {
+  person: string;
+  iOweItems: DebtItem[];
+  owedToMeItems: (DebtItem & { accountName: string })[];
+  totalIOwe: number;
+  totalOwedToMe: number;
+  netBalance: number; // positive = they owe me more, negative = I owe more
+}
+
 export interface SimpleAccount {
   id: string;
   name: string;
@@ -42,6 +51,7 @@ const EXTERNAL_ACCOUNT_ID = "external";
 export function useDebtsData() {
   const [myDebts, setMyDebts] = useState<AccountDebtGroup[]>([]);
   const [owedToMe, setOwedToMe] = useState<PersonDebtGroup[]>([]);
+  const [peopleDebts, setPeopleDebts] = useState<PersonCombinedGroup[]>([]);
   const [accounts, setAccounts] = useState<SimpleAccount[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -77,6 +87,7 @@ export function useDebtsData() {
             total_amount,
             account_id,
             notes,
+            creditor,
             accounts(id, name, type, color, balance)
           )
         `)
@@ -190,6 +201,76 @@ export function useDebtsData() {
         group.items.sort((a, b) => b.date.localeCompare(a.date));
       }
       setOwedToMe(owedGroups);
+
+      // Build People aggregation (combining both directions by person name)
+      const peopleMap = new Map<string, PersonCombinedGroup>();
+
+      // Add "I owe" items from external debts with a creditor
+      for (const split of (myDebtsData || []) as any[]) {
+        const txn = split.transactions;
+        const creditor = txn.creditor;
+        if (!creditor) continue; // Only external debts with creditor
+
+        if (!peopleMap.has(creditor)) {
+          peopleMap.set(creditor, {
+            person: creditor,
+            iOweItems: [],
+            owedToMeItems: [],
+            totalIOwe: 0,
+            totalOwedToMe: 0,
+            netBalance: 0,
+          });
+        }
+        const group = peopleMap.get(creditor)!;
+        group.iOweItems.push({
+          transactionId: txn.id,
+          splitId: split.id,
+          payee: txn.payee,
+          date: txn.date,
+          amount: split.amount,
+          transactionTotal: txn.total_amount,
+          notes: txn.notes,
+        });
+        group.totalIOwe += split.amount;
+      }
+
+      // Add "Owed to me" items
+      for (const split of (owedData || []) as any[]) {
+        const txn = split.transactions;
+        const person = split.assigned_to;
+
+        if (!peopleMap.has(person)) {
+          peopleMap.set(person, {
+            person,
+            iOweItems: [],
+            owedToMeItems: [],
+            totalIOwe: 0,
+            totalOwedToMe: 0,
+            netBalance: 0,
+          });
+        }
+        const group = peopleMap.get(person)!;
+        group.owedToMeItems.push({
+          transactionId: txn.id,
+          splitId: split.id,
+          payee: txn.payee,
+          date: txn.date,
+          amount: split.amount,
+          transactionTotal: txn.total_amount,
+          notes: txn.notes,
+          accountName: txn.accounts?.name || "Externo",
+        });
+        group.totalOwedToMe += split.amount;
+      }
+
+      // Calculate net balances and sort items
+      const peopleGroups = Array.from(peopleMap.values());
+      for (const group of peopleGroups) {
+        group.netBalance = group.totalOwedToMe - group.totalIOwe;
+        group.iOweItems.sort((a, b) => b.date.localeCompare(a.date));
+        group.owedToMeItems.sort((a, b) => b.date.localeCompare(a.date));
+      }
+      setPeopleDebts(peopleGroups);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -201,5 +282,5 @@ export function useDebtsData() {
     fetchData();
   }, [fetchData]);
 
-  return { myDebts, owedToMe, accounts, isLoading, error, refetch: fetchData };
+  return { myDebts, owedToMe, peopleDebts, accounts, isLoading, error, refetch: fetchData };
 }

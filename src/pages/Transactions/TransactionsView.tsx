@@ -93,7 +93,14 @@ export function TransactionsView() {
     filters.search.length > 0 || filters.categories.length > 0 || dateRange !== undefined || !!filters.accountId;
 
   const clearFilters = () => {
-    setFilters({ search: "", categories: [], startDate: undefined, endDate: undefined, accountId: undefined, limit: 20 });
+    setFilters({
+      search: "",
+      categories: [],
+      startDate: undefined,
+      endDate: undefined,
+      accountId: undefined,
+      limit: 20,
+    });
     setDateRange(undefined);
   };
 
@@ -214,9 +221,7 @@ export function TransactionsView() {
             <DropdownMenuContent className="w-56 border-glass bg-background/95 backdrop-blur z-50">
               <DropdownMenuRadioGroup
                 value={filters.accountId ?? ""}
-                onValueChange={(val) =>
-                  setFilters((prev) => ({ ...prev, accountId: val || undefined, limit: 20 }))
-                }
+                onValueChange={(val) => setFilters((prev) => ({ ...prev, accountId: val || undefined, limit: 20 }))}
               >
                 <DropdownMenuRadioItem value="">{t("allAccounts")}</DropdownMenuRadioItem>
                 <DropdownMenuSeparator />

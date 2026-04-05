@@ -22,19 +22,12 @@ export function MaturedCdtsBanner({ maturedCdts, onViewDetails }: MaturedCdtsBan
           <AlertTriangle className="w-5 h-5 text-amber-500" />
         </div>
         <div className="flex-1 space-y-3">
-          <p className="text-sm font-semibold text-amber-600 dark:text-amber-400">
-            {t("cdt.bannerTitle")}
-          </p>
+          <p className="text-sm font-semibold text-amber-600 dark:text-amber-400">{t("cdt.bannerTitle")}</p>
           {maturedCdts.map((cdt) => (
-            <div
-              key={cdt.id}
-              className="flex items-center justify-between gap-3 rounded-xl bg-background/50 p-3"
-            >
+            <div key={cdt.id} className="flex items-center justify-between gap-3 rounded-xl bg-background/50 p-3">
               <div>
                 <p className="text-sm font-bold">{cdt.name}</p>
-                <p className="text-xs text-muted-foreground">
-                  ~{formatCOPWithSymbol(getProjectedBalance(cdt))}
-                </p>
+                <p className="text-xs text-muted-foreground">~{formatCOPWithSymbol(getProjectedBalance(cdt))}</p>
               </div>
               <Button
                 variant="outline"

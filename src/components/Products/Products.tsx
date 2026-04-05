@@ -23,10 +23,7 @@ export interface Product {
   linked_account_id?: string | null;
 }
 
-const Products = ({
-  products,
-  onAccountAdded,
-}: { products: Product[]; onAccountAdded: () => void }) => {
+const Products = ({ products, onAccountAdded }: { products: Product[]; onAccountAdded: () => void }) => {
   const { t } = useTranslation("accounts");
   const navigate = useNavigate();
 

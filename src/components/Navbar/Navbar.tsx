@@ -64,7 +64,12 @@ export default function Navbar() {
         <span className="hidden lg:block text-xs text-muted-foreground tabular-nums tracking-wide mr-2">
           {now.toLocaleDateString(i18n.language, { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
           {" — "}
-          {now.toLocaleTimeString(i18n.language, { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true })}
+          {now.toLocaleTimeString(i18n.language, {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+            hour12: true,
+          })}
         </span>
 
         {/* Add Transaction */}

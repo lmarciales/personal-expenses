@@ -1,18 +1,19 @@
 import { DebtSummaryCards } from "@/components/Debts/DebtSummaryCards";
 import { MyDebtsTab } from "@/components/Debts/MyDebtsTab";
 import { OwedToMeTab } from "@/components/Debts/OwedToMeTab";
+import { PeopleTab } from "@/components/Debts/PeopleTab";
 import { DebtsSkeleton } from "@/components/ui/Skeleton";
 import { Button } from "@/components/ui/button";
 import { useDebtsData } from "@/hooks/useDebtsData";
-import { Landmark, Users } from "lucide-react";
+import { Landmark, User, Users } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-type Tab = "my-debts" | "owed-to-me";
+type Tab = "my-debts" | "owed-to-me" | "people";
 
 export const DebtsView = () => {
   const { t } = useTranslation("debts");
-  const { myDebts, owedToMe, accounts, isLoading, error, refetch } = useDebtsData();
+  const { myDebts, owedToMe, peopleDebts, accounts, isLoading, error, refetch } = useDebtsData();
   const [activeTab, setActiveTab] = useState<Tab>("my-debts");
 
   const totalIOwe = myDebts.reduce((sum, g) => sum + g.total, 0);
@@ -81,14 +82,27 @@ export const DebtsView = () => {
             </span>
           )}
         </Button>
+        <Button
+          variant={activeTab === "people" ? "default" : "outline"}
+          onClick={() => setActiveTab("people")}
+          className={`rounded-full gap-2 ${
+            activeTab === "people"
+              ? "bg-primary text-primary-foreground shadow-glow-lg"
+              : "bg-transparent border-border hover:bg-surface-hover"
+          }`}
+        >
+          <User className="w-4 h-4" />
+          {t("tabs.people")}
+          {peopleDebts.length > 0 && (
+            <span className="ml-1 text-xs bg-background/20 px-2 py-0.5 rounded-full">{peopleDebts.length}</span>
+          )}
+        </Button>
       </div>
 
       {/* Tab Content */}
-      {activeTab === "my-debts" ? (
-        <MyDebtsTab groups={myDebts} accounts={accounts} onSettled={refetch} />
-      ) : (
-        <OwedToMeTab groups={owedToMe} accounts={accounts} onSettled={refetch} />
-      )}
+      {activeTab === "my-debts" && <MyDebtsTab groups={myDebts} accounts={accounts} onSettled={refetch} />}
+      {activeTab === "owed-to-me" && <OwedToMeTab groups={owedToMe} accounts={accounts} onSettled={refetch} />}
+      {activeTab === "people" && <PeopleTab groups={peopleDebts} accounts={accounts} onSettled={refetch} />}
     </>
   );
 };

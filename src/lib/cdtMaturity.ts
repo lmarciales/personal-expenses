@@ -1,5 +1,5 @@
-import { formatDateString, parseLocalDate } from "@/lib/dates";
 import type { AccountWithStats } from "@/hooks/useAccountsData";
+import { formatDateString, parseLocalDate } from "@/lib/dates";
 import { supabase } from "@/supabase/client";
 
 interface RedeemCdtParams {
@@ -22,7 +22,9 @@ interface RenewCdtParams {
 /** Check whether an account is a matured (but not archived) CDT. */
 export function isCdtMatured(account: AccountWithStats): boolean {
   const today = formatDateString(new Date());
-  return account.type === "CDT" && account.maturity_date != null && account.maturity_date <= today && !account.is_archived;
+  return (
+    account.type === "CDT" && account.maturity_date != null && account.maturity_date <= today && !account.is_archived
+  );
 }
 
 /**

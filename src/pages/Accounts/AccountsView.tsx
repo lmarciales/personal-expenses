@@ -1,8 +1,6 @@
 import { AccountDetailModal } from "@/components/Accounts/AccountDetailModal";
 import { MaturedCdtsBanner } from "@/components/Accounts/MaturedCdtsBanner";
 import { AddAccountModal } from "@/components/Products/AddAccountModal";
-import { isCdtMatured } from "@/lib/cdtMaturity";
-import { parseLocalDate } from "@/lib/dates";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,7 +11,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { type AccountWithStats, useAccountsData } from "@/hooks/useAccountsData";
+import { isCdtMatured } from "@/lib/cdtMaturity";
 import { formatCOPWithSymbol } from "@/lib/currency";
+import { parseLocalDate } from "@/lib/dates";
 import { getProjectedBalance } from "@/lib/projectedBalance";
 import { supabase } from "@/supabase/client";
 import {
@@ -360,11 +360,18 @@ export const AccountsView = () => {
                                     {parseLocalDate(account.maturity_date) > new Date() ? (
                                       <>
                                         {t("card.maturityDate", {
-                                          date: parseLocalDate(account.maturity_date).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }),
+                                          date: parseLocalDate(account.maturity_date).toLocaleDateString(undefined, {
+                                            month: "short",
+                                            day: "numeric",
+                                            year: "numeric",
+                                          }),
                                         })}
                                         {" · "}
                                         {t("card.daysRemaining", {
-                                          days: Math.ceil((parseLocalDate(account.maturity_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)),
+                                          days: Math.ceil(
+                                            (parseLocalDate(account.maturity_date).getTime() - Date.now()) /
+                                              (1000 * 60 * 60 * 24),
+                                          ),
                                         })}
                                       </>
                                     ) : (
@@ -373,12 +380,16 @@ export const AccountsView = () => {
                                   </p>
                                 )}
                                 {account.on_maturity && (
-                                  <span className={`inline-block px-1.5 py-0.5 text-[10px] font-medium rounded ${
-                                    account.on_maturity === "auto_renew"
-                                      ? "bg-blue-500/20 text-blue-600"
-                                      : "bg-green-500/20 text-green-600"
-                                  }`}>
-                                    {account.on_maturity === "auto_renew" ? t("card.autoRenew") : t("card.transferBack")}
+                                  <span
+                                    className={`inline-block px-1.5 py-0.5 text-[10px] font-medium rounded ${
+                                      account.on_maturity === "auto_renew"
+                                        ? "bg-blue-500/20 text-blue-600"
+                                        : "bg-green-500/20 text-green-600"
+                                    }`}
+                                  >
+                                    {account.on_maturity === "auto_renew"
+                                      ? t("card.autoRenew")
+                                      : t("card.transferBack")}
                                   </span>
                                 )}
                               </div>

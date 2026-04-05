@@ -73,6 +73,7 @@ export function useTransactionsData(filters: TransactionFilters) {
           notes,
           type,
           related_transaction_id,
+          creditor,
           accounts(name, color),
           transaction_splits!inner(
             id,

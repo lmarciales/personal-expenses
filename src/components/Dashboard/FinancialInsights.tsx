@@ -84,7 +84,9 @@ export function FinancialInsights({ insights }: FinancialInsightsProps) {
         </div>
 
         {/* Card 3: Mes a mes */}
-        <div className={`rounded-xl border-l-4 ${momBorderColor} ${expenseWentUp ? "bg-amber-500/5" : "bg-green-500/5"} p-3`}>
+        <div
+          className={`rounded-xl border-l-4 ${momBorderColor} ${expenseWentUp ? "bg-amber-500/5" : "bg-green-500/5"} p-3`}
+        >
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Mes a mes</p>
           <div className="flex items-center gap-2">
             <span className="text-xs font-medium text-muted-foreground">Gastos</span>

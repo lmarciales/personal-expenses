@@ -1,11 +1,11 @@
 import { CurrencyInput } from "@/components/ui/CurrencyInput";
-import { formatDateString } from "@/lib/dates";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { formatDateString } from "@/lib/dates";
 import { supabase } from "@/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { TFunction } from "i18next";
@@ -285,12 +285,7 @@ export function AddAccountModal({
         if (error) throw error;
 
         // Auto-create transfer from linked account for new CDTs
-        if (
-          data.type === "CDT" &&
-          data.create_transfer &&
-          data.linked_account_id &&
-          data.balance > 0
-        ) {
+        if (data.type === "CDT" && data.create_transfer && data.linked_account_id && data.balance > 0) {
           await supabase.rpc("add_transaction_with_splits", {
             p_user_id: userData.user.id,
             p_account_id: data.linked_account_id,
