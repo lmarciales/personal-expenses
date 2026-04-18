@@ -39,6 +39,15 @@
   "loading": "Cargando...",
   "error": "Error",
   "genericError": "Ocurrió un error. Inténtalo de nuevo.",
+  "pickers": {
+    "searchOrCreate": "Buscar o crear...",
+    "creating": "Creando...",
+    "createItem": "Crear \"{{name}}\"",
+    "selectAssignee": "Seleccionar asignado...",
+    "selectCategories": "Seleccionar categorías...",
+    "noCategoriesYet": "Aún no hay categorías. Escribe para crear una.",
+    "noMatchingCategories": "No hay categorías coincidentes."
+  },
   "months": {
     "january": "Enero",
     "february": "Febrero",

@@ -1,3 +1,4 @@
+import { getCreditCardDebt, isCreditCard } from "@/lib/creditCard";
 import { getProjectedBalance } from "@/lib/projectedBalance";
 import { supabase } from "@/supabase/client";
 import { useCallback, useEffect, useState } from "react";
@@ -41,6 +42,9 @@ interface AccountsDataState {
   isLoading: boolean;
   error: string | null;
   totalBalance: number;
+  liquidBalance: number;
+  creditDebt: number;
+  netWorth: number;
   countByType: Record<string, number>;
 }
 
@@ -58,6 +62,9 @@ export function useAccountsData(filters: AccountFilters) {
     isLoading: true,
     error: null,
     totalBalance: 0,
+    liquidBalance: 0,
+    creditDebt: 0,
+    netWorth: 0,
     countByType: {},
   });
 
@@ -166,19 +173,33 @@ export function useAccountsData(filters: AccountFilters) {
         return filters.sortDir === "desc" ? -cmp : cmp;
       });
 
-      // Compute aggregates from active accounts (unfiltered but excluding archived)
-      const totalBalance = activeAccounts.reduce((sum, a) => sum + getProjectedBalance(a), 0);
+      // Compute aggregates from active accounts (unfiltered but excluding archived).
+      // - liquidBalance: money the user actually has (non-credit accounts, projected).
+      // - creditDebt: total outstanding balance across all credit cards.
+      // - netWorth: liquid - debt (the headline financial figure).
+      // - totalBalance kept for back-compat = liquidBalance (assets only).
+      let liquidBalance = 0;
+      let creditDebt = 0;
       const countByType: Record<string, number> = {};
       for (const a of activeAccounts) {
+        if (isCreditCard(a)) {
+          creditDebt += getCreditCardDebt(a);
+        } else {
+          liquidBalance += getProjectedBalance(a);
+        }
         countByType[a.type] = (countByType[a.type] || 0) + 1;
       }
+      const netWorth = liquidBalance - creditDebt;
 
       setData({
         accounts: filtered,
         accountTypes: (accountTypesData || []) as AccountType[],
         isLoading: false,
         error: null,
-        totalBalance,
+        totalBalance: liquidBalance,
+        liquidBalance,
+        creditDebt,
+        netWorth,
         countByType,
       });
     } catch (err: any) {

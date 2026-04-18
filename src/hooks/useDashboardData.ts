@@ -1,3 +1,4 @@
+import { getCreditCardDebt, isCreditCard } from "@/lib/creditCard";
 import { getProjectedBalance } from "@/lib/projectedBalance";
 import { supabase } from "@/supabase/client";
 import { useCallback, useEffect, useState } from "react";
@@ -39,6 +40,7 @@ export interface DashboardData {
     maturity_date: string | null;
     on_maturity: string | null;
     linked_account_id: string | null;
+    display_order: number | null;
   }[];
   transactions: {
     id: string;
@@ -197,19 +199,20 @@ export function useDashboardData() {
       if (groupsResult.error) throw groupsResult.error;
 
       // Aggregate spending by category (annual, flat — kept for backward compatibility)
+      // Split a multi-category transaction evenly across its categories so the
+      // total never exceeds the transaction's actual amount.
       const categoryMap = new Map<string, { name: string; color: string | null; amount: number }>();
       for (const txn of (expenseResult.data || []) as any[]) {
-        const cats = txn.transaction_categories || [];
-        const amount = Math.abs(txn.total_amount);
+        const cats = (txn.transaction_categories || []).filter((tc: any) => tc.categories);
         if (cats.length === 0) continue;
+        const share = Math.abs(txn.total_amount) / cats.length;
         for (const tc of cats) {
           const cat = tc.categories;
-          if (!cat) continue;
           const existing = categoryMap.get(cat.id);
           if (existing) {
-            existing.amount += amount;
+            existing.amount += share;
           } else {
-            categoryMap.set(cat.id, { name: cat.name, color: cat.color, amount });
+            categoryMap.set(cat.id, { name: cat.name, color: cat.color, amount: share });
           }
         }
       }
@@ -228,7 +231,16 @@ export function useDashboardData() {
         "bg-cyan-600 text-white",
       ];
 
-      const accounts = (accountsResult.data || []).map((acc, idx) => ({
+      const rawAccounts = [...(accountsResult.data || [])].sort((a, b) => {
+        const ao = a.display_order;
+        const bo = b.display_order;
+        if (ao != null && bo != null) return ao - bo;
+        if (ao != null) return -1;
+        if (bo != null) return 1;
+        return (b.balance ?? 0) - (a.balance ?? 0);
+      });
+
+      const accounts = rawAccounts.map((acc, idx) => ({
         id: acc.id,
         name: acc.name,
         balance: acc.balance,
@@ -242,9 +254,16 @@ export function useDashboardData() {
         maturity_date: acc.maturity_date ?? null,
         on_maturity: acc.on_maturity ?? null,
         linked_account_id: acc.linked_account_id ?? null,
+        display_order: acc.display_order ?? null,
       }));
 
-      const totalBalance = accounts.reduce((acc, curr) => acc + getProjectedBalance(curr), 0);
+      // Net worth: liquid assets minus credit card debt. Credit card balances
+      // represent available credit (not the user's money), so they must not
+      // inflate the headline total.
+      const totalBalance = accounts.reduce((acc, curr) => {
+        if (isCreditCard(curr)) return acc - getCreditCardDebt(curr);
+        return acc + getProjectedBalance(curr);
+      }, 0);
 
       // Map Transactions for UI
       const transactions = (transactionsResult.data || []).map((txn: any) => ({
@@ -286,27 +305,27 @@ export function useDashboardData() {
       const groupMap = new Map<string, GroupedSpending>();
 
       for (const txn of (monthlyExpenseResult.data || []) as any[]) {
-        const cats = txn.transaction_categories || [];
-        const amount = Math.abs(txn.total_amount);
+        const cats = (txn.transaction_categories || []).filter((tc: any) => tc.categories && !tc.categories.is_group);
         if (cats.length === 0) continue;
+        // Split evenly across leaf categories so a multi-category transaction
+        // doesn't inflate group totals beyond the transaction's actual amount.
+        const share = Math.abs(txn.total_amount) / cats.length;
 
         for (const tc of cats) {
           const cat = tc.categories;
-          if (!cat || cat.is_group) continue;
-
           const parentId = cat.parent_id;
           const group = parentId ? groups.find((g) => g.id === parentId) : null;
           const key = group ? group.id : `ungrouped-${cat.id}`;
 
           const existing = groupMap.get(key);
           if (existing) {
-            existing.amount += amount;
+            existing.amount += share;
           } else {
             groupMap.set(key, {
               groupId: group?.id ?? null,
               groupName: group?.name ?? cat.name,
               groupColor: group?.color ?? cat.color ?? "#666",
-              amount,
+              amount: share,
             });
           }
         }

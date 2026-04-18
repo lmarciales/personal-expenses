@@ -392,7 +392,7 @@ export function AddTransactionModal({
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger className="bg-surface-input border-glass">
-                          <SelectValue placeholder="Select type" />
+                          <SelectValue placeholder={t("transactions:modal.type")} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent className="glass-panel border-glass">

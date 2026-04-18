@@ -5,64 +5,72 @@ export const Skeleton = ({ className }: { className?: string }) => (
 );
 
 export const DashboardSkeleton = () => (
-  <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
-    {/* Header skeleton */}
+  <div className="space-y-8 animate-in fade-in duration-500">
+    {/* Header */}
     <div className="glass-card p-6 rounded-3xl">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="space-y-2">
           <Skeleton className="h-8 w-64" />
           <Skeleton className="h-4 w-48" />
         </div>
-        <Skeleton className="h-10 w-40 rounded-full" />
+        <Skeleton className="h-10 w-44 rounded-full" />
       </div>
     </div>
 
-    {/* Recurring bills skeleton */}
-    <div className="space-y-3">
-      <Skeleton className="h-5 w-56" />
-      <Skeleton className="h-24 w-full rounded-2xl" />
+    {/* Row 1: MonthlyHealthBar — 4 KPI cards */}
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {[0, 1, 2, 3].map((i) => (
+        <div key={i} className="glass-card rounded-2xl p-5 space-y-3">
+          <Skeleton className="h-3 w-24" />
+          <Skeleton className="h-8 w-32" />
+          <Skeleton className="h-3 w-28" />
+        </div>
+      ))}
     </div>
 
-    {/* Grid skeleton */}
-    <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-      <div className="md:col-span-6">
-        <div className="glass-card p-6 space-y-4">
+    {/* Row 3: GroupedSpending + Products */}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="glass-card rounded-2xl p-6 space-y-4">
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-4 w-40" />
+          <Skeleton className="h-4 w-20" />
+        </div>
+        <div className="space-y-3 pt-2">
+          <Skeleton className="h-10 w-full rounded-lg" />
+          <Skeleton className="h-10 w-full rounded-lg" />
+          <Skeleton className="h-10 w-full rounded-lg" />
+          <Skeleton className="h-10 w-full rounded-lg" />
+          <Skeleton className="h-10 w-full rounded-lg" />
+        </div>
+      </div>
+      <div className="glass-card rounded-2xl p-6 space-y-3 min-h-[280px]">
+        <div className="flex items-center justify-between mb-2">
           <Skeleton className="h-4 w-32" />
-          <Skeleton className="h-10 w-48" />
-          <div className="space-y-3 pt-4">
-            <Skeleton className="h-16 w-full rounded-xl" />
-            <Skeleton className="h-16 w-full rounded-xl" />
-            <Skeleton className="h-16 w-full rounded-xl" />
-          </div>
+          <Skeleton className="h-6 w-20 rounded-full" />
         </div>
+        <Skeleton className="h-14 w-full rounded-xl" />
+        <Skeleton className="h-14 w-full rounded-xl" />
+        <Skeleton className="h-14 w-full rounded-xl" />
       </div>
-      <div className="md:col-span-6">
-        <div className="glass-card p-6 space-y-4">
-          <Skeleton className="h-4 w-40" />
-          <Skeleton className="h-10 w-48" />
-          <Skeleton className="h-3 w-full rounded-full mt-6" />
-          <div className="space-y-2 pt-4">
-            <Skeleton className="h-8 w-full rounded-lg" />
-            <Skeleton className="h-8 w-full rounded-lg" />
-            <Skeleton className="h-8 w-full rounded-lg" />
-          </div>
-        </div>
+    </div>
+
+    {/* Row 4: Transactions + FinancialInsights */}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="glass-card rounded-2xl p-6 space-y-3">
+        <Skeleton className="h-4 w-40 mb-2" />
+        <Skeleton className="h-14 w-full rounded-xl" />
+        <Skeleton className="h-14 w-full rounded-xl" />
+        <Skeleton className="h-14 w-full rounded-xl" />
+        <Skeleton className="h-14 w-full rounded-xl" />
       </div>
-      <div className="md:col-span-4">
-        <div className="glass-card p-6 space-y-4">
+      <div className="glass-card rounded-2xl p-6 space-y-4">
+        <div className="flex items-center justify-between">
           <Skeleton className="h-4 w-40" />
-          <div className="space-y-3 pt-4">
-            <Skeleton className="h-14 w-full rounded-xl" />
-            <Skeleton className="h-14 w-full rounded-xl" />
-            <Skeleton className="h-14 w-full rounded-xl" />
-          </div>
+          <Skeleton className="h-4 w-16" />
         </div>
-      </div>
-      <div className="md:col-span-8">
-        <div className="glass-card p-6 space-y-4">
-          <Skeleton className="h-4 w-40" />
-          <Skeleton className="h-[250px] w-full rounded-xl mt-4" />
-        </div>
+        <Skeleton className="h-20 w-full rounded-xl" />
+        <Skeleton className="h-20 w-full rounded-xl" />
+        <Skeleton className="h-20 w-full rounded-xl" />
       </div>
     </div>
   </div>

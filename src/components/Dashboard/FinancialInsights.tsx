@@ -1,6 +1,7 @@
 import type { DashboardInsights } from "@/hooks/useDashboardData";
 import { formatCOPWithSymbol } from "@/lib/currency";
 import { Lightbulb, TrendingDown, TrendingUp } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 interface FinancialInsightsProps {
@@ -8,6 +9,7 @@ interface FinancialInsightsProps {
 }
 
 export function FinancialInsights({ insights }: FinancialInsightsProps) {
+  const { t } = useTranslation("dashboard");
   const navigate = useNavigate();
   const { savingsRate, savingsRatePrev, savingsRateTrend, topGroup, momExpenseChange, momExpenseAbs } = insights;
 
@@ -21,21 +23,23 @@ export function FinancialInsights({ insights }: FinancialInsightsProps) {
       <div className="flex items-center gap-2 mb-4">
         <Lightbulb className="w-4 h-4 text-amber-400 shrink-0" />
         <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex-1">
-          Resumen financiero
+          {t("insights.title")}
         </h2>
         <button
           type="button"
           onClick={() => navigate("/analytics")}
           className="text-xs text-primary hover:text-primary/80 transition-colors font-medium"
         >
-          Ver más →
+          {t("insights.seeMore")}
         </button>
       </div>
 
       <div className="flex flex-col gap-3 flex-1">
         {/* Card 1: Tasa de ahorro */}
         <div className="rounded-xl border-l-4 border-green-500 bg-green-500/5 p-3">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Tasa de ahorro</p>
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">
+            {t("insights.savingsRate")}
+          </p>
           <div className="flex items-end gap-3">
             <span className="text-2xl font-black text-green-400 tabular-nums">{savingsRate.toFixed(1)}%</span>
             {/* Mini sparkline */}
@@ -58,15 +62,17 @@ export function FinancialInsights({ insights }: FinancialInsightsProps) {
             </div>
           </div>
           <p className="text-xs text-muted-foreground mt-1">
-            {savingsWentUp ? "Subió" : "Bajó"} desde{" "}
-            <span className="text-foreground/70">{savingsRatePrev.toFixed(1)}%</span> el mes pasado
+            {savingsWentUp ? t("insights.wentUp") : t("insights.wentDown")}{" "}
+            <span className="text-foreground/70">
+              {t("insights.sincePrev", { percent: savingsRatePrev.toFixed(1) })}
+            </span>
           </p>
         </div>
 
         {/* Card 2: Mayor categoría del mes */}
         <div className="rounded-xl border-l-4 border-purple-500 bg-purple-500/5 p-3">
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">
-            Mayor categoría del mes
+            {t("insights.topCategory")}
           </p>
           {topGroup ? (
             <>
@@ -76,10 +82,12 @@ export function FinancialInsights({ insights }: FinancialInsightsProps) {
                   {formatCOPWithSymbol(topGroup.amount)}
                 </span>
               </div>
-              <p className="text-xs text-muted-foreground mt-1">{topGroup.pctOfTotal.toFixed(1)}% del gasto total</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {t("insights.ofTotal", { percent: topGroup.pctOfTotal.toFixed(1) })}
+              </p>
             </>
           ) : (
-            <p className="text-sm text-muted-foreground italic">Sin datos</p>
+            <p className="text-sm text-muted-foreground italic">{t("insights.noData")}</p>
           )}
         </div>
 
@@ -87,9 +95,11 @@ export function FinancialInsights({ insights }: FinancialInsightsProps) {
         <div
           className={`rounded-xl border-l-4 ${momBorderColor} ${expenseWentUp ? "bg-amber-500/5" : "bg-green-500/5"} p-3`}
         >
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Mes a mes</p>
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">
+            {t("insights.monthOverMonth")}
+          </p>
           <div className="flex items-center gap-2">
-            <span className="text-xs font-medium text-muted-foreground">Gastos</span>
+            <span className="text-xs font-medium text-muted-foreground">{t("insights.expensesLabel")}</span>
             {expenseWentUp ? (
               <TrendingUp className="w-4 h-4 text-amber-400 shrink-0" />
             ) : (
@@ -104,7 +114,7 @@ export function FinancialInsights({ insights }: FinancialInsightsProps) {
             <span className="text-foreground/70 tabular-nums">{formatCOPWithSymbol(momExpenseAbs[0])}</span>
             {" vs "}
             <span className="text-foreground/70 tabular-nums">{formatCOPWithSymbol(momExpenseAbs[1])}</span>
-            {" mes anterior"}
+            {t("insights.prevMonthSuffix")}
           </p>
         </div>
       </div>

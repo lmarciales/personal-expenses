@@ -1,6 +1,7 @@
 import type { GroupedSpending as GroupedSpendingType } from "@/hooks/useDashboardData";
 import { formatCOPWithSymbol } from "@/lib/currency";
 import { Layers } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface GroupedSpendingProps {
   groupedSpending: GroupedSpendingType[];
@@ -15,8 +16,9 @@ export function GroupedSpending({
   monthlyExpense: _monthlyExpense,
   totalExpenseYTD,
 }: GroupedSpendingProps) {
+  const { t, i18n } = useTranslation("dashboard");
   const now = new Date();
-  const monthName = now.toLocaleDateString("es-CO", { month: "long" });
+  const monthName = now.toLocaleDateString(i18n.language === "en" ? "en-US" : "es-CO", { month: "long" });
   const capitalizedMonth = monthName.charAt(0).toUpperCase() + monthName.slice(1);
 
   const visible = groupedSpending.slice(0, MAX_VISIBLE);
@@ -29,19 +31,19 @@ export function GroupedSpending({
       <div className="flex items-center gap-2 mb-4">
         <Layers className="w-4 h-4 text-cyan-400 shrink-0" />
         <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex-1">
-          Gastos por categoría
+          {t("grouped.title")}
           <span className="ml-1 text-foreground/60 normal-case font-normal">— {capitalizedMonth}</span>
         </h2>
         {totalExpenseYTD > 0 && (
           <span className="text-xs text-muted-foreground bg-surface-hover-strong px-2 py-0.5 rounded-full shrink-0">
-            Año: {formatCOPWithSymbol(totalExpenseYTD)}
+            {t("grouped.yearLabel", { amount: formatCOPWithSymbol(totalExpenseYTD) })}
           </span>
         )}
       </div>
 
       {/* Group rows */}
       {visible.length === 0 ? (
-        <p className="text-sm text-muted-foreground italic">Sin gastos este mes</p>
+        <p className="text-sm text-muted-foreground italic">{t("grouped.empty")}</p>
       ) : (
         <div className="space-y-3">
           {visible.map((group) => {
@@ -71,7 +73,7 @@ export function GroupedSpending({
 
       {hiddenCount > 0 && (
         <button type="button" className="mt-3 text-xs text-primary hover:text-primary/80 transition-colors font-medium">
-          + {hiddenCount} grupos más
+          {t("grouped.moreGroups", { count: hiddenCount })}
         </button>
       )}
     </div>

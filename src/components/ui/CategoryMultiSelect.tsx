@@ -5,6 +5,7 @@ import type { Category } from "@/hooks/useCategories";
 import { cn } from "@/lib/utils";
 import { Check, PlusCircle, Tag, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface CategoryMultiSelectProps {
   categories: Category[];
@@ -22,9 +23,11 @@ export function CategoryMultiSelect({
   onChange,
   onCreateCategory,
   groups = [],
-  placeholder = "Select categories...",
+  placeholder,
   disabled = false,
 }: CategoryMultiSelectProps) {
+  const { t } = useTranslation("common");
+  const resolvedPlaceholder = placeholder ?? t("pickers.selectCategories");
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [isCreating, setIsCreating] = useState(false);
@@ -127,7 +130,7 @@ export function CategoryMultiSelect({
           ) : (
             <span className="flex items-center gap-2">
               <Tag className="w-4 h-4 opacity-50" />
-              {placeholder}
+              {resolvedPlaceholder}
             </span>
           )}
         </Button>
@@ -139,7 +142,7 @@ export function CategoryMultiSelect({
         <div className="p-2 border-b border-glass">
           <Input
             ref={inputRef}
-            placeholder="Search or create..."
+            placeholder={t("pickers.searchOrCreate")}
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
@@ -157,7 +160,7 @@ export function CategoryMultiSelect({
         <div className="max-h-[200px] overflow-y-auto p-1">
           {filtered.length === 0 && !showCreate && (
             <div className="text-xs text-muted-foreground text-center py-4">
-              {categories.length === 0 ? "No categories yet. Type to create one." : "No matching categories."}
+              {categories.length === 0 ? t("pickers.noCategoriesYet") : t("pickers.noMatchingCategories")}
             </div>
           )}
           {filtered.map((cat) => {
@@ -195,7 +198,9 @@ export function CategoryMultiSelect({
               disabled={isCreating}
             >
               <PlusCircle className="w-4 h-4 flex-shrink-0" />
-              <span className="truncate">{isCreating ? "Creating..." : `Create "${search.trim()}"`}</span>
+              <span className="truncate">
+                {isCreating ? t("pickers.creating") : t("pickers.createItem", { name: search.trim() })}
+              </span>
             </button>
           )}
           {pendingCreate && (

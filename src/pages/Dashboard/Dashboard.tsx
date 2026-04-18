@@ -31,7 +31,7 @@ export const Dashboard = () => {
     error,
     refetch,
   } = useDashboardData();
-  const { alerts, refetch: refetchAlerts } = useDashboardAlerts();
+  const { alerts, refetch: refetchAlerts, cancelRecurrenceForPayee } = useDashboardAlerts();
 
   const handleRefresh = useCallback(() => {
     refetch();
@@ -90,7 +90,12 @@ export const Dashboard = () => {
       />
 
       {/* Row 2: Alerts */}
-      <AlertsSection alerts={alerts} accounts={accounts} onSuccess={handleRefresh} />
+      <AlertsSection
+        alerts={alerts}
+        accounts={accounts}
+        onSuccess={handleRefresh}
+        onCancelRecurrence={cancelRecurrenceForPayee}
+      />
 
       {/* Row 3: Spending + Accounts */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

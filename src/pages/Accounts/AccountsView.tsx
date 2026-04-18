@@ -12,6 +12,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { type AccountWithStats, useAccountsData } from "@/hooks/useAccountsData";
 import { isCdtMatured } from "@/lib/cdtMaturity";
+import { isCreditCard } from "@/lib/creditCard";
 import { formatCOPWithSymbol } from "@/lib/currency";
 import { parseLocalDate } from "@/lib/dates";
 import { getProjectedBalance } from "@/lib/projectedBalance";
@@ -26,6 +27,7 @@ import {
   Plus,
   Search,
   Trash2,
+  TrendingDown,
   Wallet,
 } from "lucide-react";
 import { Loader2 } from "lucide-react";
@@ -39,13 +41,15 @@ export const AccountsView = () => {
   const [typeFilter, setTypeFilter] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<"balance" | "name" | "type" | "created_at">("balance");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+  const [includeCredit, setIncludeCredit] = useState(true);
 
-  const { accounts, accountTypes, isLoading, error, refetch, totalBalance, countByType } = useAccountsData({
-    search,
-    types: typeFilter,
-    sortBy,
-    sortDir,
-  });
+  const { accounts, accountTypes, isLoading, error, refetch, netWorth, liquidBalance, creditDebt, countByType } =
+    useAccountsData({
+      search,
+      types: typeFilter,
+      sortBy,
+      sortDir,
+    });
 
   // Lifted modal states
   const [detailAccount, setDetailAccount] = useState<AccountWithStats | null>(null);
@@ -95,9 +99,9 @@ export const AccountsView = () => {
     .join(" · ");
 
   const maturedCdts = accounts.filter(isCdtMatured);
+  const visibleAccounts = includeCredit ? accounts : accounts.filter((a) => !isCreditCard(a));
 
   const isFiltered = search.length > 0 || typeFilter.length > 0;
-  const filteredBalance = accounts.reduce((sum, a) => sum + a.balance, 0);
 
   if (error) {
     return (
@@ -130,7 +134,7 @@ export const AccountsView = () => {
       {/* Matured CDTs Banner */}
       <MaturedCdtsBanner maturedCdts={maturedCdts} onViewDetails={setDetailAccount} />
 
-      {/* Summary Cards */}
+      {/* Summary Cards: Net worth, liquid assets, credit debt */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="glass-card rounded-2xl p-5">
           <div className="flex items-center gap-3 mb-3">
@@ -138,43 +142,49 @@ export const AccountsView = () => {
               <Wallet className="w-5 h-5 text-primary" />
             </div>
             <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-              {isFiltered ? t("filteredBalance") : t("totalBalance")}
+              {t("summary.netWorth")}
             </span>
           </div>
-          <p className="typo-amount-md">{formatCOPWithSymbol(isFiltered ? filteredBalance : totalBalance)}</p>
-          {isFiltered && (
-            <p className="text-xs text-muted-foreground mt-1">
-              {t("of")} {formatCOPWithSymbol(totalBalance)}
-            </p>
-          )}
+          <p className="typo-amount-md">{formatCOPWithSymbol(netWorth)}</p>
+          <p className="text-xs text-muted-foreground mt-1">{t("summary.netWorthHint")}</p>
         </div>
 
         <div className="glass-card rounded-2xl p-5">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-              <Hash className="w-5 h-5 text-primary" />
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+              <Hash className="w-5 h-5 text-emerald-500" />
             </div>
             <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-              {isFiltered ? t("showing") : t("totalAccounts")}
+              {t("summary.liquid")}
             </span>
           </div>
-          <p className="typo-amount-md">{isFiltered ? accounts.length : totalAccounts}</p>
-          {isFiltered && (
-            <p className="text-xs text-muted-foreground mt-1">
-              {t("of")} {totalAccounts}
-            </p>
-          )}
+          <p className="typo-amount-md">{formatCOPWithSymbol(liquidBalance)}</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            {isFiltered ? `${t("showing")} ${accounts.length} ${t("of")} ${totalAccounts}` : typeBreakdown || "—"}
+          </p>
         </div>
 
         <div className="glass-card rounded-2xl p-5">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-              <Layers className="w-5 h-5 text-primary" />
+            <div className="w-10 h-10 rounded-xl bg-destructive/10 flex items-center justify-center">
+              <TrendingDown className="w-5 h-5 text-destructive" />
             </div>
-            <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">{t("byType")}</span>
+            <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+              {t("summary.creditDebt")}
+            </span>
           </div>
-          <p className="text-sm font-medium text-foreground">{typeBreakdown || "—"}</p>
+          <p className="typo-amount-md text-destructive">{formatCOPWithSymbol(creditDebt)}</p>
+          <p className="text-xs text-muted-foreground mt-1">{t("summary.creditDebtHint")}</p>
         </div>
+      </div>
+
+      {/* Type breakdown row — kept as a compact chip */}
+      <div className="glass-card rounded-2xl px-4 py-3 flex items-center gap-3">
+        <Layers className="w-4 h-4 text-muted-foreground shrink-0" />
+        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider shrink-0">
+          {t("byType")}
+        </span>
+        <span className="text-sm font-medium text-foreground truncate">{typeBreakdown || "—"}</span>
       </div>
 
       {/* Filter Bar */}
@@ -231,6 +241,16 @@ export const AccountsView = () => {
             <SelectItem value="created_at-asc">{t("sort.oldestFirst")}</SelectItem>
           </SelectContent>
         </Select>
+
+        <label className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-secondary/50 border border-border text-sm cursor-pointer hover:bg-secondary/80 transition-colors whitespace-nowrap">
+          <input
+            type="checkbox"
+            checked={includeCredit}
+            onChange={(e) => setIncludeCredit(e.target.checked)}
+            className="accent-primary"
+          />
+          {t("summary.includeCreditCards")}
+        </label>
       </div>
 
       {/* Accounts Grid */}
@@ -240,7 +260,7 @@ export const AccountsView = () => {
             <div key={i} className="glass-card rounded-2xl p-5 h-40 animate-pulse" />
           ))}
         </div>
-      ) : accounts.length === 0 ? (
+      ) : visibleAccounts.length === 0 ? (
         <div className="glass-card rounded-2xl p-8">
           <EmptyState
             icon={Wallet}
@@ -260,7 +280,7 @@ export const AccountsView = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {accounts.map((account) => {
+          {visibleAccounts.map((account) => {
             const utilization =
               account.credit_limit != null && account.credit_limit > 0
                 ? (account.credit_limit - account.balance) / account.credit_limit

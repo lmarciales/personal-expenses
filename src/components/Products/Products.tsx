@@ -1,13 +1,14 @@
 import { formatCOPWithSymbol } from "@/lib/currency";
 import { supabase } from "@/supabase/client";
-import { ArrowUpRight, CreditCard, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { ArrowUpRight, CreditCard, Loader2, Pencil, Plus, Settings2, Trash2 } from "lucide-react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { AddAccountModal } from "./AddAccountModal";
+import { FeaturedAccountsModal } from "./FeaturedAccountsModal";
 
 export interface Product {
   id: string | number;
@@ -21,6 +22,7 @@ export interface Product {
   maturity_date?: string | null;
   on_maturity?: string | null;
   linked_account_id?: string | null;
+  display_order?: number | null;
 }
 
 const Products = ({ products, onAccountAdded }: { products: Product[]; onAccountAdded: () => void }) => {
@@ -30,6 +32,17 @@ const Products = ({ products, onAccountAdded }: { products: Product[]; onAccount
   // Lifted modal state for edit
   const [editState, setEditState] = useState<{ product: Product } | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [featuredOpen, setFeaturedOpen] = useState(false);
+
+  const featured = useMemo(() => {
+    const withOrder = products
+      .filter((p) => p.display_order != null)
+      .sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0));
+    if (withOrder.length >= 3) return withOrder.slice(0, 3);
+    const picked = new Set(withOrder.map((p) => String(p.id)));
+    const padding = products.filter((p) => !picked.has(String(p.id))).slice(0, 3 - withOrder.length);
+    return [...withOrder, ...padding];
+  }, [products]);
 
   const handleDelete = async (product: Product) => {
     try {
@@ -77,6 +90,17 @@ const Products = ({ products, onAccountAdded }: { products: Product[]; onAccount
           <div className="flex items-center gap-1">
             {products.length > 0 && (
               <>
+                {products.length > 3 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground rounded-full hover:bg-surface-hover-strong"
+                    onClick={() => setFeaturedOpen(true)}
+                    title={t("products.featured.title")}
+                  >
+                    <Settings2 className="h-3.5 w-3.5" />
+                  </Button>
+                )}
                 <Button
                   variant="ghost"
                   size="sm"
@@ -114,7 +138,7 @@ const Products = ({ products, onAccountAdded }: { products: Product[]; onAccount
           </div>
         ) : (
           <>
-            {products.slice(0, 3).map((product) => (
+            {featured.map((product) => (
               <DropdownMenu key={product.id}>
                 <DropdownMenuTrigger asChild>
                   <div className="flex items-center justify-between p-3 rounded-xl bg-surface-overlay border border-subtle hover:bg-surface-hover transition-colors group cursor-pointer">
@@ -168,6 +192,16 @@ const Products = ({ products, onAccountAdded }: { products: Product[]; onAccount
           </>
         )}
       </div>
+
+      {/* Featured accounts picker */}
+      {featuredOpen && (
+        <FeaturedAccountsModal
+          open={featuredOpen}
+          onOpenChange={setFeaturedOpen}
+          accounts={products}
+          onSuccess={onAccountAdded}
+        />
+      )}
 
       {/* Lifted edit modal */}
       {editState && (

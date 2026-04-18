@@ -5,6 +5,7 @@ import type { Assignee } from "@/hooks/useAssignees";
 import { cn } from "@/lib/utils";
 import { PlusCircle, User } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface AssigneeSelectProps {
   assignees: Assignee[];
@@ -21,10 +22,12 @@ export function AssigneeSelect({
   value,
   onChange,
   onCreateAssignee,
-  placeholder = "Select assignee...",
+  placeholder,
   disabled = false,
   className,
 }: AssigneeSelectProps) {
+  const { t } = useTranslation("common");
+  const resolvedPlaceholder = placeholder ?? t("pickers.selectAssignee");
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [isCreating, setIsCreating] = useState(false);
@@ -87,7 +90,7 @@ export function AssigneeSelect({
           ) : (
             <span className="flex items-center gap-2">
               <User className="w-3.5 h-3.5 opacity-50" />
-              {placeholder}
+              {resolvedPlaceholder}
             </span>
           )}
         </Button>
@@ -99,7 +102,7 @@ export function AssigneeSelect({
         <div className="p-2 border-b border-glass">
           <Input
             ref={inputRef}
-            placeholder="Search or create..."
+            placeholder={t("pickers.searchOrCreate")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={(e) => {
@@ -147,7 +150,9 @@ export function AssigneeSelect({
               disabled={isCreating}
             >
               <PlusCircle className="w-4 h-4 flex-shrink-0" />
-              <span className="truncate">{isCreating ? "Creating..." : `Create "${search.trim()}"`}</span>
+              <span className="truncate">
+                {isCreating ? t("pickers.creating") : t("pickers.createItem", { name: search.trim() })}
+              </span>
             </button>
           )}
         </div>

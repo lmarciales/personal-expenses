@@ -23,13 +23,72 @@
     "title": "Upcoming Recurring Bills",
     "bill": "Bill",
     "lastPaid": "Last Paid:",
+    "lastPaidOn": "Last paid: {{date}}",
+    "dueTomorrow": "Due tomorrow",
+    "dueInDays_one": "Due in {{count}} day",
+    "dueInDays_other": "Due in {{count}} days",
     "logItNow": "Log It Now",
     "cancel": "Cancel recurrence",
+    "cancelConfirm": "Cancel the recurrence for \"{{payee}}\"? Past transactions will not be modified.",
     "cancelledToast": "Recurrence cancelled for {{payee}}",
     "cancelError": "Could not cancel recurrence",
     "daily": "Daily",
     "weekly": "Weekly",
     "monthly": "Monthly",
     "yearly": "Yearly"
+  },
+  "alerts": {
+    "sectionTitle": "Needs attention",
+    "typeLabels": {
+      "recurring_bill": "Recurring bill",
+      "recurring_upcoming": "Upcoming bill",
+      "spending_spike": "High spending",
+      "debt_pending": "Debt",
+      "cdt_maturing": "CDT"
+    },
+    "debts": {
+      "iOweTitle": "Pending debts",
+      "iOweDescription_one": "You owe {{count}} payment",
+      "iOweDescription_other": "You owe {{count}} payments",
+      "owedToMeTitle": "Owed to you",
+      "owedToMeDescription_one": "{{count}} person owes you",
+      "owedToMeDescription_other": "{{count}} people owe you"
+    },
+    "cdt": {
+      "overdue": "CDT overdue",
+      "dueToday": "Due today",
+      "dueIn_one": "Due in {{count}} day",
+      "dueIn_other": "Due in {{count}} days"
+    }
+  },
+  "healthBar": {
+    "monthIncome": "Month income",
+    "monthExpense": "Month expense",
+    "monthNet": "Month net",
+    "totalBalance": "Total balance",
+    "savingsRatePrefix": "Savings rate:",
+    "accounts_one": "{{count}} account",
+    "accounts_other": "{{count}} accounts"
+  },
+  "grouped": {
+    "title": "Spending by category",
+    "yearLabel": "Year: {{amount}}",
+    "empty": "No expenses this month",
+    "moreGroups_one": "+ {{count}} more group",
+    "moreGroups_other": "+ {{count}} more groups"
+  },
+  "insights": {
+    "title": "Financial summary",
+    "seeMore": "See more →",
+    "savingsRate": "Savings rate",
+    "wentUp": "Rose",
+    "wentDown": "Dropped",
+    "sincePrev": "from {{percent}}% last month",
+    "topCategory": "Top category this month",
+    "ofTotal": "{{percent}}% of total spend",
+    "noData": "No data",
+    "monthOverMonth": "Month over month",
+    "expensesLabel": "Expenses",
+    "prevMonthSuffix": " previous month"
   }
 }

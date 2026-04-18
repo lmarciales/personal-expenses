@@ -24,6 +24,14 @@
   "of": "de",
   "totalAccounts": "cuentas en total",
   "byType": "Por tipo",
+  "summary": {
+    "netWorth": "Patrimonio",
+    "netWorthHint": "Activos menos deuda en tarjetas",
+    "liquid": "Saldo disponible",
+    "creditDebt": "Deuda en tarjetas",
+    "creditDebtHint": "Total adeudado en tarjetas de crédito",
+    "includeCreditCards": "Incluir tarjetas de crédito"
+  },
   "empty": {
     "title": "Aún no tienes cuentas",
     "description": "Agrega tu primera cuenta para empezar a rastrear tus finanzas.",
@@ -64,7 +72,18 @@
     "addFirst": "Agregar primera cuenta",
     "moreAccounts_one": "{{count}} cuenta más",
     "moreAccounts_other": "{{count}} cuentas más",
-    "account": "Cuenta"
+    "account": "Cuenta",
+    "featured": {
+      "title": "Cuentas destacadas",
+      "description": "Elige hasta 3 cuentas para mostrar en el resumen, en el orden que prefieras.",
+      "selected": "Seleccionadas ({{count}}/{{max}})",
+      "available": "Disponibles",
+      "moveUp": "Mover arriba",
+      "moveDown": "Mover abajo",
+      "remove": "Quitar",
+      "savedToast": "Cuentas destacadas actualizadas",
+      "saveError": "No se pudieron guardar las cuentas destacadas"
+    }
   },
   "modal": {
     "editTitle": "Editar cuenta",

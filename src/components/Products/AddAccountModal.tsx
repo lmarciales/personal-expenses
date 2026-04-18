@@ -329,8 +329,8 @@ export function AddAccountModal({
       const txCount = count || 0;
       const message =
         txCount > 0
-          ? `This account has ${txCount} linked transaction${txCount !== 1 ? "s" : ""}. Deleting it will also remove all associated transactions and their data. Are you sure?`
-          : "Are you sure you want to delete this account?";
+          ? t("deleteConfirm.withTransactions", { name: initialData?.name ?? "", count: txCount })
+          : t("deleteConfirm.simple", { name: initialData?.name ?? "" });
 
       if (!window.confirm(message)) return;
 

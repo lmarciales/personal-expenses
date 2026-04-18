@@ -1,22 +1,22 @@
 import { AddTransactionModal } from "@/components/Transactions/AddTransactionModal";
 import type { DashboardAlert } from "@/hooks/useDashboardAlerts";
 import { formatCOPWithSymbol } from "@/lib/currency";
-import { AlertTriangle, ArrowDownLeft, ArrowUpRight, Clock, Landmark } from "lucide-react";
-import { useState } from "react";
+import { parseLocalDate } from "@/lib/dates";
+import { format } from "date-fns";
+import { enUS } from "date-fns/locale/en-US";
+import { es } from "date-fns/locale/es";
+import { AlertTriangle, ArrowDownLeft, ArrowUpRight, Clock, Landmark, X } from "lucide-react";
+import { useCallback, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 interface AlertsSectionProps {
   alerts: DashboardAlert[];
   accounts: { id: string; name: string; balance: number; type: string }[];
   onSuccess: () => void;
+  onCancelRecurrence?: (payee: string) => Promise<void>;
 }
-
-const TYPE_LABELS: Record<DashboardAlert["type"], string> = {
-  recurring_bill: "Pago recurrente",
-  spending_spike: "Gasto elevado",
-  debt_pending: "Deuda",
-  cdt_maturing: "CDT",
-};
 
 function getAlertIcon(iconName: string) {
   switch (iconName) {
@@ -33,9 +33,47 @@ function getAlertIcon(iconName: string) {
   }
 }
 
-export function AlertsSection({ alerts, accounts, onSuccess }: AlertsSectionProps) {
+export function AlertsSection({ alerts, accounts, onSuccess, onCancelRecurrence }: AlertsSectionProps) {
+  const { t, i18n } = useTranslation("dashboard");
   const navigate = useNavigate();
   const [logBillAlert, setLogBillAlert] = useState<DashboardAlert | null>(null);
+  const [cancellingPayee, setCancellingPayee] = useState<string | null>(null);
+
+  const dateLocale = i18n.language === "en" ? enUS : es;
+
+  const resolveText = useCallback(
+    (rawKey: string | undefined, params: Record<string, string | number> | undefined, fallback: string): string => {
+      if (!rawKey) return fallback;
+      // Date params are ISO strings; translations expect a human-readable date.
+      const resolvedParams = params
+        ? Object.fromEntries(
+            Object.entries(params).map(([k, v]) => {
+              if (k === "date" && typeof v === "string") {
+                return [k, format(parseLocalDate(v), "MMM d, yyyy", { locale: dateLocale })];
+              }
+              return [k, v];
+            }),
+          )
+        : undefined;
+      return t(rawKey, resolvedParams) as string;
+    },
+    [t, dateLocale],
+  );
+
+  const typeLabels = useMemo<Record<DashboardAlert["type"], string>>(
+    () => ({
+      recurring_bill: t("alerts.typeLabels.recurring_bill"),
+      spending_spike: t("alerts.typeLabels.spending_spike"),
+      debt_pending: t("alerts.typeLabels.debt_pending"),
+      cdt_maturing: t("alerts.typeLabels.cdt_maturing"),
+    }),
+    [t],
+  );
+
+  const labelFor = (alert: DashboardAlert) =>
+    alert.type === "recurring_bill" && alert.status === "upcoming"
+      ? t("alerts.typeLabels.recurring_upcoming")
+      : typeLabels[alert.type];
 
   if (alerts.length === 0) return null;
 
@@ -47,12 +85,33 @@ export function AlertsSection({ alerts, accounts, onSuccess }: AlertsSectionProp
     }
   };
 
+  const handleCancelRecurrence = async (alert: DashboardAlert) => {
+    if (!onCancelRecurrence || !alert.actionData) return;
+    const payee = alert.actionData.payee;
+    const confirmed = window.confirm(t("recurring.cancelConfirm", { payee }));
+    if (!confirmed) return;
+
+    try {
+      setCancellingPayee(payee);
+      await onCancelRecurrence(payee);
+      toast.success(t("recurring.cancelledToast", { payee }));
+      onSuccess();
+    } catch (err) {
+      console.error("Failed to cancel recurrence", err);
+      toast.error(t("recurring.cancelError"));
+    } finally {
+      setCancellingPayee(null);
+    }
+  };
+
   return (
     <div className="glass-card rounded-2xl p-4 border border-primary/20 bg-primary/5">
       {/* Header */}
       <div className="flex items-center gap-2 mb-4">
         <AlertTriangle className="w-4 h-4 text-amber-400" />
-        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Requiere atención</h2>
+        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+          {t("alerts.sectionTitle")}
+        </h2>
         <span className="ml-auto bg-amber-400/20 text-amber-400 text-xs font-bold px-2 py-0.5 rounded-full">
           {alerts.length}
         </span>
@@ -61,35 +120,52 @@ export function AlertsSection({ alerts, accounts, onSuccess }: AlertsSectionProp
       {/* Alert cards grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {alerts.map((alert) => (
-          <button
-            key={alert.id}
-            type="button"
-            className="text-left glass-card rounded-xl p-3 hover:bg-surface-hover-strong transition-colors cursor-pointer"
-            onClick={() => handleAlertClick(alert)}
-          >
-            <div className="flex items-start justify-between gap-2">
-              <div className="flex items-center gap-2 min-w-0">
-                <span style={{ color: alert.color }} className="shrink-0">
-                  {getAlertIcon(alert.icon)}
-                </span>
-                <span
-                  style={{ color: alert.color }}
-                  className="text-xs font-semibold uppercase tracking-wider truncate"
-                >
-                  {TYPE_LABELS[alert.type]}
-                </span>
+          <div key={alert.id} className="relative group">
+            <button
+              type="button"
+              className="w-full text-left glass-card rounded-xl p-3 hover:bg-surface-hover-strong transition-colors cursor-pointer"
+              onClick={() => handleAlertClick(alert)}
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span style={{ color: alert.color }} className="shrink-0">
+                    {getAlertIcon(alert.icon)}
+                  </span>
+                  <span
+                    style={{ color: alert.color }}
+                    className="text-xs font-semibold uppercase tracking-wider truncate"
+                  >
+                    {labelFor(alert)}
+                  </span>
+                </div>
+                {alert.amount !== undefined && (
+                  <span style={{ color: alert.color }} className="text-sm font-bold tabular-nums shrink-0">
+                    {formatCOPWithSymbol(alert.amount)}
+                  </span>
+                )}
               </div>
-              {alert.amount !== undefined && (
-                <span style={{ color: alert.color }} className="text-sm font-bold tabular-nums shrink-0">
-                  {formatCOPWithSymbol(alert.amount)}
-                </span>
+              <p className="text-sm font-semibold text-foreground mt-1.5 truncate pr-6">
+                {resolveText(alert.titleKey, alert.titleParams, alert.title)}
+              </p>
+              {(alert.descriptionKey || alert.description) && (
+                <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+                  {resolveText(alert.descriptionKey, alert.descriptionParams, alert.description)}
+                </p>
               )}
-            </div>
-            <p className="text-sm font-semibold text-foreground mt-1.5 truncate">{alert.title}</p>
-            {alert.description && (
-              <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{alert.description}</p>
+            </button>
+            {alert.type === "recurring_bill" && onCancelRecurrence && (
+              <button
+                type="button"
+                onClick={() => handleCancelRecurrence(alert)}
+                disabled={cancellingPayee === alert.actionData?.payee}
+                title={t("recurring.cancel")}
+                aria-label={t("recurring.cancel")}
+                className="absolute top-2 right-2 w-6 h-6 rounded-full bg-surface-overlay/80 hover:bg-destructive/20 text-muted-foreground hover:text-destructive flex items-center justify-center transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 disabled:opacity-50"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
             )}
-          </button>
+          </div>
         ))}
       </div>
 

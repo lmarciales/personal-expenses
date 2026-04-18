@@ -23,13 +23,72 @@
     "title": "Próximos pagos recurrentes",
     "bill": "Factura",
     "lastPaid": "Último pago:",
+    "lastPaidOn": "Último pago: {{date}}",
+    "dueTomorrow": "Vence mañana",
+    "dueInDays_one": "Vence en {{count}} día",
+    "dueInDays_other": "Vence en {{count}} días",
     "logItNow": "Registrar ahora",
     "cancel": "Cancelar recurrencia",
+    "cancelConfirm": "¿Cancelar la recurrencia de \"{{payee}}\"? Las transacciones anteriores no se modificarán.",
     "cancelledToast": "Recurrencia cancelada para {{payee}}",
     "cancelError": "No se pudo cancelar la recurrencia",
     "daily": "Diario",
     "weekly": "Semanal",
     "monthly": "Mensual",
     "yearly": "Anual"
+  },
+  "alerts": {
+    "sectionTitle": "Requiere atención",
+    "typeLabels": {
+      "recurring_bill": "Pago recurrente",
+      "recurring_upcoming": "Próximo pago",
+      "spending_spike": "Gasto elevado",
+      "debt_pending": "Deuda",
+      "cdt_maturing": "CDT"
+    },
+    "debts": {
+      "iOweTitle": "Deudas pendientes",
+      "iOweDescription_one": "Debes {{count}} pago",
+      "iOweDescription_other": "Debes {{count}} pagos",
+      "owedToMeTitle": "Te deben",
+      "owedToMeDescription_one": "{{count}} persona te debe",
+      "owedToMeDescription_other": "{{count}} personas te deben"
+    },
+    "cdt": {
+      "overdue": "CDT vencido",
+      "dueToday": "Vence hoy",
+      "dueIn_one": "Vence en {{count}} día",
+      "dueIn_other": "Vence en {{count}} días"
+    }
+  },
+  "healthBar": {
+    "monthIncome": "Ingresos del mes",
+    "monthExpense": "Gastos del mes",
+    "monthNet": "Neto del mes",
+    "totalBalance": "Balance total",
+    "savingsRatePrefix": "Tasa de ahorro:",
+    "accounts_one": "{{count}} cuenta",
+    "accounts_other": "{{count}} cuentas"
+  },
+  "grouped": {
+    "title": "Gastos por categoría",
+    "yearLabel": "Año: {{amount}}",
+    "empty": "Sin gastos este mes",
+    "moreGroups_one": "+ {{count}} grupo más",
+    "moreGroups_other": "+ {{count}} grupos más"
+  },
+  "insights": {
+    "title": "Resumen financiero",
+    "seeMore": "Ver más →",
+    "savingsRate": "Tasa de ahorro",
+    "wentUp": "Subió",
+    "wentDown": "Bajó",
+    "sincePrev": "desde {{percent}}% el mes pasado",
+    "topCategory": "Mayor categoría del mes",
+    "ofTotal": "{{percent}}% del gasto total",
+    "noData": "Sin datos",
+    "monthOverMonth": "Mes a mes",
+    "expensesLabel": "Gastos",
+    "prevMonthSuffix": " mes anterior"
   }
 }
