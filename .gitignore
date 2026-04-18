@@ -26,7 +26,14 @@ dist-ssr
 # AI coding agent files (local only)
 .agent/
 .agents/
-.claude/
+.claude/*
+# ...but share the toolkit that makes this project's Claude Code setup
+# reproducible for the team (referenced in CLAUDE.md's "Automation Setup").
+!.claude/agents/
+!.claude/hooks/
+!.claude/skills/
+!.claude/settings.json
+!.claude/launch.json
 skills-lock.json
 .mcp.json
 .superpowers
