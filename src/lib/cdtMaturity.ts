@@ -44,7 +44,7 @@ export async function redeemCdt(params: RedeemCdtParams): Promise<void> {
       p_payee: payee,
       p_notes: note,
       p_type: "transfer",
-      p_splits: JSON.stringify([]),
+      p_splits: [],
       p_category_ids: [],
     }),
     supabase.rpc("add_transaction_with_splits", {
@@ -55,7 +55,7 @@ export async function redeemCdt(params: RedeemCdtParams): Promise<void> {
       p_payee: payee,
       p_notes: note,
       p_type: "income",
-      p_splits: JSON.stringify([]),
+      p_splits: [],
       p_category_ids: [],
     }),
   ]);
