@@ -3,6 +3,17 @@
   "organizeImports": {
     "enabled": true
   },
+  "files": {
+    "ignore": [
+      ".agents/**",
+      ".claude/**",
+      ".codex/**",
+      ".superpowers/**",
+      ".worktrees/**",
+      "dist/**",
+      "node_modules/**"
+    ]
+  },
   "linter": {
     "enabled": true,
     "rules": {

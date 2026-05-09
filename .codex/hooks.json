@@ -1,0 +1,35 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|apply_patch|functions.apply_patch",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\lmarc\\Documents\\dev\\personal-expenses\\.codex\\hooks\\env-file-guard.js\""
+          }
+        ]
+      },
+      {
+        "matcher": "Bash|shell_command|functions.shell_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\lmarc\\Documents\\dev\\personal-expenses\\.codex\\hooks\\git-commit-guard.js\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|apply_patch|functions.apply_patch",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\lmarc\\Documents\\dev\\personal-expenses\\.codex\\hooks\\edited-file-check.js\""
+          }
+        ]
+      }
+    ]
+  }
+}
