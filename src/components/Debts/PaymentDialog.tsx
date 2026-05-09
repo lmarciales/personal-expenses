@@ -11,6 +11,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useDebtActions } from "@/hooks/useDebtActions";
 import type { SimpleAccount } from "@/hooks/useDebtsData";
+import { getMoneyMovementAccountOptions } from "@/lib/accountOptions";
 import { formatCOPWithSymbol } from "@/lib/currency";
 import { ArrowRight, Info, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -48,7 +49,10 @@ export const PaymentDialog = ({
     }
   }, [open, totalAmount]);
 
-  const availableAccounts = accounts.filter((a) => a.id !== targetAccount.id && a.type !== "Credit Card");
+  const availableAccounts = getMoneyMovementAccountOptions(accounts, {
+    excludeAccountId: targetAccount.id,
+    excludeCreditCards: true,
+  });
 
   const actualAmount = editableAmount ?? totalAmount;
   const amountDiffers = Math.abs(actualAmount - totalAmount) > 0.01;

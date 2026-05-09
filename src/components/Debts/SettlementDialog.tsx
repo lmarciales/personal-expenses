@@ -10,6 +10,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useDebtActions } from "@/hooks/useDebtActions";
 import type { SimpleAccount } from "@/hooks/useDebtsData";
+import { getMoneyMovementAccountOptions } from "@/lib/accountOptions";
 import { formatCOPWithSymbol } from "@/lib/currency";
 import { ArrowRight, Info, Loader2 } from "lucide-react";
 import { useState } from "react";
@@ -37,6 +38,7 @@ export const SettlementDialog = ({
   const { t } = useTranslation("debts");
   const { settleReceivables, isProcessing } = useDebtActions();
   const [receivingAccountId, setReceivingAccountId] = useState<string>("");
+  const accountOptions = getMoneyMovementAccountOptions(accounts);
 
   const handleConfirm = async () => {
     await settleReceivables(
@@ -50,7 +52,7 @@ export const SettlementDialog = ({
     onSuccess();
   };
 
-  const receivingAccount = accounts.find((a) => a.id === receivingAccountId);
+  const receivingAccount = accountOptions.find((a) => a.id === receivingAccountId);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -93,7 +95,7 @@ export const SettlementDialog = ({
               </SelectTrigger>
               <SelectContent className="glass-panel border-border">
                 <SelectItem value="none">{t("settlement.noAccountShort")}</SelectItem>
-                {accounts.map((acc) => (
+                {accountOptions.map((acc) => (
                   <SelectItem key={acc.id} value={acc.id}>
                     {acc.name} ({formatCOPWithSymbol(acc.balance)})
                   </SelectItem>

@@ -11,15 +11,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { useAssignees } from "@/hooks/useAssignees";
 import { useCategories } from "@/hooks/useCategories";
+import { getMoneyMovementAccountOptions } from "@/lib/accountOptions";
 import { formatCOPWithSymbol } from "@/lib/currency";
 import { getDateLocale } from "@/lib/dateFnsLocale";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/supabase/client";
+import type { Json } from "@/supabase/database.types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import type { TFunction } from "i18next";
 import { CalendarIcon, Loader2, PlusCircle, Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -107,6 +109,7 @@ export function AddTransactionModal({
   const [isDeleting, setIsDeleting] = useState(false);
   const { categories, groups, createCategory } = useCategories();
   const { assignees, createAssignee } = useAssignees();
+  const accountOptions = useMemo(() => getMoneyMovementAccountOptions(accounts), [accounts]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(createFormSchema(t)),
@@ -154,13 +157,13 @@ export function AddTransactionModal({
       const amount = i === 0 ? base + remainder : base;
       form.setValue(`splits.${i}.amount`, amount, { shouldValidate: true });
     }
-  }, [splitEqually, totalAmount, fields.length]);
+  }, [splitEqually, totalAmount, fields.length, form]);
 
   // Auto-update split statuses when the selected account changes
   const accountId = form.watch("accountId");
   useEffect(() => {
     if (editMode) return;
-    const selectedAccount = accounts.find((a) => a.id === accountId);
+    const selectedAccount = accountOptions.find((a) => a.id === accountId);
     const isExternal = !accountId || accountId === "none";
     const isCreditCard = selectedAccount?.type === "Credit Card";
 
@@ -177,7 +180,7 @@ export function AddTransactionModal({
         form.setValue(`splits.${i}.status`, "Pending Receival");
       }
     }
-  }, [accountId, accounts, editMode, fields.length, form]);
+  }, [accountId, accountOptions, editMode, fields.length, form]);
 
   const handleTotalAmountChange = (val: number | undefined) => {
     form.setValue("totalAmount", val as number, { shouldValidate: true });
@@ -194,7 +197,7 @@ export function AddTransactionModal({
       const userId = userData.user.id;
 
       // Prepare splits without category (category is now at transaction level)
-      const splitsPayload = data.splits.map((s) => ({
+      const splitsPayload: Json = data.splits.map((s) => ({
         amount: s.amount,
         assigned_to: s.assigned_to,
         status: s.status,
@@ -210,12 +213,12 @@ export function AddTransactionModal({
           p_date: data.date,
           p_total_amount: data.totalAmount,
           p_payee: data.payee,
-          p_notes: data.notes || ("" as any),
+          p_notes: data.notes || "",
           p_type: data.type,
           p_is_recurring: data.isRecurring,
-          p_recurrence_value: data.isRecurring ? data.recurrenceValue : (null as any),
-          p_recurrence_unit: data.isRecurring ? data.recurrenceUnit : (null as any),
-          p_splits: splitsPayload as any,
+          p_recurrence_value: data.isRecurring ? data.recurrenceValue : undefined,
+          p_recurrence_unit: data.isRecurring ? data.recurrenceUnit : undefined,
+          p_splits: splitsPayload,
           p_category_ids: data.categoryIds,
           p_creditor: creditorValue,
         });
@@ -227,12 +230,12 @@ export function AddTransactionModal({
           p_date: data.date,
           p_total_amount: data.totalAmount,
           p_payee: data.payee,
-          p_notes: data.notes || ("" as any),
+          p_notes: data.notes || "",
           p_type: data.type,
           p_is_recurring: data.isRecurring,
-          p_recurrence_value: data.isRecurring ? data.recurrenceValue : (null as any),
-          p_recurrence_unit: data.isRecurring ? data.recurrenceUnit : (null as any),
-          p_splits: splitsPayload as any,
+          p_recurrence_value: data.isRecurring ? data.recurrenceValue : undefined,
+          p_recurrence_unit: data.isRecurring ? data.recurrenceUnit : undefined,
+          p_splits: splitsPayload,
           p_category_ids: data.categoryIds,
           p_creditor: creditorValue,
         });
@@ -303,7 +306,7 @@ export function AddTransactionModal({
                       </FormControl>
                       <SelectContent className="glass-panel border-glass">
                         <SelectItem value="none">{t("transactions:modal.noAccount")}</SelectItem>
-                        {accounts.map((acc) => (
+                        {accountOptions.map((acc) => (
                           <SelectItem key={acc.id} value={acc.id}>
                             {acc.name.trim()} ({formatCOPWithSymbol(acc.balance)})
                           </SelectItem>
@@ -332,7 +335,7 @@ export function AddTransactionModal({
                             )}
                           >
                             {field.value ? (
-                              format(new Date(field.value + "T12:00:00"), "PPP", { locale: getDateLocale() })
+                              format(new Date(`${field.value}T12:00:00`), "PPP", { locale: getDateLocale() })
                             ) : (
                               <span>{t("transactions:modal.pickDate")}</span>
                             )}
@@ -344,7 +347,7 @@ export function AddTransactionModal({
                         <Calendar
                           mode="single"
                           className="bg-background text-foreground"
-                          selected={field.value ? new Date(field.value + "T12:00:00") : undefined}
+                          selected={field.value ? new Date(`${field.value}T12:00:00`) : undefined}
                           onSelect={(date: Date | undefined) =>
                             field.onChange(date ? format(date, "yyyy-MM-dd") : field.value)
                           }
@@ -585,7 +588,9 @@ export function AddTransactionModal({
                   variant="outline"
                   size="sm"
                   className="bg-transparent border-primary text-primary hover:bg-primary/20"
-                  onClick={() => append({ amount: undefined as any, assigned_to: "", status: "Pending Receival" })}
+                  onClick={() =>
+                    append({ amount: undefined as unknown as number, assigned_to: "", status: "Pending Receival" })
+                  }
                 >
                   <PlusCircle className="w-4 h-4 mr-2" />
                   {t("transactions:modal.addSplit")}

@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { getMoneyMovementAccountOptions } from "@/lib/accountOptions";
 import { formatDateString } from "@/lib/dates";
 import { supabase } from "@/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -211,9 +212,9 @@ export function AddAccountModal({
         const { data: accData } = await supabase
           .from("accounts")
           .select("id, name, type")
-          .eq("user_id", userData.user.id)
-          .neq("type", "CDT");
-        if (accData) setLinkedAccounts(accData.map((a) => ({ id: a.id, name: a.name })));
+          .eq("user_id", userData.user.id);
+        if (accData)
+          setLinkedAccounts(getMoneyMovementAccountOptions(accData).map((a) => ({ id: a.id, name: a.name })));
       }
     };
     fetchTypes();

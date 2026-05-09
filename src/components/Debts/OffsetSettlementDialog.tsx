@@ -10,6 +10,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useDebtActions } from "@/hooks/useDebtActions";
 import type { SimpleAccount } from "@/hooks/useDebtsData";
+import { getMoneyMovementAccountOptions } from "@/lib/accountOptions";
 import { formatCOPWithSymbol } from "@/lib/currency";
 import { ArrowRight, Info, Loader2 } from "lucide-react";
 import { useState } from "react";
@@ -41,6 +42,7 @@ export const OffsetSettlementDialog = ({
   const { t } = useTranslation("debts");
   const { settleOffset, isProcessing } = useDebtActions();
   const [accountId, setAccountId] = useState<string>("");
+  const accountOptions = getMoneyMovementAccountOptions(accounts, { excludeCreditCards: true });
 
   const handleConfirm = async () => {
     await settleOffset(
@@ -56,7 +58,7 @@ export const OffsetSettlementDialog = ({
     onSuccess();
   };
 
-  const selectedAccount = accounts.find((a) => a.id === accountId);
+  const selectedAccount = accountOptions.find((a) => a.id === accountId);
   const isIOwe = netDirection === "i_owe";
 
   return (
@@ -105,13 +107,11 @@ export const OffsetSettlementDialog = ({
               </SelectTrigger>
               <SelectContent className="glass-panel border-border">
                 <SelectItem value="none">{t("offset.noAccountShort")}</SelectItem>
-                {accounts
-                  .filter((a) => a.type !== "Credit Card")
-                  .map((acc) => (
-                    <SelectItem key={acc.id} value={acc.id}>
-                      {acc.name} ({formatCOPWithSymbol(acc.balance)})
-                    </SelectItem>
-                  ))}
+                {accountOptions.map((acc) => (
+                  <SelectItem key={acc.id} value={acc.id}>
+                    {acc.name} ({formatCOPWithSymbol(acc.balance)})
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             {selectedAccount && (
