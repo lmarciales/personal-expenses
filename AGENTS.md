@@ -48,7 +48,7 @@ When using the preview browser to test the app:
 
 ### Subagents (`.codex/agents/`)
 - **security-reviewer**: Reviews code for Supabase RLS gaps, auth issues, input validation, and exposed credentials
-- **commit-agent**: Handles all git commits and pushes. Runs `/simplify` and `/pre-commit-check` before committing. **Must be invoked with `model: "sonnet"`.**
+- **commit-agent**: Handles all git commits and pushes. Runs `/simplify` and `/pre-commit-check` before committing. Invoke the `commit-agent` role with the available Codex model.
 
 ### Skills (`.agents/skills/`)
 - **create-migration**: Invoke with `/create-migration` to scaffold Supabase SQL migration files and regenerate TypeScript types
@@ -61,7 +61,7 @@ Always delegate to a general-purpose agent with the commit-agent instructions:
 ```
 Agent tool:
   description: "Commit current changes"
-  model: "sonnet"
+  agent_type: "commit-agent"
   prompt: "Read .codex/agents/commit-agent.toml and follow its workflow exactly. Context: <describe what was done>"
 ```
 

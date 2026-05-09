@@ -38,6 +38,7 @@ export interface AccountType {
 
 interface AccountsDataState {
   accounts: AccountWithStats[];
+  allAccounts: AccountWithStats[];
   accountTypes: AccountType[];
   isLoading: boolean;
   error: string | null;
@@ -58,6 +59,7 @@ const FALLBACK_COLORS = [
 export function useAccountsData(filters: AccountFilters) {
   const [data, setData] = useState<AccountsDataState>({
     accounts: [],
+    allAccounts: [],
     accountTypes: [],
     isLoading: true,
     error: null,
@@ -193,6 +195,7 @@ export function useAccountsData(filters: AccountFilters) {
 
       setData({
         accounts: filtered,
+        allAccounts: activeAccounts,
         accountTypes: (accountTypesData || []) as AccountType[],
         isLoading: false,
         error: null,
@@ -202,8 +205,12 @@ export function useAccountsData(filters: AccountFilters) {
         netWorth,
         countByType,
       });
-    } catch (err: any) {
-      setData((prev) => ({ ...prev, isLoading: false, error: err.message }));
+    } catch (err) {
+      setData((prev) => ({
+        ...prev,
+        isLoading: false,
+        error: err instanceof Error ? err.message : "Failed to load accounts",
+      }));
     }
   }, [filters.search, filters.types, filters.sortBy, filters.sortDir]);
 

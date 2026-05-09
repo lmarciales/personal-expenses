@@ -29,7 +29,7 @@ process.stdin.on("end", () => {
       if (!fs.existsSync(markerPath)) {
         process.stderr.write(
           "BLOCKED: git commit/push must go through the commit-agent workflow. " +
-            "Spawn a general-purpose Agent with model 'sonnet' and the commit-agent instructions.",
+            "Spawn the commit-agent role with the commit-agent instructions.",
         );
         process.exit(2);
       }

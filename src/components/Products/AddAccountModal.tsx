@@ -266,27 +266,31 @@ export function AddAccountModal({
 
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("accounts").insert({
-          user_id: userData.user.id,
-          name: data.name,
-          type: data.type,
-          balance: data.balance,
-          color: color,
-          credit_limit: data.type === "Credit Card" ? data.credit_limit ?? null : null,
-          interest_rate: data.interest_rate ?? null,
-          interest_reference_balance: data.interest_rate != null ? data.balance : null,
-          interest_reference_date: referenceDate,
-          is_4x1000_subject: data.is_4x1000_subject ?? false,
-          maturity_date: data.type === "CDT" ? data.maturity_date ?? null : null,
-          on_maturity: data.type === "CDT" ? data.on_maturity ?? null : null,
-          linked_account_id: data.type === "CDT" ? data.linked_account_id ?? null : null,
-        });
+        const { data: createdAccount, error } = await supabase
+          .from("accounts")
+          .insert({
+            user_id: userData.user.id,
+            name: data.name,
+            type: data.type,
+            balance: data.balance,
+            color: color,
+            credit_limit: data.type === "Credit Card" ? data.credit_limit ?? null : null,
+            interest_rate: data.interest_rate ?? null,
+            interest_reference_balance: data.interest_rate != null ? data.balance : null,
+            interest_reference_date: referenceDate,
+            is_4x1000_subject: data.is_4x1000_subject ?? false,
+            maturity_date: data.type === "CDT" ? data.maturity_date ?? null : null,
+            on_maturity: data.type === "CDT" ? data.on_maturity ?? null : null,
+            linked_account_id: data.type === "CDT" ? data.linked_account_id ?? null : null,
+          })
+          .select("id")
+          .single();
 
         if (error) throw error;
 
         // Auto-create transfer from linked account for new CDTs
         if (data.type === "CDT" && data.create_transfer && data.linked_account_id && data.balance > 0) {
-          await supabase.rpc("add_transaction_with_splits", {
+          const { error: transferError } = await supabase.rpc("add_transaction_with_splits", {
             p_user_id: userData.user.id,
             p_account_id: data.linked_account_id,
             p_date: data.opening_date ?? formatDateString(new Date()),
@@ -294,9 +298,16 @@ export function AddAccountModal({
             p_payee: `CDT - ${data.name}`,
             p_notes: "Apertura de CDT",
             p_type: "transfer",
-            p_splits: JSON.stringify([]),
+            p_splits: [],
             p_category_ids: [],
           });
+
+          if (transferError) {
+            if (createdAccount?.id) {
+              await supabase.from("accounts").delete().eq("id", createdAccount.id).eq("user_id", userData.user.id);
+            }
+            throw transferError;
+          }
         }
       }
 

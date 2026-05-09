@@ -43,13 +43,23 @@ export const AccountsView = () => {
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
   const [includeCredit, setIncludeCredit] = useState(true);
 
-  const { accounts, accountTypes, isLoading, error, refetch, netWorth, liquidBalance, creditDebt, countByType } =
-    useAccountsData({
-      search,
-      types: typeFilter,
-      sortBy,
-      sortDir,
-    });
+  const {
+    accounts,
+    allAccounts,
+    accountTypes,
+    isLoading,
+    error,
+    refetch,
+    netWorth,
+    liquidBalance,
+    creditDebt,
+    countByType,
+  } = useAccountsData({
+    search,
+    types: typeFilter,
+    sortBy,
+    sortDir,
+  });
 
   // Lifted modal states
   const [detailAccount, setDetailAccount] = useState<AccountWithStats | null>(null);
@@ -288,12 +298,24 @@ export const AccountsView = () => {
             return (
               <div
                 key={account.id}
+                role="button"
+                tabIndex={0}
                 className="glass-card rounded-2xl p-5 group hover:border-primary/30 transition-all cursor-pointer relative border-l-4"
                 style={{ borderLeftColor: account.color.startsWith("#") ? account.color : undefined }}
                 onClick={() => setDetailAccount(account)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    setDetailAccount(account);
+                  }
+                }}
               >
                 {/* Dropdown - stop propagation to prevent detail modal */}
-                <div className="absolute top-4 right-4 z-10" onClick={(e) => e.stopPropagation()}>
+                <div
+                  className="absolute top-4 right-4 z-10"
+                  onClick={(e) => e.stopPropagation()}
+                  onKeyDown={(e) => e.stopPropagation()}
+                >
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
@@ -425,9 +447,11 @@ export const AccountsView = () => {
                     )}
                   </div>
                   <div className="text-right">
-                    <p className="text-xs text-muted-foreground">
-                      {account.transactionCount} {t("card.transactions")}
-                    </p>
+                    {account.type !== "CDT" && (
+                      <p className="text-xs text-muted-foreground">
+                        {account.transactionCount} {t("card.transactions")}
+                      </p>
+                    )}
                     <p className="text-xs text-muted-foreground mt-0.5">
                       {t("card.since")}{" "}
                       {new Date(account.created_at).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
@@ -451,7 +475,7 @@ export const AccountsView = () => {
           setDetailAccount(null);
           setEditState({ account });
         }}
-        allAccounts={accounts}
+        allAccounts={allAccounts}
         onRefetch={refetch}
       />
 

@@ -386,9 +386,9 @@ export function TransactionsView() {
 
                   <div className="flex flex-col items-start sm:items-end pl-11 sm:pl-0">
                     <div
-                      className={`font-bold text-base tracking-tight ${txn.type === "expense" ? "text-foreground" : "text-success"}`}
+                      className={`font-bold text-base tracking-tight ${txn.type === "income" ? "text-success" : "text-foreground"}`}
                     >
-                      {txn.type === "expense" ? "-" : "+"}
+                      {txn.type === "income" ? "+" : "-"}
                       {formatCOPWithSymbol(Math.abs(txn.total_amount))}
                     </div>
 
@@ -494,14 +494,14 @@ export function TransactionsView() {
             recurrenceValue:
               modalState.mode === "edit" ? modalState.transaction.recurrence_value ?? undefined : undefined,
             recurrenceUnit:
-              modalState.mode === "edit" ? (modalState.transaction.recurrence_unit as any) ?? undefined : undefined,
+              modalState.mode === "edit" ? modalState.transaction.recurrence_unit ?? undefined : undefined,
             categoryIds: modalState.transaction.transaction_categories?.map((tc) => tc.category_id) || [],
             splits:
               modalState.mode === "edit"
                 ? modalState.transaction.transaction_splits.map((s) => ({
                     amount: Math.abs(s.amount),
                     assigned_to: s.assigned_to || "Me",
-                    status: s.status as any,
+                    status: s.status,
                   }))
                 : undefined,
           }}

@@ -1,6 +1,9 @@
 import { supabase } from "@/supabase/client";
 import { useCallback, useEffect, useState } from "react";
 
+type RecurrenceUnit = "Days" | "Weeks" | "Months" | "Years";
+type SplitStatus = "Settled" | "Pending Receival" | "Pending Payment" | "Ignored";
+
 export interface TransactionWithSplits {
   id: string;
   payee: string;
@@ -9,7 +12,7 @@ export interface TransactionWithSplits {
   account_id: string | null;
   is_recurring: boolean;
   recurrence_value: number | null;
-  recurrence_unit: string | null;
+  recurrence_unit: RecurrenceUnit | null;
   notes: string | null;
   type: "expense" | "income" | "transfer";
   accounts: { name: string; color: string } | null;
@@ -17,7 +20,7 @@ export interface TransactionWithSplits {
     id: string;
     amount: number;
     assigned_to: string;
-    status: string;
+    status: SplitStatus;
   }[];
   transaction_categories: {
     category_id: string;
@@ -75,7 +78,7 @@ export function useTransactionsData(filters: TransactionFilters) {
           related_transaction_id,
           creditor,
           accounts(name, color),
-          transaction_splits!inner(
+          transaction_splits(
             id,
             amount,
             assigned_to,
@@ -144,8 +147,9 @@ export function useTransactionsData(filters: TransactionFilters) {
         totalCount: count || 0,
         hasMore: count ? filteredTransactions.length < count : false,
       });
-    } catch (err: any) {
-      setData((prev) => ({ ...prev, isLoading: false, error: err.message }));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to load transactions";
+      setData((prev) => ({ ...prev, isLoading: false, error: message }));
     }
   }, [filters.search, filters.categories, filters.startDate, filters.endDate, filters.accountId, filters.limit]);
 

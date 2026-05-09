@@ -28,40 +28,26 @@ export function isCdtMatured(account: AccountWithStats): boolean {
 }
 
 /**
- * Redeems a matured CDT: creates transfer + income transactions,
+ * Redeems a matured CDT: creates one receiving-account transaction,
  * then archives the CDT account.
  */
 export async function redeemCdt(params: RedeemCdtParams): Promise<void> {
   const { cdtId, userId, actualAmount, linkedAccountId, payee, note } = params;
   const today = formatDateString(new Date());
 
-  const [txResult, incResult] = await Promise.all([
-    supabase.rpc("add_transaction_with_splits", {
-      p_user_id: userId,
-      p_account_id: cdtId,
-      p_date: today,
-      p_total_amount: actualAmount,
-      p_payee: payee,
-      p_notes: note,
-      p_type: "transfer",
-      p_splits: [],
-      p_category_ids: [],
-    }),
-    supabase.rpc("add_transaction_with_splits", {
-      p_user_id: userId,
-      p_account_id: linkedAccountId,
-      p_date: today,
-      p_total_amount: actualAmount,
-      p_payee: payee,
-      p_notes: note,
-      p_type: "income",
-      p_splits: [],
-      p_category_ids: [],
-    }),
-  ]);
+  const { error: redeemError } = await supabase.rpc("add_transaction_with_splits", {
+    p_user_id: userId,
+    p_account_id: linkedAccountId,
+    p_date: today,
+    p_total_amount: actualAmount,
+    p_payee: payee,
+    p_notes: note,
+    p_type: "income",
+    p_splits: [],
+    p_category_ids: [],
+  });
 
-  if (txResult.error) throw txResult.error;
-  if (incResult.error) throw incResult.error;
+  if (redeemError) throw redeemError;
 
   const { error: archiveError } = await supabase
     .from("accounts")
