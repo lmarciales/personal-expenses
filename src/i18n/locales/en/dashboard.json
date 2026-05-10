@@ -77,7 +77,8 @@
     "yearLabel": "Year: {{amount}}",
     "empty": "No expenses this month",
     "moreGroups_one": "+ {{count}} more group",
-    "moreGroups_other": "+ {{count}} more groups"
+    "moreGroups_other": "+ {{count}} more groups",
+    "showLess": "Show less"
   },
   "insights": {
     "title": "Financial summary",

@@ -1,6 +1,8 @@
 import type { GroupedSpending as GroupedSpendingType } from "@/hooks/useDashboardData";
 import { formatCOPWithSymbol } from "@/lib/currency";
+import { getExpandableListState } from "@/lib/expandableList";
 import { Layers } from "lucide-react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 interface GroupedSpendingProps {
@@ -17,12 +19,16 @@ export function GroupedSpending({
   totalExpenseYTD,
 }: GroupedSpendingProps) {
   const { t, i18n } = useTranslation("dashboard");
+  const [expanded, setExpanded] = useState(false);
   const now = new Date();
   const monthName = now.toLocaleDateString(i18n.language === "en" ? "en-US" : "es-CO", { month: "long" });
   const capitalizedMonth = monthName.charAt(0).toUpperCase() + monthName.slice(1);
 
-  const visible = groupedSpending.slice(0, MAX_VISIBLE);
-  const hiddenCount = groupedSpending.length - MAX_VISIBLE;
+  const {
+    visibleItems: visible,
+    hiddenCount,
+    isExpandable,
+  } = getExpandableListState(groupedSpending, MAX_VISIBLE, expanded);
   const maxAmount = visible.length > 0 ? visible[0].amount : 0;
 
   return (
@@ -71,10 +77,17 @@ export function GroupedSpending({
         </div>
       )}
 
-      {hiddenCount > 0 && (
-        <button type="button" className="mt-3 text-xs text-primary hover:text-primary/80 transition-colors font-medium">
-          {t("grouped.moreGroups", { count: hiddenCount })}
-        </button>
+      {isExpandable && (
+        <div className="mt-3 flex justify-end">
+          <button
+            type="button"
+            onClick={() => setExpanded((value) => !value)}
+            aria-expanded={expanded}
+            className="text-xs font-medium text-primary hover:underline focus-ring rounded-md px-2 py-1"
+          >
+            {expanded ? t("grouped.showLess") : t("grouped.moreGroups", { count: hiddenCount })}
+          </button>
+        </div>
       )}
     </div>
   );

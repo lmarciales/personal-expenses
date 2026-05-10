@@ -77,7 +77,8 @@
     "yearLabel": "Año: {{amount}}",
     "empty": "Sin gastos este mes",
     "moreGroups_one": "+ {{count}} grupo más",
-    "moreGroups_other": "+ {{count}} grupos más"
+    "moreGroups_other": "+ {{count}} grupos más",
+    "showLess": "Ver menos"
   },
   "insights": {
     "title": "Resumen financiero",
