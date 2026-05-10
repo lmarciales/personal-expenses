@@ -34,11 +34,73 @@
     "confirm": "Confirmar",
     "selectAll": "Seleccionar todo",
     "duplicate": "Duplicar",
-    "loadMore": "Cargar más"
+    "loadMore": "Cargar más",
+    "openMenu": "Abrir menú",
+    "goBack": "Volver"
   },
   "loading": "Cargando...",
   "error": "Error",
   "genericError": "Ocurrió un error. Inténtalo de nuevo.",
+  "language": {
+    "english": "Inglés",
+    "spanish": "Español",
+    "switchTo": "Cambiar idioma a {{language}}"
+  },
+  "theme": {
+    "light": "Claro",
+    "dark": "Oscuro",
+    "system": "Sistema",
+    "switchTo": "Cambiar tema a {{theme}}",
+    "current": "Tema actual: {{theme}}"
+  },
+  "confirm": {
+    "deleteTitle": "Confirmar eliminación",
+    "cancelRecurrenceTitle": "¿Cancelar recurrencia?",
+    "deleteAction": "Eliminar",
+    "cancelRecurrenceAction": "Cancelar recurrencia"
+  },
+  "labels": {
+    "accountTypes": {
+      "creditCard": "Tarjeta de crédito",
+      "debitCard": "Tarjeta débito",
+      "cdt": "CDT",
+      "external": "Externo"
+    },
+    "transactionTypes": {
+      "expense": "Gasto",
+      "income": "Ingreso",
+      "transfer": "Transferencia"
+    },
+    "transactionStatuses": {
+      "success": "Completada",
+      "pending": "Pendiente"
+    },
+    "splitStatuses": {
+      "settled": "Saldada",
+      "pendingReceival": "Por recibir",
+      "pendingPayment": "Por pagar",
+      "ignored": "Ignorada"
+    },
+    "roles": {
+      "user": "Usuario",
+      "admin": "Admin"
+    }
+  },
+  "profile": {
+    "title": "Perfil",
+    "subtitle": "Administra tus preferencias de la app y tu sesión.",
+    "account": "Cuenta",
+    "email": "Correo",
+    "role": "Rol",
+    "emailStatus": "Estado del correo",
+    "confirmed": "Confirmado",
+    "notConfirmed": "Sin confirmar",
+    "preferences": "Preferencias",
+    "language": "Idioma",
+    "theme": "Tema",
+    "session": "Sesión",
+    "signOutHint": "Cierra la sesión en este navegador."
+  },
   "pickers": {
     "searchOrCreate": "Buscar o crear...",
     "creating": "Creando...",
@@ -46,7 +108,10 @@
     "selectAssignee": "Seleccionar asignado...",
     "selectCategories": "Seleccionar categorías...",
     "noCategoriesYet": "Aún no hay categorías. Escribe para crear una.",
-    "noMatchingCategories": "No hay categorías coincidentes."
+    "noMatchingCategories": "No hay categorías coincidentes.",
+    "noMatchingAssignees": "No hay asignados coincidentes.",
+    "categoryGroupPrompt": "Grupo para \"{{name}}\":",
+    "noGroup": "Ninguno"
   },
   "months": {
     "january": "Enero",

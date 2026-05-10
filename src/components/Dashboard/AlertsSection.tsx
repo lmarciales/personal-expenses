@@ -1,4 +1,5 @@
 import { AddTransactionModal } from "@/components/Transactions/AddTransactionModal";
+import { useConfirmDialog } from "@/components/ui/confirm-dialog";
 import type { DashboardAlert } from "@/hooks/useDashboardAlerts";
 import { formatCOPWithSymbol } from "@/lib/currency";
 import { parseLocalDate } from "@/lib/dates";
@@ -18,6 +19,20 @@ interface AlertsSectionProps {
   onCancelRecurrence?: (payee: string) => Promise<void>;
 }
 
+type RecurrenceUnit = "Days" | "Weeks" | "Months" | "Years";
+type SplitStatus = "Settled" | "Pending Receival" | "Pending Payment" | "Ignored";
+
+const RECURRENCE_UNITS: RecurrenceUnit[] = ["Days", "Weeks", "Months", "Years"];
+const SPLIT_STATUSES: SplitStatus[] = ["Settled", "Pending Receival", "Pending Payment", "Ignored"];
+
+function toRecurrenceUnit(value: string): RecurrenceUnit {
+  return RECURRENCE_UNITS.includes(value as RecurrenceUnit) ? (value as RecurrenceUnit) : "Months";
+}
+
+function toSplitStatus(value: string): SplitStatus {
+  return SPLIT_STATUSES.includes(value as SplitStatus) ? (value as SplitStatus) : "Settled";
+}
+
 function getAlertIcon(iconName: string) {
   switch (iconName) {
     case "clock":
@@ -34,10 +49,12 @@ function getAlertIcon(iconName: string) {
 }
 
 export function AlertsSection({ alerts, accounts, onSuccess, onCancelRecurrence }: AlertsSectionProps) {
-  const { t, i18n } = useTranslation("dashboard");
+  const { t, i18n } = useTranslation(["dashboard", "common"]);
+  const confirm = useConfirmDialog();
   const navigate = useNavigate();
   const [logBillAlert, setLogBillAlert] = useState<DashboardAlert | null>(null);
   const [cancellingPayee, setCancellingPayee] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState(false);
 
   const dateLocale = i18n.language === "en" ? enUS : es;
 
@@ -88,7 +105,12 @@ export function AlertsSection({ alerts, accounts, onSuccess, onCancelRecurrence 
   const handleCancelRecurrence = async (alert: DashboardAlert) => {
     if (!onCancelRecurrence || !alert.actionData) return;
     const payee = alert.actionData.payee;
-    const confirmed = window.confirm(t("recurring.cancelConfirm", { payee }));
+    const confirmed = await confirm({
+      title: t("common:confirm.cancelRecurrenceTitle"),
+      description: t("recurring.cancelConfirm", { payee }),
+      confirmLabel: t("common:confirm.cancelRecurrenceAction"),
+      variant: "destructive",
+    });
     if (!confirmed) return;
 
     try {
@@ -103,6 +125,9 @@ export function AlertsSection({ alerts, accounts, onSuccess, onCancelRecurrence 
       setCancellingPayee(null);
     }
   };
+
+  const visibleAlerts = expanded ? alerts : alerts.slice(0, 4);
+  const hiddenCount = Math.max(0, alerts.length - visibleAlerts.length);
 
   return (
     <div className="glass-card rounded-2xl p-4 border border-primary/20 bg-primary/5">
@@ -119,7 +144,7 @@ export function AlertsSection({ alerts, accounts, onSuccess, onCancelRecurrence 
 
       {/* Alert cards grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {alerts.map((alert) => (
+        {visibleAlerts.map((alert) => (
           <div key={alert.id} className="relative group">
             <button
               type="button"
@@ -169,6 +194,19 @@ export function AlertsSection({ alerts, accounts, onSuccess, onCancelRecurrence 
         ))}
       </div>
 
+      {alerts.length > 4 && (
+        <div className="mt-3 flex justify-end">
+          <button
+            type="button"
+            onClick={() => setExpanded((value) => !value)}
+            className="text-xs font-medium text-primary hover:underline focus-ring rounded-md px-2 py-1"
+          >
+            {expanded ? t("alerts.showLess") : t("alerts.showAll", { count: alerts.length })}
+            {!expanded && hiddenCount > 0 ? ` · +${hiddenCount}` : ""}
+          </button>
+        </div>
+      )}
+
       {/* AddTransactionModal for recurring_bill alerts */}
       {logBillAlert?.actionData && (
         <AddTransactionModal
@@ -187,14 +225,14 @@ export function AlertsSection({ alerts, accounts, onSuccess, onCancelRecurrence 
             accountId: logBillAlert.actionData.accountId ?? "",
             isRecurring: logBillAlert.actionData.isRecurring,
             recurrenceValue: logBillAlert.actionData.recurrenceValue,
-            recurrenceUnit: logBillAlert.actionData.recurrenceUnit as any,
+            recurrenceUnit: toRecurrenceUnit(logBillAlert.actionData.recurrenceUnit),
             categoryIds: logBillAlert.actionData.categoryIds,
             splits:
               logBillAlert.actionData.splits.length > 0
                 ? logBillAlert.actionData.splits.map((s) => ({
                     amount: s.amount,
                     assigned_to: s.assigned_to,
-                    status: s.status as any,
+                    status: toSplitStatus(s.status),
                   }))
                 : undefined,
           }}

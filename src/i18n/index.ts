@@ -50,17 +50,27 @@ i18n
         admin: enAdmin,
       },
     },
-    fallbackLng: "es",
+    fallbackLng: "en",
+    supportedLngs: ["en", "es"],
+    load: "languageOnly",
     defaultNS: "common",
     ns: ["common", "auth", "validation", "dashboard", "accounts", "transactions", "analytics", "debts", "admin"],
     detection: {
       order: ["localStorage", "navigator"],
       lookupLocalStorage: "lumina-language",
-      caches: ["localStorage"],
+      caches: [],
     },
     interpolation: {
       escapeValue: false,
     },
   });
+
+const syncDocumentLanguage = (language: string) => {
+  if (typeof document === "undefined") return;
+  document.documentElement.lang = language.startsWith("es") ? "es" : "en";
+};
+
+syncDocumentLanguage(i18n.resolvedLanguage || i18n.language);
+i18n.on("languageChanged", syncDocumentLanguage);
 
 export default i18n;

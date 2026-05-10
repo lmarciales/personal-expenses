@@ -1,6 +1,7 @@
 import { useAuth } from "@/hooks/useAuth";
+import { adminNavItem, isActivePath, primaryNavItems } from "@/lib/navigation";
 import { useSidebar } from "@/store/sidebarContext";
-import { ChevronsLeft, ChevronsRight, CreditCard, Home, Receipt, Shield, TrendingUp, Wallet } from "lucide-react";
+import { ChevronsLeft, ChevronsRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "./ui/button";
@@ -11,14 +12,6 @@ const Sidebar = () => {
   const location = useLocation();
   const { collapsed, toggleCollapsed } = useSidebar();
   const { userRole } = useAuth();
-
-  const navItems = [
-    { icon: Home, label: t("nav.overview"), path: "/dashboard" },
-    { icon: Wallet, label: t("nav.accounts"), path: "/accounts" },
-    { icon: Receipt, label: t("nav.transactions"), path: "/transactions" },
-    { icon: TrendingUp, label: t("nav.analytics"), path: "/analytics" },
-    { icon: CreditCard, label: t("nav.debts"), path: "/debts" },
-  ];
 
   return (
     <TooltipProvider delayDuration={0}>
@@ -44,9 +37,9 @@ const Sidebar = () => {
               {t("sidebar.mainMenu")}
             </div>
           )}
-          {navItems.map((item) => {
-            const isActive =
-              location.pathname === item.path || (location.pathname === "/" && item.path === "/dashboard");
+          {primaryNavItems.map((item) => {
+            const label = t(item.labelKey);
+            const isActive = isActivePath(location.pathname, item.path);
 
             const linkContent = (
               <Link key={item.path} to={item.path} className="block focus-ring rounded-xl">
@@ -64,7 +57,7 @@ const Sidebar = () => {
                       isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-primary"
                     }`}
                   />
-                  {!collapsed && <span className="ml-3 whitespace-nowrap overflow-hidden">{item.label}</span>}
+                  {!collapsed && <span className="ml-3 whitespace-nowrap overflow-hidden">{label}</span>}
                 </span>
               </Link>
             );
@@ -74,7 +67,7 @@ const Sidebar = () => {
                 <Tooltip key={item.path}>
                   <TooltipTrigger asChild>{linkContent}</TooltipTrigger>
                   <TooltipContent side="right" className="font-medium">
-                    {item.label}
+                    {label}
                   </TooltipContent>
                 </Tooltip>
               );
@@ -90,9 +83,11 @@ const Sidebar = () => {
                 </div>
               )}
               {(() => {
-                const isActive = location.pathname === "/admin";
+                const isActive = isActivePath(location.pathname, adminNavItem.path);
+                const label = t(adminNavItem.labelKey);
+                const AdminIcon = adminNavItem.icon;
                 const linkContent = (
-                  <Link to="/admin" className="block focus-ring rounded-xl">
+                  <Link to={adminNavItem.path} className="block focus-ring rounded-xl">
                     <span
                       className={`flex items-center w-full px-3 py-3 rounded-xl transition-all duration-200 group ${
                         collapsed ? "justify-center" : ""
@@ -102,12 +97,12 @@ const Sidebar = () => {
                           : "text-muted-foreground hover:bg-surface-hover hover:text-foreground"
                       }`}
                     >
-                      <Shield
+                      <AdminIcon
                         className={`w-5 h-5 shrink-0 transition-transform group-hover:scale-110 ${
                           isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-primary"
                         }`}
                       />
-                      {!collapsed && <span className="ml-3 whitespace-nowrap overflow-hidden">{t("nav.admin")}</span>}
+                      {!collapsed && <span className="ml-3 whitespace-nowrap overflow-hidden">{label}</span>}
                     </span>
                   </Link>
                 );
@@ -117,7 +112,7 @@ const Sidebar = () => {
                     <Tooltip>
                       <TooltipTrigger asChild>{linkContent}</TooltipTrigger>
                       <TooltipContent side="right" className="font-medium">
-                        {t("nav.admin")}
+                        {label}
                       </TooltipContent>
                     </Tooltip>
                   );
@@ -136,6 +131,8 @@ const Sidebar = () => {
               <Button
                 variant="ghost"
                 onClick={toggleCollapsed}
+                aria-label={collapsed ? t("sidebar.expandSidebar") : t("sidebar.collapse")}
+                title={collapsed ? t("sidebar.expandSidebar") : t("sidebar.collapse")}
                 className={`w-full rounded-xl text-muted-foreground hover:bg-surface-hover hover:text-foreground ${
                   collapsed ? "justify-center px-0" : "justify-start"
                 }`}

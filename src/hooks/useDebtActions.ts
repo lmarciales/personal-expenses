@@ -1,3 +1,4 @@
+import { getErrorMessage } from "@/lib/errors";
 import { supabase } from "@/supabase/client";
 import { useState } from "react";
 
@@ -29,8 +30,8 @@ export function useDebtActions() {
 
       if (rpcError) throw rpcError;
       return data as string | null;
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(getErrorMessage(err));
       return null;
     } finally {
       setIsProcessing(false);
@@ -61,8 +62,8 @@ export function useDebtActions() {
 
       if (rpcError) throw rpcError;
       return data as string | null;
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(getErrorMessage(err));
       return null;
     } finally {
       setIsProcessing(false);
@@ -97,8 +98,8 @@ export function useDebtActions() {
 
       if (rpcError) throw rpcError;
       return data as string | null;
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(getErrorMessage(err));
       return null;
     } finally {
       setIsProcessing(false);

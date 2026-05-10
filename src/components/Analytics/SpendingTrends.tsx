@@ -8,18 +8,29 @@ interface SpendingTrendsProps {
   savingsRate: number;
 }
 
+const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const MONTH_SHORT_KEYS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+
 export function SpendingTrends({ highestMonth, lowestMonth, monthOverMonthChange, savingsRate }: SpendingTrendsProps) {
-  const { t } = useTranslation("analytics");
+  const { t } = useTranslation(["analytics", "common"]);
+  const formatMonthName = (name: string) => {
+    const monthIndex = MONTH_NAMES.indexOf(name);
+    return monthIndex >= 0 ? t(`common:monthsShort.${MONTH_SHORT_KEYS[monthIndex]}`) : name;
+  };
 
   const cards = [
     {
       label: t("trends.highestMonth"),
-      value: highestMonth ? `${highestMonth.name} — ${formatCOPWithSymbol(highestMonth.value)}` : t("trends.noData"),
+      value: highestMonth
+        ? `${formatMonthName(highestMonth.name)} — ${formatCOPWithSymbol(highestMonth.value)}`
+        : t("trends.noData"),
       color: "text-foreground",
     },
     {
       label: t("trends.lowestMonth"),
-      value: lowestMonth ? `${lowestMonth.name} — ${formatCOPWithSymbol(lowestMonth.value)}` : t("trends.noData"),
+      value: lowestMonth
+        ? `${formatMonthName(lowestMonth.name)} — ${formatCOPWithSymbol(lowestMonth.value)}`
+        : t("trends.noData"),
       color: "text-foreground",
     },
     {

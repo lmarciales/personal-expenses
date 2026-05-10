@@ -39,6 +39,8 @@
   },
   "alerts": {
     "sectionTitle": "Requiere atención",
+    "showAll": "Ver todo ({{count}})",
+    "showLess": "Ver menos",
     "typeLabels": {
       "recurring_bill": "Pago recurrente",
       "recurring_upcoming": "Próximo pago",

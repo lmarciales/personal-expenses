@@ -64,13 +64,13 @@ export const Dashboard = () => {
         </div>
         {accounts.length > 0 ? (
           <AddTransactionModal accounts={accounts} onSuccess={handleRefresh}>
-            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-glow-xl transition-all">
+            <Button className="md:hidden bg-primary hover:bg-primary/90 text-primary-foreground shadow-glow-xl transition-all">
               <Plus className="w-4 h-4 mr-2" />
               {t("common:navbar.addTransaction")}
             </Button>
           </AddTransactionModal>
         ) : (
-          <Button disabled className="bg-primary/50 text-primary-foreground/50 cursor-not-allowed">
+          <Button disabled className="md:hidden bg-primary/50 text-primary-foreground/50 cursor-not-allowed">
             <Plus className="w-4 h-4 mr-2" />
             {t("common:navbar.addTransaction")}
           </Button>

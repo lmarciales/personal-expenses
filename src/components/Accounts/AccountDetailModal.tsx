@@ -6,8 +6,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { isCdtMatured, redeemCdt, renewCdt } from "@/lib/cdtMaturity";
 import { formatCOPWithSymbol } from "@/lib/currency";
 import { parseLocalDate } from "@/lib/dates";
+import { formatSystemLabel } from "@/lib/displayLabels";
 import { getProjectedBalance } from "@/lib/projectedBalance";
 import { supabase } from "@/supabase/client";
+import type { TFunction } from "i18next";
 import { ArrowUpRight, CreditCard, Pencil, Receipt, Loader2 as Spinner, TrendingDown, TrendingUp } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -33,12 +35,14 @@ interface AccountDetailModalProps {
 
 const RETENCION_RATE = 0.04;
 
+const getErrorMessage = (error: unknown) => (error instanceof Error ? error.message : String(error));
+
 function CdtDetail({
   account,
   linkedAccountName,
   t,
   i18n,
-}: { account: AccountWithStats; linkedAccountName: string | null; t: any; i18n: any }) {
+}: { account: AccountWithStats; linkedAccountName: string | null; t: TFunction; i18n: { language: string } }) {
   const principal = account.interest_reference_balance ?? account.balance;
   const rate = account.interest_rate ?? 0;
   const refDate = account.interest_reference_date ? new Date(account.interest_reference_date) : null;
@@ -47,18 +51,18 @@ function CdtDetail({
 
   // Daily compounding with retención deducted each day (matches Colombian bank CDT calculation)
   const ea = rate / 100;
-  const effectiveDailyRate = Math.pow(1 + ea, 1 / 365) - 1;
+  const effectiveDailyRate = (1 + ea) ** (1 / 365) - 1;
   const daysElapsed = refDate
     ? Math.max(0, Math.floor((now.getTime() - refDate.getTime()) / (1000 * 60 * 60 * 24)))
     : 0;
 
   // Gross: compound without retención
-  const grossTotal = principal * Math.pow(1 + effectiveDailyRate, daysElapsed);
+  const grossTotal = principal * (1 + effectiveDailyRate) ** daysElapsed;
   const grossYield = grossTotal - principal;
 
   // Net: compound with retención deducted daily
   const netDailyRate = effectiveDailyRate * (1 - RETENCION_RATE);
-  const netTotal = principal * Math.pow(1 + netDailyRate, daysElapsed);
+  const netTotal = principal * (1 + netDailyRate) ** daysElapsed;
   const netYield = netTotal - principal;
   const retention = grossYield - netYield;
   const currentNetTotal = netTotal;
@@ -68,7 +72,7 @@ function CdtDetail({
     refDate && maturityDate
       ? Math.max(0, Math.floor((maturityDate.getTime() - refDate.getTime()) / (1000 * 60 * 60 * 24)))
       : 0;
-  const expectedTotal = principal * Math.pow(1 + netDailyRate, totalDays);
+  const expectedTotal = principal * (1 + netDailyRate) ** totalDays;
 
   const daysRemaining = maturityDate ? Math.ceil((maturityDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)) : 0;
 
@@ -224,9 +228,9 @@ export function AccountDetailModal({
       toast.success(t("cdt.redeemSuccess", { name: account.name, amount: actual, account: linkedName }));
       onOpenChange(false);
       onRefetch?.();
-    } catch (err: any) {
+    } catch (err) {
       console.error("Redeem CDT failed:", err);
-      toast.error(err.message);
+      toast.error(getErrorMessage(err));
     } finally {
       setActionLoading(false);
     }
@@ -235,13 +239,15 @@ export function AccountDetailModal({
   const handleRenew = async () => {
     const userId = session?.user?.id;
     if (!account || !actionAmount || actionAmount <= 0 || !userId) return;
+    const originalMaturityDate = account.maturity_date;
+    if (!originalMaturityDate) return;
     setActionLoading(true);
     try {
       const newDate = await renewCdt({
         cdtId: account.id,
         userId,
         newPrincipal: actionAmount,
-        originalMaturityDate: account.maturity_date!,
+        originalMaturityDate,
         originalRefDate: account.interest_reference_date,
       });
       toast.success(
@@ -256,9 +262,9 @@ export function AccountDetailModal({
       );
       onOpenChange(false);
       onRefetch?.();
-    } catch (err: any) {
+    } catch (err) {
       console.error("Renew CDT failed:", err);
-      toast.error(err.message);
+      toast.error(getErrorMessage(err));
     } finally {
       setActionLoading(false);
     }
@@ -272,7 +278,7 @@ export function AccountDetailModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] glass-panel border-glass text-foreground">
+      <DialogContent aria-describedby={undefined} className="sm:max-w-[500px] glass-panel border-glass text-foreground">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle className="text-xl font-bold">{isCdt ? t("cdt.detailTitle") : t("detail.title")}</DialogTitle>
@@ -298,7 +304,9 @@ export function AccountDetailModal({
           </div>
           <div>
             <h3 className="text-lg font-bold">{account.name}</h3>
-            <span className="text-sm text-muted-foreground">{account.type}</span>
+            <span className="text-sm text-muted-foreground">
+              {formatSystemLabel(account.type, (key) => t(`common:${key}`))}
+            </span>
           </div>
           <div className="ml-auto text-right">
             {account.type === "Credit Card" ? (

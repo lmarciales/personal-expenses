@@ -46,7 +46,7 @@ export function CurrencyInput({ value, onChange, placeholder = "0", className, d
   } else {
     const externalValueStr = value !== undefined ? formatCOPForInput(value) : "";
     const rawAsNumber = parseCOPInput(rawInput);
-    const rawMatchesExternal = (isNaN(rawAsNumber) && value === undefined) || rawAsNumber === value;
+    const rawMatchesExternal = (Number.isNaN(rawAsNumber) && value === undefined) || rawAsNumber === value;
     displayValue = rawMatchesExternal ? rawInput : externalValueStr;
   }
 
@@ -73,7 +73,7 @@ export function CurrencyInput({ value, onChange, placeholder = "0", className, d
 
     // Format the integer portion with thousands separators.
     const intNum = intPart === "" ? 0 : Number(intPart);
-    const formattedInt = isNaN(intNum) ? "0" : formatCOP(intNum);
+    const formattedInt = Number.isNaN(intNum) ? "0" : formatCOP(intNum);
 
     // Build the display string: keep the comma + user's typed decimal chars
     // exactly as typed (so they can type "1.000," before adding digits).
@@ -85,7 +85,7 @@ export function CurrencyInput({ value, onChange, placeholder = "0", className, d
       ? `${intPart}.${decPart ?? "0"}` // JS decimal format
       : intPart;
     const num = Number.parseFloat(fullStr);
-    if (!isNaN(num)) {
+    if (!Number.isNaN(num)) {
       onChange(num);
     } else {
       onChange(undefined);
@@ -100,7 +100,7 @@ export function CurrencyInput({ value, onChange, placeholder = "0", className, d
       return;
     }
     const num = parseCOPInput(rawInput);
-    if (!isNaN(num)) {
+    if (!Number.isNaN(num)) {
       // On blur, fully re-format with exactly 2 decimal places.
       setRawInput(formatCOPForInput(num));
       onChange(num);

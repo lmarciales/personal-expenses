@@ -10,6 +10,7 @@
   "pickDateRange": "Seleccionar rango de fechas",
   "showing": "Mostrando {{shown}} de {{total}} transacciones",
   "recurring": "Recurrente",
+  "unknownCategory": "Desconocida",
   "deleteConfirm": "¿Estás seguro de que deseas eliminar esta transacción?",
   "clickMonthForDetails": "Haz clic en un mes para más detalles",
   "toast": {
@@ -76,6 +77,7 @@
   },
   "empty": {
     "title": "No hay transacciones que coincidan con tus filtros.",
+    "errorLoading": "Error al cargar transacciones: {{error}}",
     "loading": "Cargando transacciones..."
   }
 }

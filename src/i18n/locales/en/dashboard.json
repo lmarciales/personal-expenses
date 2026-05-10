@@ -39,6 +39,8 @@
   },
   "alerts": {
     "sectionTitle": "Needs attention",
+    "showAll": "Show all {{count}}",
+    "showLess": "Show less",
     "typeLabels": {
       "recurring_bill": "Recurring bill",
       "recurring_upcoming": "Upcoming bill",

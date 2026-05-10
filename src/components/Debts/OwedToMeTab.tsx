@@ -3,6 +3,7 @@ import type { PersonDebtGroup, SimpleAccount } from "@/hooks/useDebtsData";
 import { formatCOPWithSymbol } from "@/lib/currency";
 import { getDateLocale } from "@/lib/dateFnsLocale";
 import { parseLocalDate } from "@/lib/dates";
+import { formatSystemLabel } from "@/lib/displayLabels";
 import { format } from "date-fns";
 import { CheckSquare, PartyPopper, Square, User } from "lucide-react";
 import { useState } from "react";
@@ -16,7 +17,7 @@ interface OwedToMeTabProps {
 }
 
 export const OwedToMeTab = ({ groups, accounts, onSettled }: OwedToMeTabProps) => {
-  const { t } = useTranslation("debts");
+  const { t } = useTranslation(["debts", "common"]);
   const [selectedSplits, setSelectedSplits] = useState<Map<string, Set<string>>>(new Map());
   const [settlementDialog, setSettlementDialog] = useState<{
     open: boolean;
@@ -60,6 +61,7 @@ export const OwedToMeTab = ({ groups, accounts, onSettled }: OwedToMeTabProps) =
   };
 
   const getSelectedForPerson = (person: string) => selectedSplits.get(person) || new Set<string>();
+  const systemLabel = (value: string | null | undefined) => formatSystemLabel(value, (key) => t(`common:${key}`));
 
   const getSelectedTotal = (person: string, items: { splitId: string; amount: number }[]) => {
     const selected = getSelectedForPerson(person);
@@ -146,7 +148,7 @@ export const OwedToMeTab = ({ groups, accounts, onSettled }: OwedToMeTabProps) =
                         <p className="text-sm font-medium text-foreground">{item.payee}</p>
                         <p className="text-xs text-muted-foreground">
                           {format(parseLocalDate(item.date), "MMM d, yyyy", { locale: getDateLocale() })} &middot;{" "}
-                          {item.accountName}
+                          {systemLabel(item.accountName)}
                         </p>
                       </div>
                     </div>

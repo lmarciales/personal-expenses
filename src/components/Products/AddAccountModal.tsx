@@ -1,12 +1,14 @@
 import { CurrencyInput } from "@/components/ui/CurrencyInput";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getMoneyMovementAccountOptions } from "@/lib/accountOptions";
 import { formatDateString } from "@/lib/dates";
+import { formatSystemLabel } from "@/lib/displayLabels";
 import { supabase } from "@/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { TFunction } from "i18next";
@@ -70,6 +72,7 @@ export function AddAccountModal({
   onOpenChange: controlledOnOpenChange,
 }: AddAccountModalProps) {
   const { t } = useTranslation(["accounts", "validation"]);
+  const confirm = useConfirmDialog();
   const [internalOpen, setInternalOpen] = useState(false);
   const isControlled = controlledOpen !== undefined;
   const open = isControlled ? controlledOpen : internalOpen;
@@ -344,7 +347,13 @@ export function AddAccountModal({
           ? t("deleteConfirm.withTransactions", { name: initialData?.name ?? "", count: txCount })
           : t("deleteConfirm.simple", { name: initialData?.name ?? "" });
 
-      if (!window.confirm(message)) return;
+      const confirmed = await confirm({
+        title: t("common:confirm.deleteTitle"),
+        description: message,
+        confirmLabel: t("common:confirm.deleteAction"),
+        variant: "destructive",
+      });
+      if (!confirmed) return;
 
       setIsDeleting(true);
 
@@ -366,7 +375,7 @@ export function AddAccountModal({
   };
 
   const dialogContent = (
-    <DialogContent className="sm:max-w-[425px] glass-panel border-glass text-foreground">
+    <DialogContent aria-describedby={undefined} className="sm:max-w-[425px] glass-panel border-glass text-foreground">
       <DialogHeader>
         <DialogTitle className="text-xl font-bold">
           {editMode ? t("accounts:modal.editTitle") : t("accounts:modal.addTitle")}
@@ -418,7 +427,7 @@ export function AddAccountModal({
                       <SelectItem key={at.name} value={at.name}>
                         <div className="flex items-center gap-2">
                           <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: at.color }} />
-                          {at.name}
+                          {formatSystemLabel(at.name, (key) => t(`common:${key}`))}
                         </div>
                       </SelectItem>
                     ))}
@@ -450,6 +459,8 @@ export function AddAccountModal({
                             onClick={() => setNewTypeColor(c)}
                             className={`w-6 h-6 rounded-full transition-all ${newTypeColor === c ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : ""}`}
                             style={{ backgroundColor: c }}
+                            aria-label={`${t("accounts:modal.newTypeColor")} ${c}`}
+                            title={`${t("accounts:modal.newTypeColor")} ${c}`}
                           />
                         ))}
                       </div>

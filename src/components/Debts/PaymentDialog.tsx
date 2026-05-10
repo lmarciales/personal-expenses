@@ -13,6 +13,7 @@ import { useDebtActions } from "@/hooks/useDebtActions";
 import type { SimpleAccount } from "@/hooks/useDebtsData";
 import { getMoneyMovementAccountOptions } from "@/lib/accountOptions";
 import { formatCOPWithSymbol } from "@/lib/currency";
+import { formatSystemLabel } from "@/lib/displayLabels";
 import { ArrowRight, Info, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
@@ -36,7 +37,7 @@ export const PaymentDialog = ({
   accounts,
   onSuccess,
 }: PaymentDialogProps) => {
-  const { t } = useTranslation("debts");
+  const { t } = useTranslation(["debts", "common"]);
   const { settleDebts, isProcessing } = useDebtActions();
   const [sourceAccountId, setSourceAccountId] = useState<string>("");
   const [editableAmount, setEditableAmount] = useState<number | undefined>(totalAmount);
@@ -56,6 +57,7 @@ export const PaymentDialog = ({
 
   const actualAmount = editableAmount ?? totalAmount;
   const amountDiffers = Math.abs(actualAmount - totalAmount) > 0.01;
+  const targetAccountLabel = formatSystemLabel(targetAccount.name, (key) => t(`common:${key}`));
 
   const handleConfirm = async () => {
     let notes: string | undefined;
@@ -82,7 +84,7 @@ export const PaymentDialog = ({
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">{t("payment.title")}</DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            {t("payment.settleItems", { count: selectedSplitIds.length, account: targetAccount.name })}
+            {t("payment.settleItems", { count: selectedSplitIds.length, account: targetAccountLabel })}
           </DialogDescription>
         </DialogHeader>
 
@@ -114,7 +116,7 @@ export const PaymentDialog = ({
                 <Trans
                   i18nKey="payment.description"
                   ns="debts"
-                  values={{ account: targetAccount.name, amount: formatCOPWithSymbol(actualAmount) }}
+                  values={{ account: targetAccountLabel, amount: formatCOPWithSymbol(actualAmount) }}
                   components={{ bold: <strong className="text-foreground" /> }}
                 />
               </span>
@@ -126,7 +128,7 @@ export const PaymentDialog = ({
                   <Trans
                     i18nKey="payment.balanceIncreaseTarget"
                     ns="debts"
-                    values={{ account: targetAccount.name, amount: formatCOPWithSymbol(actualAmount) }}
+                    values={{ account: targetAccountLabel, amount: formatCOPWithSymbol(actualAmount) }}
                     components={{ bold: <strong className="text-foreground" /> }}
                   />
                 </span>

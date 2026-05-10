@@ -24,6 +24,14 @@
   "of": "of",
   "totalAccounts": "Total Accounts",
   "byType": "By Type",
+  "summary": {
+    "netWorth": "Net Worth",
+    "netWorthHint": "Assets minus credit card debt",
+    "liquid": "Available Balance",
+    "creditDebt": "Credit Card Debt",
+    "creditDebtHint": "Total owed on credit cards",
+    "includeCreditCards": "Include credit cards"
+  },
   "empty": {
     "title": "No accounts yet",
     "description": "Add your first account to start tracking your finances.",
@@ -64,7 +72,18 @@
     "addFirst": "Add First Account",
     "moreAccounts_one": "{{count}} more account",
     "moreAccounts_other": "{{count}} more accounts",
-    "account": "Account"
+    "account": "Account",
+    "featured": {
+      "title": "Featured Accounts",
+      "description": "Choose up to 3 accounts to show in the summary, in your preferred order.",
+      "selected": "Selected ({{count}}/{{max}})",
+      "available": "Available",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "remove": "Remove",
+      "savedToast": "Featured accounts updated",
+      "saveError": "Could not save featured accounts"
+    }
   },
   "modal": {
     "editTitle": "Edit Account",

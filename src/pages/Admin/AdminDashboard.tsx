@@ -4,7 +4,7 @@ import { getDateLocale } from "@/lib/dateFnsLocale";
 import { supabase } from "@/supabase/client";
 import { format } from "date-fns";
 import { CheckCircle, Shield, XCircle } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 export const AdminDashboard = () => {
@@ -20,7 +20,7 @@ export const AdminDashboard = () => {
   >([]);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     const { data, error } = await supabase.rpc("get_all_users_with_roles");
     if (error) {
       setError(t("loadError"));
@@ -30,11 +30,11 @@ export const AdminDashboard = () => {
       setError(null);
       setUsers(data);
     }
-  };
+  }, [t]);
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [fetchUsers]);
 
   const handleRoleChange = async (userId: string, newRole: string) => {
     const { error } = await supabase.rpc("update_user_role", { target_user_id: userId, new_role: newRole });

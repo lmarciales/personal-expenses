@@ -47,12 +47,12 @@ export function getProjectedBalance(account: {
 
   if (account.type === "CDT") {
     // Effective daily rate from EA, with retención deducted daily
-    const effectiveDailyRate = Math.pow(1 + ea, 1 / 365) - 1;
+    const effectiveDailyRate = (1 + ea) ** (1 / 365) - 1;
     const netDailyRate = effectiveDailyRate * (1 - RETENCION_RATE);
-    return principal * Math.pow(1 + netDailyRate, Math.floor(daysElapsed));
+    return principal * (1 + netDailyRate) ** Math.floor(daysElapsed);
   }
 
   // Compound interest for savings and other accounts
   const dailyRate = ea / 365;
-  return principal * Math.pow(1 + dailyRate, daysElapsed);
+  return principal * (1 + dailyRate) ** daysElapsed;
 }

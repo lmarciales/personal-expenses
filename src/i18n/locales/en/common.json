@@ -34,11 +34,85 @@
     "confirm": "Confirm",
     "selectAll": "Select All",
     "duplicate": "Duplicate",
-    "loadMore": "Load More"
+    "loadMore": "Load More",
+    "openMenu": "Open menu",
+    "goBack": "Go back"
   },
   "loading": "Loading...",
   "error": "Error",
   "genericError": "An error occurred. Please try again.",
+  "language": {
+    "english": "English",
+    "spanish": "Spanish",
+    "switchTo": "Switch language to {{language}}"
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "switchTo": "Switch theme to {{theme}}",
+    "current": "Current theme: {{theme}}"
+  },
+  "confirm": {
+    "deleteTitle": "Confirm deletion",
+    "cancelRecurrenceTitle": "Cancel recurrence?",
+    "deleteAction": "Delete",
+    "cancelRecurrenceAction": "Cancel recurrence"
+  },
+  "labels": {
+    "accountTypes": {
+      "creditCard": "Credit Card",
+      "debitCard": "Debit Card",
+      "cdt": "CDT",
+      "external": "External"
+    },
+    "transactionTypes": {
+      "expense": "Expense",
+      "income": "Income",
+      "transfer": "Transfer"
+    },
+    "transactionStatuses": {
+      "success": "Success",
+      "pending": "Pending"
+    },
+    "splitStatuses": {
+      "settled": "Settled",
+      "pendingReceival": "Pending Receival",
+      "pendingPayment": "Pending Payment",
+      "ignored": "Ignored"
+    },
+    "roles": {
+      "user": "User",
+      "admin": "Admin"
+    }
+  },
+  "pickers": {
+    "searchOrCreate": "Search or create...",
+    "creating": "Creating...",
+    "createItem": "Create \"{{name}}\"",
+    "selectAssignee": "Select assignee...",
+    "selectCategories": "Select categories...",
+    "noCategoriesYet": "No categories yet. Type to create one.",
+    "noMatchingCategories": "No matching categories.",
+    "noMatchingAssignees": "No matching assignees.",
+    "categoryGroupPrompt": "Group for \"{{name}}\":",
+    "noGroup": "None"
+  },
+  "profile": {
+    "title": "Profile",
+    "subtitle": "Manage your app preferences and session.",
+    "account": "Account",
+    "email": "Email",
+    "role": "Role",
+    "emailStatus": "Email status",
+    "confirmed": "Confirmed",
+    "notConfirmed": "Not confirmed",
+    "preferences": "Preferences",
+    "language": "Language",
+    "theme": "Theme",
+    "session": "Session",
+    "signOutHint": "Sign out from this browser session."
+  },
   "months": {
     "january": "January",
     "february": "February",

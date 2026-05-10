@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import "@/i18n";
 import App from "./App.tsx";
 import "./index.css";
+import { ConfirmDialogProvider } from "@/components/ui/confirm-dialog.tsx";
 import { AuthProvider } from "@/store/authContext.tsx";
 import { SidebarProvider } from "@/store/sidebarContext.tsx";
 import { ThemeProvider } from "@/theme/ThemeProvider.tsx";
@@ -15,7 +16,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
         <AuthProvider>
           <SidebarProvider>
-            <App />
+            <ConfirmDialogProvider>
+              <App />
+            </ConfirmDialogProvider>
           </SidebarProvider>
         </AuthProvider>
       </ThemeProvider>

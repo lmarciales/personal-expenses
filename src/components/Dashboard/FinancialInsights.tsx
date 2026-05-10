@@ -16,6 +16,12 @@ export function FinancialInsights({ insights }: FinancialInsightsProps) {
   const savingsWentUp = savingsRate >= savingsRatePrev;
   const expenseWentUp = momExpenseChange > 0;
   const momBorderColor = expenseWentUp ? "border-amber-500" : "border-green-500";
+  const maxSavingsRateTrend = Math.max(...savingsRateTrend.map(Math.abs), 1);
+  const savingsRateBars = savingsRateTrend.map((value, index) => ({
+    id: index === savingsRateTrend.length - 1 ? "current" : `previous-${savingsRateTrend.length - index - 1}`,
+    isCurrentMonth: index === savingsRateTrend.length - 1,
+    value,
+  }));
 
   return (
     <div className="glass-card rounded-2xl p-5 h-full flex flex-col">
@@ -44,17 +50,15 @@ export function FinancialInsights({ insights }: FinancialInsightsProps) {
             <span className="text-2xl font-black text-green-400 tabular-nums">{savingsRate.toFixed(1)}%</span>
             {/* Mini sparkline */}
             <div className="flex items-end gap-0.5 h-6 mb-0.5">
-              {savingsRateTrend.map((val, idx) => {
-                const isCurrentMonth = idx === savingsRateTrend.length - 1;
-                const maxVal = Math.max(...savingsRateTrend.map(Math.abs), 1);
-                const height = Math.max((Math.abs(val) / maxVal) * 100, 8);
+              {savingsRateBars.map((bar) => {
+                const height = Math.max((Math.abs(bar.value) / maxSavingsRateTrend) * 100, 8);
                 return (
                   <div
-                    key={idx}
+                    key={bar.id}
                     className="w-3 rounded-sm"
                     style={{
                       height: `${height}%`,
-                      backgroundColor: isCurrentMonth ? "#4ade80" : "#6b7280",
+                      backgroundColor: bar.isCurrentMonth ? "#4ade80" : "#6b7280",
                     }}
                   />
                 );

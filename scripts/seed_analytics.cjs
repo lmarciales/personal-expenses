@@ -8,8 +8,8 @@
  */
 
 const { createClient } = require("@supabase/supabase-js");
-const fs = require("fs");
-const path = require("path");
+const fs = require("node:fs");
+const path = require("node:path");
 
 // Load env vars from .env.local
 const envPath = path.join(__dirname, "..", ".env.local");

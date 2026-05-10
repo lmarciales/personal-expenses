@@ -3,6 +3,7 @@ import { CategoryMultiSelect } from "@/components/ui/CategoryMultiSelect";
 import { CurrencyInput } from "@/components/ui/CurrencyInput";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import { useConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -101,6 +102,7 @@ export function AddTransactionModal({
   onOpenChange: controlledOnOpenChange,
 }: AddTransactionModalProps) {
   const { t } = useTranslation(["transactions", "validation"]);
+  const confirm = useConfirmDialog();
   const [internalOpen, setInternalOpen] = useState(false);
   const isControlled = controlledOpen !== undefined;
   const open = isControlled ? controlledOpen : internalOpen;
@@ -255,8 +257,13 @@ export function AddTransactionModal({
 
   const onDelete = async () => {
     if (!transactionId) return;
-    const confirmDelete = window.confirm(t("transactions:modal.deleteConfirm"));
-    if (!confirmDelete) return;
+    const confirmed = await confirm({
+      title: t("common:confirm.deleteTitle"),
+      description: t("transactions:modal.deleteConfirm"),
+      confirmLabel: t("common:confirm.deleteAction"),
+      variant: "destructive",
+    });
+    if (!confirmed) return;
 
     setIsDeleting(true);
     try {
@@ -282,7 +289,10 @@ export function AddTransactionModal({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       {children && <DialogTrigger asChild>{children}</DialogTrigger>}
-      <DialogContent className="sm:max-w-[600px] glass-panel border-glass text-foreground max-h-[90vh] overflow-y-auto">
+      <DialogContent
+        aria-describedby={undefined}
+        className="sm:max-w-[600px] glass-panel border-glass text-foreground max-h-[90vh] overflow-y-auto"
+      >
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">
             {editMode ? t("transactions:modal.editTitle") : t("transactions:modal.addTitle")}
@@ -690,6 +700,8 @@ export function AddTransactionModal({
                           size="icon"
                           className="text-muted-foreground hover:text-destructive hover:bg-destructive/20 h-9 w-9"
                           onClick={() => remove(index)}
+                          aria-label={t("common:actions.delete")}
+                          title={t("common:actions.delete")}
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>

@@ -206,7 +206,7 @@ export function CategoryMultiSelect({
           {pendingCreate && (
             <div className="px-2 py-2 border-t border-glass mt-1">
               <p className="text-xs text-muted-foreground mb-1.5">
-                Grupo para <span className="text-foreground font-medium">"{pendingCreate}"</span>:
+                {t("pickers.categoryGroupPrompt", { name: pendingCreate })}
               </p>
               <div className="flex flex-wrap gap-1">
                 <button
@@ -215,7 +215,7 @@ export function CategoryMultiSelect({
                   className="text-xs px-2 py-1 rounded border border-glass hover:bg-surface-hover transition-colors text-muted-foreground"
                   onClick={() => handleCreate(pendingCreate)}
                 >
-                  Ninguno
+                  {t("pickers.noGroup")}
                 </button>
                 {groups.map((group) => (
                   <button

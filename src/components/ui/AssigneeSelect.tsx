@@ -116,7 +116,7 @@ export function AssigneeSelect({
         </div>
         <div className="max-h-[200px] overflow-y-auto p-1">
           {filtered.length === 0 && !showCreate && (
-            <div className="text-xs text-muted-foreground text-center py-4">No matching assignees.</div>
+            <div className="text-xs text-muted-foreground text-center py-4">{t("pickers.noMatchingAssignees")}</div>
           )}
           {filtered.map((assignee) => {
             const isSelected = assignee.name === value;

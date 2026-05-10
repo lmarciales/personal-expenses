@@ -5,21 +5,23 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
+import { adminNavItem, profileNavItem } from "@/lib/navigation";
 import { signOut } from "@/supabase/auth";
 import { supabase } from "@/supabase/client";
-import { Bell, LogOut, Monitor, Moon, Plus, Sun } from "lucide-react";
+import { Bell, LogOut, Monitor, Moon, Plus, Shield, Sun, User } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   const navigate = useNavigate();
-  const { session } = useAuth();
+  const { session, userRole } = useAuth();
   const { theme, setTheme } = useTheme();
   const { t, i18n } = useTranslation();
 
@@ -57,6 +59,11 @@ export default function Navbar() {
     else setTheme("dark");
   };
 
+  const nextTheme = theme === "dark" ? "light" : theme === "light" ? "system" : "dark";
+  const nextThemeLabel = t(`theme.${nextTheme}`);
+  const currentThemeLabel = t(`theme.${theme}`);
+  const themeLabel = `${t("theme.current", { theme: currentThemeLabel })}. ${t("theme.switchTo", { theme: nextThemeLabel })}`;
+
   return (
     <header className="sticky top-0 z-20 shell-navbar px-4 md:px-8 h-14 flex items-center justify-end shrink-0">
       <div className="flex items-center gap-2">
@@ -78,13 +85,21 @@ export default function Navbar() {
             <Button
               size="sm"
               className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-glow transition-all"
+              aria-label={t("navbar.addTransaction")}
+              title={t("navbar.addTransaction")}
             >
               <Plus className="w-4 h-4 md:mr-1.5" />
               <span className="hidden md:inline">{t("navbar.addTransaction")}</span>
             </Button>
           </AddTransactionModal>
         ) : (
-          <Button size="sm" disabled className="bg-primary/50 text-primary-foreground/50 cursor-not-allowed">
+          <Button
+            size="sm"
+            disabled
+            className="bg-primary/50 text-primary-foreground/50 cursor-not-allowed"
+            aria-label={t("navbar.addTransaction")}
+            title={t("navbar.addTransaction")}
+          >
             <Plus className="w-4 h-4 md:mr-1.5" />
             <span className="hidden md:inline">{t("navbar.addTransaction")}</span>
           </Button>
@@ -94,7 +109,15 @@ export default function Navbar() {
         <LanguageToggle />
 
         {/* Theme Toggle */}
-        <Button variant="ghost" size="icon" className="rounded-full hover:bg-secondary" onClick={cycleTheme}>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="rounded-full hover:bg-secondary"
+          onClick={cycleTheme}
+          aria-label={themeLabel}
+          title={themeLabel}
+        >
+          <span className="sr-only">{themeLabel}</span>
           {theme === "light" ? (
             <Sun className="w-5 h-5" />
           ) : theme === "dark" ? (
@@ -108,7 +131,13 @@ export default function Navbar() {
         <div className="hidden sm:block">
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="ghost" size="icon" className="rounded-full hover:bg-secondary relative">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-full hover:bg-secondary relative"
+                aria-label={t("navbar.notifications")}
+                title={t("navbar.notifications")}
+              >
                 <Bell className="w-5 h-5" />
                 <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-primary rounded-full animate-pulse" />
               </Button>
@@ -123,11 +152,27 @@ export default function Navbar() {
         {/* User Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="w-9 h-9 rounded-full bg-primary/20 border-2 border-transparent hover:border-primary transition-colors focus:outline-none ml-1 flex items-center justify-center">
+            <button
+              type="button"
+              className="w-9 h-9 rounded-full bg-primary/20 border-2 border-transparent hover:border-primary transition-colors focus-ring ml-1 flex items-center justify-center"
+              aria-label={t(profileNavItem.labelKey)}
+              title={t(profileNavItem.labelKey)}
+            >
               <span className="text-sm font-bold text-primary">{session?.user?.email?.[0]?.toUpperCase() ?? "U"}</span>
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48 glass-panel rounded-xl mt-2 border-border">
+            <DropdownMenuItem onClick={() => navigate(profileNavItem.path)} className="rounded-lg cursor-pointer">
+              <User className="w-4 h-4 mr-2" />
+              <span>{t(profileNavItem.labelKey)}</span>
+            </DropdownMenuItem>
+            {userRole === "admin" && (
+              <DropdownMenuItem onClick={() => navigate(adminNavItem.path)} className="rounded-lg cursor-pointer">
+                <Shield className="w-4 h-4 mr-2" />
+                <span>{t(adminNavItem.labelKey)}</span>
+              </DropdownMenuItem>
+            )}
+            <DropdownMenuSeparator className="bg-border/50" />
             <DropdownMenuItem
               onClick={handleSignOut}
               className="text-destructive focus:bg-destructive/10 focus:text-destructive rounded-lg cursor-pointer"

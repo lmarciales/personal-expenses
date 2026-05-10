@@ -1,4 +1,5 @@
 import { getCreditCardDebt, isCreditCard } from "@/lib/creditCard";
+import { getErrorMessage } from "@/lib/errors";
 import { getProjectedBalance } from "@/lib/projectedBalance";
 import { supabase } from "@/supabase/client";
 import { useCallback, useEffect, useState } from "react";
@@ -73,6 +74,58 @@ export interface DashboardData {
   error: string | null;
   refetch: () => Promise<void>;
 }
+
+type DashboardAccountSourceRow = Omit<DashboardData["accounts"][number], "color"> & { color: string | null };
+type DashboardCategoryRow = {
+  id: string;
+  name: string;
+  color: string | null;
+  parent_id?: string | null;
+  is_group?: boolean | null;
+};
+type DashboardTransactionCategoryRow = {
+  category_id: string;
+  categories: DashboardCategoryRow | null;
+};
+type DashboardSplitRow = {
+  id: string;
+  amount: number;
+  assigned_to: string;
+  status: string;
+};
+type DashboardExpenseRow = {
+  id: string;
+  total_amount: number;
+  date?: string;
+  type?: string;
+  transaction_categories: DashboardTransactionCategoryRow[] | null;
+};
+type DashboardTransactionRow = {
+  id: string;
+  payee: string;
+  total_amount: number;
+  date: string;
+  account_id: string | null;
+  type: string | null;
+  is_recurring: boolean | null;
+  recurrence_value: number | null;
+  recurrence_unit: string | null;
+  notes: string | null;
+  accounts: { name: string } | { name: string }[] | null;
+  transaction_splits: DashboardSplitRow[] | null;
+  transaction_categories: DashboardTransactionCategoryRow[] | null;
+};
+type DashboardAmountRow = {
+  id?: string;
+  total_amount: number;
+  type?: string | null;
+};
+type DashboardGroupRow = { id: string; name: string; color: string | null };
+
+const hasCategory = (
+  transactionCategory: DashboardTransactionCategoryRow,
+): transactionCategory is DashboardTransactionCategoryRow & { categories: DashboardCategoryRow } =>
+  Boolean(transactionCategory.categories);
 
 export function useDashboardData() {
   const [data, setData] = useState<Omit<DashboardData, "refetch">>({
@@ -198,12 +251,19 @@ export function useDashboardData() {
       if (prevMonthIncomeResult.error) throw prevMonthIncomeResult.error;
       if (groupsResult.error) throw groupsResult.error;
 
+      const expenseRows = (expenseResult.data || []) as DashboardExpenseRow[];
+      const transactionRows = (transactionsResult.data || []) as DashboardTransactionRow[];
+      const monthlyIncomeRows = (monthlyIncomeResult.data || []) as DashboardAmountRow[];
+      const monthlyExpenseRows = (monthlyExpenseResult.data || []) as DashboardExpenseRow[];
+      const prevMonthExpenseRows = (prevMonthExpenseResult.data || []) as DashboardAmountRow[];
+      const prevMonthIncomeRows = (prevMonthIncomeResult.data || []) as DashboardAmountRow[];
+
       // Aggregate spending by category (annual, flat — kept for backward compatibility)
       // Split a multi-category transaction evenly across its categories so the
       // total never exceeds the transaction's actual amount.
       const categoryMap = new Map<string, { name: string; color: string | null; amount: number }>();
-      for (const txn of (expenseResult.data || []) as any[]) {
-        const cats = (txn.transaction_categories || []).filter((tc: any) => tc.categories);
+      for (const txn of expenseRows) {
+        const cats = (txn.transaction_categories || []).filter(hasCategory);
         if (cats.length === 0) continue;
         const share = Math.abs(txn.total_amount) / cats.length;
         for (const tc of cats) {
@@ -218,10 +278,7 @@ export function useDashboardData() {
       }
       const categorySpending = Array.from(categoryMap.values()).sort((a, b) => b.amount - a.amount);
 
-      const allExpenseTotal = (expenseResult.data || []).reduce(
-        (sum: number, txn: any) => sum + Math.abs(txn.total_amount),
-        0,
-      );
+      const allExpenseTotal = expenseRows.reduce((sum, txn) => sum + Math.abs(txn.total_amount), 0);
 
       // Map Accounts
       const fallbackColors = [
@@ -231,7 +288,7 @@ export function useDashboardData() {
         "bg-cyan-600 text-white",
       ];
 
-      const rawAccounts = [...(accountsResult.data || [])].sort((a, b) => {
+      const rawAccounts = ([...(accountsResult.data || [])] as DashboardAccountSourceRow[]).sort((a, b) => {
         const ao = a.display_order;
         const bo = b.display_order;
         if (ao != null && bo != null) return ao - bo;
@@ -266,46 +323,50 @@ export function useDashboardData() {
       }, 0);
 
       // Map Transactions for UI
-      const transactions = (transactionsResult.data || []).map((txn: any) => ({
+      const transactions: DashboardData["transactions"] = transactionRows.map((txn) => ({
         id: txn.id,
         name: txn.payee,
-        email: txn.accounts && !Array.isArray(txn.accounts) ? txn.accounts.name : "Unknown Account",
+        email: txn.accounts && !Array.isArray(txn.accounts) ? txn.accounts.name : "External",
         amount: Math.abs(txn.total_amount),
         status: "Success" as const,
         type: (txn.type as "expense" | "income" | "transfer") || "expense",
-        account_id: txn.account_id,
+        account_id: txn.account_id ?? "",
         date: txn.date,
         notes: txn.notes || null,
         is_recurring: txn.is_recurring || false,
         recurrence_value: txn.recurrence_value || null,
         recurrence_unit: txn.recurrence_unit || null,
         transaction_splits: txn.transaction_splits || [],
-        transaction_categories: txn.transaction_categories || [],
+        transaction_categories: (txn.transaction_categories || []).filter(hasCategory).map((tc) => ({
+          category_id: tc.category_id,
+          categories: {
+            id: tc.categories.id,
+            name: tc.categories.name,
+            color: tc.categories.color,
+          },
+        })),
       }));
 
       // Monthly totals
-      const monthlyIncome = (monthlyIncomeResult.data || []).reduce(
-        (sum: number, t: any) => sum + Math.abs(t.total_amount),
-        0,
-      );
-      const monthlyExpenseTotal = (monthlyExpenseResult.data || []).reduce(
-        (sum: number, t: any) => sum + Math.abs(t.total_amount),
-        0,
-      );
+      const monthlyIncome = monthlyIncomeRows.reduce((sum, t) => sum + Math.abs(t.total_amount), 0);
+      const monthlyExpenseTotal = monthlyExpenseRows.reduce((sum, t) => sum + Math.abs(t.total_amount), 0);
       const monthlyNet = monthlyIncome - monthlyExpenseTotal;
-      const prevMonthExpenseTotal = (prevMonthExpenseResult.data || []).reduce(
-        (sum: number, t: any) => sum + Math.abs(t.total_amount),
-        0,
-      );
+      const prevMonthExpenseTotal = prevMonthExpenseRows.reduce((sum, t) => sum + Math.abs(t.total_amount), 0);
       const momChange =
         prevMonthExpenseTotal > 0 ? ((monthlyExpenseTotal - prevMonthExpenseTotal) / prevMonthExpenseTotal) * 100 : 0;
 
       // Grouped spending — aggregate by parent group
-      const groups = (groupsResult.data || []) as { id: string; name: string; color: string }[];
+      const groups = (groupsResult.data || []) as DashboardGroupRow[];
       const groupMap = new Map<string, GroupedSpending>();
 
-      for (const txn of (monthlyExpenseResult.data || []) as any[]) {
-        const cats = (txn.transaction_categories || []).filter((tc: any) => tc.categories && !tc.categories.is_group);
+      for (const txn of monthlyExpenseRows) {
+        const cats = (txn.transaction_categories || []).filter(
+          (
+            tc,
+          ): tc is DashboardTransactionCategoryRow & {
+            categories: DashboardCategoryRow;
+          } => hasCategory(tc) && !tc.categories.is_group,
+        );
         if (cats.length === 0) continue;
         // Split evenly across leaf categories so a multi-category transaction
         // doesn't inflate group totals beyond the transaction's actual amount.
@@ -334,10 +395,7 @@ export function useDashboardData() {
       const groupedSpending = Array.from(groupMap.values()).sort((a, b) => b.amount - a.amount);
 
       // Insights
-      const prevMonthIncomeTotal = (prevMonthIncomeResult.data || []).reduce(
-        (sum: number, t: any) => sum + Math.abs(t.total_amount),
-        0,
-      );
+      const prevMonthIncomeTotal = prevMonthIncomeRows.reduce((sum, t) => sum + Math.abs(t.total_amount), 0);
       const savingsRate = monthlyIncome > 0 ? (monthlyNet / monthlyIncome) * 100 : 0;
       const prevNet = prevMonthIncomeTotal - prevMonthExpenseTotal;
       const savingsRatePrev = prevMonthIncomeTotal > 0 ? (prevNet / prevMonthIncomeTotal) * 100 : 0;
@@ -364,9 +422,9 @@ export function useDashboardData() {
         accounts,
         transactions,
         totalBalance,
-        totalIncome: Array.isArray(transactionsResult.data)
-          ? transactionsResult.data.filter((t) => t.type === "income").reduce((a, b) => a + Math.abs(b.total_amount), 0)
-          : 0,
+        totalIncome: transactionRows
+          .filter((transaction) => transaction.type === "income")
+          .reduce((sum, transaction) => sum + Math.abs(transaction.total_amount), 0),
         totalExpense: allExpenseTotal,
         categorySpending,
         monthlyIncome,
@@ -379,8 +437,8 @@ export function useDashboardData() {
         isLoading: false,
         error: null,
       });
-    } catch (err: any) {
-      setData((prev) => ({ ...prev, isLoading: false, error: err.message }));
+    } catch (err) {
+      setData((prev) => ({ ...prev, isLoading: false, error: getErrorMessage(err) }));
     }
   }, []);
 

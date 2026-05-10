@@ -3,6 +3,7 @@ import type { AccountDebtGroup, SimpleAccount } from "@/hooks/useDebtsData";
 import { formatCOPWithSymbol } from "@/lib/currency";
 import { getDateLocale } from "@/lib/dateFnsLocale";
 import { parseLocalDate } from "@/lib/dates";
+import { formatSystemLabel } from "@/lib/displayLabels";
 import { format } from "date-fns";
 import { CheckCheck, CheckSquare, CreditCard, Globe, Square } from "lucide-react";
 import { useState } from "react";
@@ -16,7 +17,7 @@ interface MyDebtsTabProps {
 }
 
 export const MyDebtsTab = ({ groups, accounts, onSettled }: MyDebtsTabProps) => {
-  const { t } = useTranslation("debts");
+  const { t } = useTranslation(["debts", "common"]);
   const [selectedSplits, setSelectedSplits] = useState<Map<string, Set<string>>>(new Map());
   const [paymentDialog, setPaymentDialog] = useState<{
     open: boolean;
@@ -62,6 +63,7 @@ export const MyDebtsTab = ({ groups, accounts, onSettled }: MyDebtsTabProps) => 
   };
 
   const getSelectedForAccount = (accountId: string) => selectedSplits.get(accountId) || new Set<string>();
+  const systemLabel = (value: string | null | undefined) => formatSystemLabel(value, (key) => t(`common:${key}`));
 
   const getSelectedTotal = (accountId: string, items: { splitId: string; transactionTotal: number }[]) => {
     const selected = getSelectedForAccount(accountId);
@@ -105,9 +107,10 @@ export const MyDebtsTab = ({ groups, accounts, onSettled }: MyDebtsTabProps) => 
                   )}
                 </div>
                 <div>
-                  <h3 className="font-semibold text-foreground">{group.account.name}</h3>
+                  <h3 className="font-semibold text-foreground">{systemLabel(group.account.name)}</h3>
                   <p className="text-xs text-muted-foreground">
-                    {group.account.type} &middot; {t("myDebts.pendingItems", { count: group.items.length })}
+                    {systemLabel(group.account.type)} &middot;{" "}
+                    {t("myDebts.pendingItems", { count: group.items.length })}
                   </p>
                 </div>
               </div>

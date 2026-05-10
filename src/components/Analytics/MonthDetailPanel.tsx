@@ -41,6 +41,7 @@ export function MonthDetailPanel({ year, month, onClose }: MonthDetailPanelProps
           📅 {monthName} {year} — {t("analytics:monthDetail.detail")}
         </h3>
         <button
+          type="button"
           onClick={onClose}
           className="text-xs text-muted-foreground bg-surface-hover/50 hover:bg-surface-hover-strong px-3 py-1 rounded-lg transition-colors flex items-center gap-1"
         >

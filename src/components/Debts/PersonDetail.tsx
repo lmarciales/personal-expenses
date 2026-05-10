@@ -4,6 +4,7 @@ import type { DebtItem, SimpleAccount } from "@/hooks/useDebtsData";
 import { formatCOPWithSymbol } from "@/lib/currency";
 import { getDateLocale } from "@/lib/dateFnsLocale";
 import { parseLocalDate } from "@/lib/dates";
+import { formatSystemLabel } from "@/lib/displayLabels";
 import { format } from "date-fns";
 import { CheckSquare, Info, Square } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -21,7 +22,7 @@ interface PersonDetailProps {
 }
 
 export const PersonDetail = ({ person, iOweItems, owedToMeItems, accounts, onSuccess }: PersonDetailProps) => {
-  const { t } = useTranslation("debts");
+  const { t } = useTranslation(["debts", "common"]);
   const { settleOffset, isProcessing } = useDebtActions();
   const hasBothSides = iOweItems.length > 0 && owedToMeItems.length > 0;
 
@@ -93,6 +94,7 @@ export const PersonDetail = ({ person, iOweItems, owedToMeItems, accounts, onSuc
 
   const hasSelections = selectedMyDebtIds.size > 0 || selectedReceivableIds.size > 0;
   const hasBothSelections = selectedMyDebtIds.size > 0 && selectedReceivableIds.size > 0;
+  const systemLabel = (value: string | null | undefined) => formatSystemLabel(value, (key) => t(`common:${key}`));
 
   const renderItemList = (
     items: (DebtItem & { accountName?: string })[],
@@ -143,7 +145,7 @@ export const PersonDetail = ({ person, iOweItems, owedToMeItems, accounts, onSuc
                 <p className="text-sm font-medium text-foreground truncate">{item.payee}</p>
                 <p className="text-xs text-muted-foreground">
                   {format(parseLocalDate(item.date), "MMM d, yyyy", { locale: getDateLocale() })}
-                  {"accountName" in item && item.accountName && ` · ${item.accountName}`}
+                  {"accountName" in item && item.accountName && ` · ${systemLabel(item.accountName)}`}
                 </p>
               </div>
               <span className={`text-sm font-semibold ${color === "danger" ? "text-danger" : "text-success"}`}>
@@ -182,7 +184,7 @@ export const PersonDetail = ({ person, iOweItems, owedToMeItems, accounts, onSuc
           onOpenChange={setPaymentDialogOpen}
           selectedSplitIds={Array.from(selectedMyDebtIds)}
           totalAmount={selectedIOweTotal}
-          targetAccount={{ id: "external", name: "Externo", type: "External" }}
+          targetAccount={{ id: "external", name: "External", type: "External" }}
           accounts={accounts}
           onSuccess={onSuccess}
         />

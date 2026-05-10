@@ -38,6 +38,15 @@
     "expensesLabel": "Expenses",
     "netLabel": "Net"
   },
+  "chart": {
+    "monthlyExpensesLabel": "Monthly expenses chart",
+    "incomeExpensesLabel": "Income versus expenses chart",
+    "previousYear": "Previous year",
+    "nextYear": "Next year",
+    "comparisonVs": "{{direction}} {{percent}}% vs {{month}}",
+    "up": "up",
+    "down": "down"
+  },
   "monthDetail": {
     "detail": "— Detail",
     "expenses": "Expenses",

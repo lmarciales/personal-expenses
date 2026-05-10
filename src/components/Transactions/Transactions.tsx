@@ -1,4 +1,5 @@
 import { formatCOPWithSymbol } from "@/lib/currency";
+import { formatSystemLabel } from "@/lib/displayLabels";
 import { Activity, ArrowUpRight, CopyPlus, Pencil } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -7,6 +8,10 @@ import { EmptyState } from "../ui/EmptyState";
 import { Button } from "../ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { AddTransactionModal } from "./AddTransactionModal";
+
+type TransactionAccount = { id: string; name: string; balance: number; type: string };
+type RecurrenceUnit = "Days" | "Weeks" | "Months" | "Years";
+type SplitStatus = "Settled" | "Pending Receival" | "Pending Payment" | "Ignored";
 
 export interface Transaction {
   id: string | number;
@@ -31,13 +36,20 @@ const Transactions = ({
   transactions,
   accounts,
   onSuccess,
-}: { transactions: Transaction[]; accounts?: any[]; onSuccess?: () => void }) => {
-  const { t } = useTranslation("transactions");
+}: { transactions: Transaction[]; accounts?: TransactionAccount[]; onSuccess?: () => void }) => {
+  const { t } = useTranslation(["transactions", "common"]);
   const navigate = useNavigate();
   const [modalState, setModalState] = useState<{
     mode: "edit" | "duplicate";
     transaction: Transaction;
   } | null>(null);
+  const systemLabel = (value: string | null | undefined) => formatSystemLabel(value, (key) => t(`common:${key}`));
+  const recurrenceUnits: RecurrenceUnit[] = ["Days", "Weeks", "Months", "Years"];
+  const splitStatuses: SplitStatus[] = ["Settled", "Pending Receival", "Pending Payment", "Ignored"];
+  const toRecurrenceUnit = (value: string | null | undefined) =>
+    recurrenceUnits.includes(value as RecurrenceUnit) ? (value as RecurrenceUnit) : undefined;
+  const toSplitStatus = (value: string): SplitStatus =>
+    splitStatuses.includes(value as SplitStatus) ? (value as SplitStatus) : "Settled";
 
   return (
     <div className="glass-card h-full flex flex-col p-6">
@@ -61,7 +73,10 @@ const Transactions = ({
         ) : (
           transactions.map((transaction) => {
             const rowContent = (
-              <div className="group relative flex items-center gap-3 p-3 rounded-xl hover:bg-surface-hover transition-colors cursor-pointer overflow-hidden">
+              <div
+                key={transaction.id}
+                className="group relative flex items-center gap-3 p-3 rounded-xl hover:bg-surface-hover transition-colors cursor-pointer overflow-hidden"
+              >
                 {/* Avatar */}
                 <div className="relative shrink-0">
                   <div className="w-9 h-9 rounded-full bg-surface-overlay border-2 border-background shadow-sm flex items-center justify-center">
@@ -70,7 +85,7 @@ const Transactions = ({
                     </span>
                   </div>
                   {transaction.status === "Success" && (
-                    <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-primary border-2 border-background rounded-full"></div>
+                    <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-primary border-2 border-background rounded-full" />
                   )}
                 </div>
 
@@ -93,7 +108,7 @@ const Transactions = ({
                     </span>
                   </div>
                   <div className="flex items-center justify-between gap-2 mt-0.5">
-                    <span className="text-xs text-muted-foreground truncate">{transaction.email}</span>
+                    <span className="text-xs text-muted-foreground truncate">{systemLabel(transaction.email)}</span>
                     <span
                       className={`shrink-0 text-[10px] font-medium uppercase tracking-wider ${
                         transaction.status === "Success" ? "text-primary" : "text-warning animate-pulse"
@@ -158,7 +173,7 @@ const Transactions = ({
             recurrenceValue:
               modalState.mode === "edit" ? modalState.transaction.recurrence_value ?? undefined : undefined,
             recurrenceUnit:
-              modalState.mode === "edit" ? (modalState.transaction.recurrence_unit as any) ?? undefined : undefined,
+              modalState.mode === "edit" ? toRecurrenceUnit(modalState.transaction.recurrence_unit) : undefined,
             categoryIds: modalState.transaction.transaction_categories?.map((tc) => tc.category_id) || [],
             creditor: modalState.mode === "edit" ? modalState.transaction.creditor || null : null,
             splits:
@@ -167,7 +182,7 @@ const Transactions = ({
                   ? modalState.transaction.transaction_splits.map((s) => ({
                       amount: Math.abs(s.amount),
                       assigned_to: s.assigned_to || "Me",
-                      status: s.status as any,
+                      status: toSplitStatus(s.status),
                     }))
                   : [{ amount: Math.abs(modalState.transaction.amount), assigned_to: "Me", status: "Settled" as const }]
                 : undefined,

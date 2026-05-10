@@ -1,6 +1,7 @@
 import { AddTransactionModal } from "@/components/Transactions/AddTransactionModal";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import { useConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -18,6 +19,7 @@ import { type TransactionFilters, useTransactionsData } from "@/hooks/useTransac
 import { formatCOPWithSymbol } from "@/lib/currency";
 import { getDateLocale } from "@/lib/dateFnsLocale";
 import { parseLocalDate } from "@/lib/dates";
+import { formatSystemLabel } from "@/lib/displayLabels";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/supabase/client";
 import { format } from "date-fns";
@@ -42,7 +44,8 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 
 export function TransactionsView() {
-  const { t } = useTranslation("transactions");
+  const { t, i18n } = useTranslation(["transactions", "common"]);
+  const confirm = useConfirmDialog();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { categories } = useCategories();
@@ -127,7 +130,13 @@ export function TransactionsView() {
 
   const handleDelete = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!confirm(t("deleteConfirm"))) return;
+    const confirmed = await confirm({
+      title: t("common:confirm.deleteTitle"),
+      description: t("deleteConfirm"),
+      confirmLabel: t("common:confirm.deleteAction"),
+      variant: "destructive",
+    });
+    if (!confirmed) return;
 
     try {
       const { data: userData, error: userError } = await supabase.auth.getUser();
@@ -145,6 +154,8 @@ export function TransactionsView() {
     }
   };
 
+  const systemLabel = (value: string | null | undefined) => formatSystemLabel(value, (key) => t(`common:${key}`));
+
   return (
     <>
       {/* Header */}
@@ -158,6 +169,8 @@ export function TransactionsView() {
           size="icon"
           className="rounded-full hover:bg-surface-hover-strong"
           onClick={() => navigate(-1)}
+          aria-label={t("common:actions.goBack")}
+          title={t("common:actions.goBack")}
         >
           <X className="h-5 w-5" />
         </Button>
@@ -185,7 +198,7 @@ export function TransactionsView() {
             <DropdownMenuContent className="w-56 border-glass bg-background/95 backdrop-blur z-50">
               {categories.length === 0 ? (
                 <div className="text-xs text-muted-foreground text-center py-3 px-2">
-                  No categories yet. Create one when adding a transaction.
+                  {t("common:pickers.noCategoriesYet")}
                 </div>
               ) : (
                 categories.map((cat) => (
@@ -300,7 +313,7 @@ export function TransactionsView() {
           </div>
         ) : error ? (
           <div className="text-center py-20 text-danger">
-            <p>Error loading transactions: {error}</p>
+            <p>{t("empty.errorLoading", { error })}</p>
           </div>
         ) : transactions.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-48 text-center space-y-3 opacity-50">
@@ -325,7 +338,7 @@ export function TransactionsView() {
                         style={{ backgroundColor: txn.accounts?.color || "#333" }}
                       >
                         <span className="text-white font-bold text-[10px] tracking-tighter truncate w-full text-center px-1">
-                          {txn.accounts?.name.substring(0, 2).toUpperCase()}
+                          {(txn.accounts?.name ?? systemLabel("External")).substring(0, 2).toUpperCase()}
                         </span>
                       </div>
                     </div>
@@ -344,10 +357,10 @@ export function TransactionsView() {
                         )}
                       </div>
                       <div className="text-xs text-muted-foreground mt-0.5 flex items-center gap-2">
-                        <span className="font-medium">{txn.accounts?.name}</span>
+                        <span className="font-medium">{txn.accounts?.name ?? systemLabel("External")}</span>
                         <span>•</span>
                         <span>
-                          {parseLocalDate(txn.date).toLocaleDateString(undefined, {
+                          {parseLocalDate(txn.date).toLocaleDateString(i18n.language, {
                             month: "short",
                             day: "numeric",
                             year: "numeric",
@@ -371,7 +384,7 @@ export function TransactionsView() {
                                   : undefined
                               }
                             >
-                              {tc.categories?.name || "Unknown"}
+                              {tc.categories?.name || t("unknownCategory")}
                             </span>
                           ))}
                         </div>
@@ -420,6 +433,8 @@ export function TransactionsView() {
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-surface-hover-strong"
+                            aria-label={t("common:actions.openMenu")}
+                            title={t("common:actions.openMenu")}
                           >
                             <MoreVertical className="w-4 h-4" />
                           </Button>

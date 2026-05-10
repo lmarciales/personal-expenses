@@ -1,3 +1,4 @@
+import { getErrorMessage } from "@/lib/errors";
 import { supabase } from "@/supabase/client";
 import { useCallback, useEffect, useState } from "react";
 
@@ -47,6 +48,46 @@ export interface SimpleAccount {
 }
 
 const EXTERNAL_ACCOUNT_ID = "external";
+
+type DebtAccountRow = {
+  id: string;
+  name: string;
+  type: string;
+  color: string | null;
+  balance: number;
+};
+
+type MyDebtSplitRow = {
+  id: string;
+  amount: number;
+  assigned_to: string;
+  status: string;
+  transactions: {
+    id: string;
+    payee: string;
+    date: string;
+    total_amount: number;
+    account_id: string | null;
+    notes: string | null;
+    creditor: string | null;
+    accounts: DebtAccountRow | null;
+  };
+};
+
+type OwedDebtSplitRow = {
+  id: string;
+  amount: number;
+  assigned_to: string;
+  status: string;
+  transactions: {
+    id: string;
+    payee: string;
+    date: string;
+    total_amount: number;
+    notes: string | null;
+    accounts: { name: string } | null;
+  };
+};
 
 export function useDebtsData() {
   const [myDebts, setMyDebts] = useState<AccountDebtGroup[]>([]);
@@ -99,13 +140,15 @@ export function useDebtsData() {
 
       // Group by account (or "external" for no-account transactions)
       const accountMap = new Map<string, AccountDebtGroup>();
-      for (const split of (myDebtsData || []) as any[]) {
+      const myDebtSplits = (myDebtsData || []) as MyDebtSplitRow[];
+      for (const split of myDebtSplits) {
         const txn = split.transactions;
         const acc = txn.accounts;
         const accountId = acc?.id || EXTERNAL_ACCOUNT_ID;
 
-        if (!accountMap.has(accountId)) {
-          accountMap.set(accountId, {
+        let group = accountMap.get(accountId);
+        if (!group) {
+          group = {
             account: acc
               ? {
                   id: acc.id,
@@ -116,7 +159,7 @@ export function useDebtsData() {
                 }
               : {
                   id: EXTERNAL_ACCOUNT_ID,
-                  name: "Externo",
+                  name: "External",
                   type: "External",
                   color: null,
                   balance: 0,
@@ -124,10 +167,10 @@ export function useDebtsData() {
             items: [],
             total: 0,
             transactionTotal: 0,
-          });
+          };
+          accountMap.set(accountId, group);
         }
 
-        const group = accountMap.get(accountId)!;
         group.items.push({
           transactionId: txn.id,
           splitId: split.id,
@@ -171,19 +214,21 @@ export function useDebtsData() {
 
       // Group by person
       const personMap = new Map<string, PersonDebtGroup>();
-      for (const split of (owedData || []) as any[]) {
+      const owedSplits = (owedData || []) as OwedDebtSplitRow[];
+      for (const split of owedSplits) {
         const txn = split.transactions;
         const person = split.assigned_to;
 
-        if (!personMap.has(person)) {
-          personMap.set(person, {
+        let group = personMap.get(person);
+        if (!group) {
+          group = {
             person,
             items: [],
             total: 0,
-          });
+          };
+          personMap.set(person, group);
         }
 
-        const group = personMap.get(person)!;
         group.items.push({
           transactionId: txn.id,
           splitId: split.id,
@@ -192,7 +237,7 @@ export function useDebtsData() {
           amount: split.amount,
           transactionTotal: txn.total_amount,
           notes: txn.notes,
-          accountName: txn.accounts?.name || "Externo",
+          accountName: txn.accounts?.name || "External",
         });
         group.total += split.amount;
       }
@@ -206,22 +251,23 @@ export function useDebtsData() {
       const peopleMap = new Map<string, PersonCombinedGroup>();
 
       // Add "I owe" items from external debts with a creditor
-      for (const split of (myDebtsData || []) as any[]) {
+      for (const split of myDebtSplits) {
         const txn = split.transactions;
         const creditor = txn.creditor;
         if (!creditor) continue; // Only external debts with creditor
 
-        if (!peopleMap.has(creditor)) {
-          peopleMap.set(creditor, {
+        let group = peopleMap.get(creditor);
+        if (!group) {
+          group = {
             person: creditor,
             iOweItems: [],
             owedToMeItems: [],
             totalIOwe: 0,
             totalOwedToMe: 0,
             netBalance: 0,
-          });
+          };
+          peopleMap.set(creditor, group);
         }
-        const group = peopleMap.get(creditor)!;
         group.iOweItems.push({
           transactionId: txn.id,
           splitId: split.id,
@@ -235,21 +281,22 @@ export function useDebtsData() {
       }
 
       // Add "Owed to me" items
-      for (const split of (owedData || []) as any[]) {
+      for (const split of owedSplits) {
         const txn = split.transactions;
         const person = split.assigned_to;
 
-        if (!peopleMap.has(person)) {
-          peopleMap.set(person, {
+        let group = peopleMap.get(person);
+        if (!group) {
+          group = {
             person,
             iOweItems: [],
             owedToMeItems: [],
             totalIOwe: 0,
             totalOwedToMe: 0,
             netBalance: 0,
-          });
+          };
+          peopleMap.set(person, group);
         }
-        const group = peopleMap.get(person)!;
         group.owedToMeItems.push({
           transactionId: txn.id,
           splitId: split.id,
@@ -258,7 +305,7 @@ export function useDebtsData() {
           amount: split.amount,
           transactionTotal: txn.total_amount,
           notes: txn.notes,
-          accountName: txn.accounts?.name || "Externo",
+          accountName: txn.accounts?.name || "External",
         });
         group.totalOwedToMe += split.amount;
       }
@@ -271,8 +318,8 @@ export function useDebtsData() {
         group.owedToMeItems.sort((a, b) => b.date.localeCompare(a.date));
       }
       setPeopleDebts(peopleGroups);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(getErrorMessage(err));
     } finally {
       setIsLoading(false);
     }

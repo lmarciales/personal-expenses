@@ -38,6 +38,15 @@
     "expensesLabel": "Gastos",
     "netLabel": "Neto"
   },
+  "chart": {
+    "monthlyExpensesLabel": "Gráfico de gastos mensuales",
+    "incomeExpensesLabel": "Gráfico de ingresos versus gastos",
+    "previousYear": "Año anterior",
+    "nextYear": "Año siguiente",
+    "comparisonVs": "{{direction}} {{percent}}% vs {{month}}",
+    "up": "subió",
+    "down": "bajó"
+  },
   "monthDetail": {
     "detail": "— Detalle",
     "expenses": "Gastos",

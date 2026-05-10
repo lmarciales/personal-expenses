@@ -1,3 +1,4 @@
+import { getErrorMessage } from "@/lib/errors";
 import { supabase } from "@/supabase/client";
 import { useCallback, useEffect, useState } from "react";
 
@@ -174,8 +175,8 @@ export function useAnalyticsData(year: number): AnalyticsData {
         isLoading: false,
         error: null,
       });
-    } catch (err: any) {
-      setData((prev) => ({ ...prev, isLoading: false, error: err.message }));
+    } catch (err) {
+      setData((prev) => ({ ...prev, isLoading: false, error: getErrorMessage(err) }));
     }
   }, [year]);
 

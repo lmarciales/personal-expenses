@@ -2,7 +2,9 @@ import { AccountDetailModal } from "@/components/Accounts/AccountDetailModal";
 import { MaturedCdtsBanner } from "@/components/Accounts/MaturedCdtsBanner";
 import { AddAccountModal } from "@/components/Products/AddAccountModal";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { Button } from "@/components/ui/button";
+import { useConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,6 +17,7 @@ import { isCdtMatured } from "@/lib/cdtMaturity";
 import { isCreditCard } from "@/lib/creditCard";
 import { formatCOPWithSymbol } from "@/lib/currency";
 import { parseLocalDate } from "@/lib/dates";
+import { formatSystemLabel } from "@/lib/displayLabels";
 import { getProjectedBalance } from "@/lib/projectedBalance";
 import { supabase } from "@/supabase/client";
 import {
@@ -36,7 +39,8 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 export const AccountsView = () => {
-  const { t } = useTranslation("accounts");
+  const { t, i18n } = useTranslation(["accounts", "common"]);
+  const confirm = useConfirmDialog();
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<"balance" | "name" | "type" | "created_at">("balance");
@@ -84,7 +88,13 @@ export const AccountsView = () => {
           ? t("deleteConfirm.withTransactions", { name: account.name, count: txCount })
           : t("deleteConfirm.simple", { name: account.name });
 
-      if (!window.confirm(message)) return;
+      const confirmed = await confirm({
+        title: t("common:confirm.deleteTitle"),
+        description: message,
+        confirmLabel: t("common:confirm.deleteAction"),
+        variant: "destructive",
+      });
+      if (!confirmed) return;
 
       setDeletingId(account.id);
 
@@ -104,8 +114,9 @@ export const AccountsView = () => {
   };
 
   const totalAccounts = Object.values(countByType).reduce((s, n) => s + n, 0);
+  const systemLabel = (value: string | null | undefined) => formatSystemLabel(value, (key) => t(`common:${key}`));
   const typeBreakdown = Object.entries(countByType)
-    .map(([type, count]) => `${count} ${type}`)
+    .map(([type, count]) => `${count} ${systemLabel(type)}`)
     .join(" · ");
 
   const maturedCdts = accounts.filter(isCdtMatured);
@@ -155,7 +166,11 @@ export const AccountsView = () => {
               {t("summary.netWorth")}
             </span>
           </div>
-          <p className="typo-amount-md">{formatCOPWithSymbol(netWorth)}</p>
+          {isLoading ? (
+            <Skeleton className="h-8 w-36" />
+          ) : (
+            <p className="typo-amount-md">{formatCOPWithSymbol(netWorth)}</p>
+          )}
           <p className="text-xs text-muted-foreground mt-1">{t("summary.netWorthHint")}</p>
         </div>
 
@@ -168,9 +183,17 @@ export const AccountsView = () => {
               {t("summary.liquid")}
             </span>
           </div>
-          <p className="typo-amount-md">{formatCOPWithSymbol(liquidBalance)}</p>
+          {isLoading ? (
+            <Skeleton className="h-8 w-36" />
+          ) : (
+            <p className="typo-amount-md">{formatCOPWithSymbol(liquidBalance)}</p>
+          )}
           <p className="text-xs text-muted-foreground mt-1">
-            {isFiltered ? `${t("showing")} ${accounts.length} ${t("of")} ${totalAccounts}` : typeBreakdown || "—"}
+            {isLoading
+              ? t("common:loading")
+              : isFiltered
+                ? `${t("showing")} ${accounts.length} ${t("of")} ${totalAccounts}`
+                : typeBreakdown || "—"}
           </p>
         </div>
 
@@ -183,7 +206,11 @@ export const AccountsView = () => {
               {t("summary.creditDebt")}
             </span>
           </div>
-          <p className="typo-amount-md text-destructive">{formatCOPWithSymbol(creditDebt)}</p>
+          {isLoading ? (
+            <Skeleton className="h-8 w-36" />
+          ) : (
+            <p className="typo-amount-md text-destructive">{formatCOPWithSymbol(creditDebt)}</p>
+          )}
           <p className="text-xs text-muted-foreground mt-1">{t("summary.creditDebtHint")}</p>
         </div>
       </div>
@@ -194,7 +221,11 @@ export const AccountsView = () => {
         <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider shrink-0">
           {t("byType")}
         </span>
-        <span className="text-sm font-medium text-foreground truncate">{typeBreakdown || "—"}</span>
+        {isLoading ? (
+          <Skeleton className="h-4 w-48" />
+        ) : (
+          <span className="text-sm font-medium text-foreground truncate">{typeBreakdown || "—"}</span>
+        )}
       </div>
 
       {/* Filter Bar */}
@@ -219,9 +250,9 @@ export const AccountsView = () => {
           </SelectTrigger>
           <SelectContent className="glass-panel border-glass">
             <SelectItem value="all">{t("allTypes")}</SelectItem>
-            {accountTypes.map((t) => (
-              <SelectItem key={t.name} value={t.name}>
-                {t.name}
+            {accountTypes.map((type) => (
+              <SelectItem key={type.name} value={type.name}>
+                {systemLabel(type.name)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -322,6 +353,8 @@ export const AccountsView = () => {
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity hover:bg-surface-hover-strong"
+                        aria-label={t("common:actions.openMenu")}
+                        title={t("common:actions.openMenu")}
                       >
                         <MoreVertical className="h-4 w-4" />
                       </Button>
@@ -355,7 +388,7 @@ export const AccountsView = () => {
                   </div>
                   <div>
                     <h3 className="font-bold text-base group-hover:text-primary transition-colors">{account.name}</h3>
-                    <span className="text-xs text-muted-foreground">{account.type}</span>
+                    <span className="text-xs text-muted-foreground">{systemLabel(account.type)}</span>
                   </div>
                 </div>
 
@@ -402,11 +435,14 @@ export const AccountsView = () => {
                                     {parseLocalDate(account.maturity_date) > new Date() ? (
                                       <>
                                         {t("card.maturityDate", {
-                                          date: parseLocalDate(account.maturity_date).toLocaleDateString(undefined, {
-                                            month: "short",
-                                            day: "numeric",
-                                            year: "numeric",
-                                          }),
+                                          date: parseLocalDate(account.maturity_date).toLocaleDateString(
+                                            i18n.language,
+                                            {
+                                              month: "short",
+                                              day: "numeric",
+                                              year: "numeric",
+                                            },
+                                          ),
                                         })}
                                         {" · "}
                                         {t("card.daysRemaining", {
@@ -454,7 +490,10 @@ export const AccountsView = () => {
                     )}
                     <p className="text-xs text-muted-foreground mt-0.5">
                       {t("card.since")}{" "}
-                      {new Date(account.created_at).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
+                      {new Date(account.created_at).toLocaleDateString(i18n.language, {
+                        month: "short",
+                        year: "numeric",
+                      })}
                     </p>
                   </div>
                 </div>
