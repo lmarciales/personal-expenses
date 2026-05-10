@@ -67,7 +67,7 @@
     "monthIncome": "Ingresos del mes",
     "monthExpense": "Gastos del mes",
     "monthNet": "Neto del mes",
-    "totalBalance": "Balance total",
+    "totalBalance": "Patrimonio",
     "savingsRatePrefix": "Tasa de ahorro:",
     "accounts_one": "{{count}} cuenta",
     "accounts_other": "{{count}} cuentas"

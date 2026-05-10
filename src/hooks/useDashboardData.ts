@@ -1,6 +1,5 @@
-import { getCreditCardDebt, isCreditCard } from "@/lib/creditCard";
+import { getAccountSummary } from "@/lib/accountSummary";
 import { getErrorMessage } from "@/lib/errors";
-import { getProjectedBalance } from "@/lib/projectedBalance";
 import { supabase } from "@/supabase/client";
 import { useCallback, useEffect, useState } from "react";
 
@@ -75,7 +74,10 @@ export interface DashboardData {
   refetch: () => Promise<void>;
 }
 
-type DashboardAccountSourceRow = Omit<DashboardData["accounts"][number], "color"> & { color: string | null };
+type DashboardAccountSourceRow = Omit<DashboardData["accounts"][number], "color"> & {
+  color: string | null;
+  is_archived: boolean | null;
+};
 type DashboardCategoryRow = {
   id: string;
   name: string;
@@ -280,7 +282,7 @@ export function useDashboardData() {
 
       const allExpenseTotal = expenseRows.reduce((sum, txn) => sum + Math.abs(txn.total_amount), 0);
 
-      // Map Accounts
+      // Map active accounts
       const fallbackColors = [
         "bg-primary text-primary-foreground",
         "bg-blue-600 text-white",
@@ -288,14 +290,16 @@ export function useDashboardData() {
         "bg-cyan-600 text-white",
       ];
 
-      const rawAccounts = ([...(accountsResult.data || [])] as DashboardAccountSourceRow[]).sort((a, b) => {
-        const ao = a.display_order;
-        const bo = b.display_order;
-        if (ao != null && bo != null) return ao - bo;
-        if (ao != null) return -1;
-        if (bo != null) return 1;
-        return (b.balance ?? 0) - (a.balance ?? 0);
-      });
+      const rawAccounts = ([...(accountsResult.data || [])] as DashboardAccountSourceRow[])
+        .filter((account) => !account.is_archived)
+        .sort((a, b) => {
+          const ao = a.display_order;
+          const bo = b.display_order;
+          if (ao != null && bo != null) return ao - bo;
+          if (ao != null) return -1;
+          if (bo != null) return 1;
+          return (b.balance ?? 0) - (a.balance ?? 0);
+        });
 
       const accounts = rawAccounts.map((acc, idx) => ({
         id: acc.id,
@@ -314,13 +318,8 @@ export function useDashboardData() {
         display_order: acc.display_order ?? null,
       }));
 
-      // Net worth: liquid assets minus credit card debt. Credit card balances
-      // represent available credit (not the user's money), so they must not
-      // inflate the headline total.
-      const totalBalance = accounts.reduce((acc, curr) => {
-        if (isCreditCard(curr)) return acc - getCreditCardDebt(curr);
-        return acc + getProjectedBalance(curr);
-      }, 0);
+      // Headline net worth: active liquid assets minus active credit card debt.
+      const totalBalance = getAccountSummary(accounts).netWorth;
 
       // Map Transactions for UI
       const transactions: DashboardData["transactions"] = transactionRows.map((txn) => ({

@@ -67,7 +67,7 @@
     "monthIncome": "Month income",
     "monthExpense": "Month expense",
     "monthNet": "Month net",
-    "totalBalance": "Total balance",
+    "totalBalance": "Net Worth",
     "savingsRatePrefix": "Savings rate:",
     "accounts_one": "{{count}} account",
     "accounts_other": "{{count}} accounts"
