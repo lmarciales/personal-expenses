@@ -61,6 +61,32 @@
       "dueToday": "Vence hoy",
       "dueIn_one": "Vence en {{count}} día",
       "dueIn_other": "Vence en {{count}} días"
+    },
+    "radar": {
+      "recurringTitle": "Pagos recurrentes",
+      "pinnedTitle": "Anclados",
+      "sortedByDue": "Ordenados por vencimiento",
+      "alwaysVisible": "Siempre visibles",
+      "summary": {
+        "recurring": "Pagos",
+        "debtOwed": "Debes",
+        "debtReceivable": "Te deben",
+        "cdt": "CDT",
+        "items_one": "{{count}} asunto",
+        "items_other": "{{count}} asuntos",
+        "nextDue_one": "Próximo en {{count}} día",
+        "nextDue_other": "Próximo en {{count}} días",
+        "dueToday": "Vence hoy",
+        "overdue": "Vencido"
+      },
+      "actions": {
+        "register": "Registrar",
+        "cancel": "Cancelar",
+        "viewDebts": "Ver deudas",
+        "viewAccounts": "Ver cuentas",
+        "showAll": "Ver todos +{{count}}",
+        "showLess": "Ver menos"
+      }
     }
   },
   "healthBar": {

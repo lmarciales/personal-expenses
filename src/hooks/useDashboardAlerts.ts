@@ -1,7 +1,7 @@
 import { parseLocalDate } from "@/lib/dates";
 import { getProjectedBalance } from "@/lib/projectedBalance";
 import { supabase } from "@/supabase/client";
-import { addDays, addMonths, addWeeks, addYears, differenceInDays } from "date-fns";
+import { addDays, addMonths, addWeeks, addYears, differenceInDays, format } from "date-fns";
 import { useCallback, useEffect, useState } from "react";
 
 // Lead time per recurrence unit — how many days BEFORE the next due date
@@ -17,9 +17,12 @@ const LEAD_DAYS_BY_UNIT: Record<string, number> = {
 export interface DashboardAlert {
   id: string;
   type: "recurring_bill" | "spending_spike" | "debt_pending" | "cdt_maturing";
+  group?: "recurring" | "debt_owed" | "debt_receivable" | "cdt";
   // For recurring bills: "due" = cycle elapsed, pay it now.
   // "upcoming" = within the lead window, heads-up before auto-charge.
   status?: "due" | "upcoming";
+  dueDate?: string;
+  daysUntil?: number;
   title: string;
   // Optional i18n key + params for translated titles/descriptions.
   // When present, the component runs them through t() instead of rendering
@@ -143,7 +146,10 @@ export function useDashboardAlerts() {
           newAlerts.push({
             id: `recurring-${txn.payee}`,
             type: "recurring_bill",
+            group: "recurring",
             status,
+            dueDate: format(nextDueDate, "yyyy-MM-dd"),
+            daysUntil: daysUntilDue,
             title: txn.payee,
             description: "",
             descriptionKey,
@@ -182,6 +188,7 @@ export function useDashboardAlerts() {
           newAlerts.push({
             id: "debt-i-owe",
             type: "debt_pending",
+            group: "debt_owed",
             title: "",
             titleKey: "alerts.debts.iOweTitle",
             description: "",
@@ -200,6 +207,7 @@ export function useDashboardAlerts() {
           newAlerts.push({
             id: "debt-owed-to-me",
             type: "debt_pending",
+            group: "debt_receivable",
             title: "",
             titleKey: "alerts.debts.owedToMeTitle",
             description: "",
@@ -240,10 +248,13 @@ export function useDashboardAlerts() {
             newAlerts.push({
               id: `cdt-${account.id}`,
               type: "cdt_maturing",
+              group: "cdt",
               title: account.name,
               description: "",
               descriptionKey,
               descriptionParams: daysUntilMaturity > 0 ? { count: daysUntilMaturity } : undefined,
+              dueDate: account.maturity_date,
+              daysUntil: daysUntilMaturity,
               amount: projectedAmount,
               color: "#a855f7",
               icon: "landmark",
@@ -253,7 +264,7 @@ export function useDashboardAlerts() {
         }
       }
 
-      setAlerts(newAlerts);
+      setAlerts(newAlerts.sort(compareDashboardAlerts));
     } catch (err) {
       console.error("Failed to fetch dashboard alerts:", err);
     } finally {
@@ -284,4 +295,28 @@ export function useDashboardAlerts() {
   }, [fetchAlerts]);
 
   return { alerts, isLoading, refetch: fetchAlerts, cancelRecurrenceForPayee };
+}
+
+function compareDashboardAlerts(a: DashboardAlert, b: DashboardAlert) {
+  const groupDiff = getGroupRank(a) - getGroupRank(b);
+  if (groupDiff !== 0) return groupDiff;
+
+  const aDays = a.daysUntil ?? Number.POSITIVE_INFINITY;
+  const bDays = b.daysUntil ?? Number.POSITIVE_INFINITY;
+  if (aDays !== bDays) return aDays - bDays;
+
+  if (a.amount !== b.amount) return b.amount - a.amount;
+  return getAlertTitle(a).localeCompare(getAlertTitle(b));
+}
+
+function getGroupRank(alert: DashboardAlert) {
+  if (alert.group === "recurring" || alert.type === "recurring_bill") return 0;
+  if (alert.group === "debt_owed" && alert.type === "debt_pending") return 1;
+  if (alert.group === "debt_receivable" && alert.type === "debt_pending") return 2;
+  if (alert.group === "cdt" || alert.type === "cdt_maturing") return 3;
+  return 4;
+}
+
+function getAlertTitle(alert: DashboardAlert) {
+  return alert.title || alert.titleKey || alert.id;
 }

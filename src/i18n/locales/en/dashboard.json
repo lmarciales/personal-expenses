@@ -61,6 +61,32 @@
       "dueToday": "Due today",
       "dueIn_one": "Due in {{count}} day",
       "dueIn_other": "Due in {{count}} days"
+    },
+    "radar": {
+      "recurringTitle": "Recurring bills",
+      "pinnedTitle": "Pinned",
+      "sortedByDue": "Sorted by due date",
+      "alwaysVisible": "Always visible",
+      "summary": {
+        "recurring": "Bills",
+        "debtOwed": "You owe",
+        "debtReceivable": "Owed to you",
+        "cdt": "CDT",
+        "items_one": "{{count}} item",
+        "items_other": "{{count}} items",
+        "nextDue_one": "Next in {{count}} day",
+        "nextDue_other": "Next in {{count}} days",
+        "dueToday": "Due today",
+        "overdue": "Overdue"
+      },
+      "actions": {
+        "register": "Log",
+        "cancel": "Cancel",
+        "viewDebts": "View debts",
+        "viewAccounts": "View accounts",
+        "showAll": "Show all +{{count}}",
+        "showLess": "Show less"
+      }
     }
   },
   "healthBar": {
