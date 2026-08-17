@@ -11,6 +11,8 @@ node_modules
 dist
 dist-ssr
 *.local
+.env*
+!.env.example
 
 # Editor directories and files
 .vscode/*
@@ -23,20 +25,39 @@ dist-ssr
 *.sln
 *.sw?
 
-# AI coding agent files (local only)
+# Local agent files; only reviewed project workflows are allowlisted
 .agent/
-.agents/
-.claude/*
-# ...but share the toolkit that makes this project's Claude Code setup
-# reproducible for the team (referenced in CLAUDE.md's "Automation Setup").
-!.claude/agents/
-!.claude/hooks/
-!.claude/skills/
-!.claude/settings.json
-!.claude/launch.json
+.agents/*
+!.agents/skills/
+.agents/skills/*
+!.agents/skills/plan-roadmap-item/
+!.agents/skills/plan-roadmap-item/**
+!.agents/skills/verify-change/
+!.agents/skills/verify-change/**
+!.agents/skills/qa-browser-change/
+!.agents/skills/qa-browser-change/**
+!.agents/skills/release-main/
+!.agents/skills/release-main/**
+!.agents/skills/review-database-change/
+!.agents/skills/review-database-change/**
+.codex/skills/
+.codex/.commit-in-progress
+.claude/
+# Existing tracked provider adapters remain visible until GOV-007 removes or
+# reduces them; do not admit new local files under those directories.
 skills-lock.json
 .mcp.json
 .superpowers
 .worktrees/
 
-docs/
+# Track reviewed public project documentation while keeping legacy, private,
+# and generated documentation local by default.
+docs/*
+!docs/specs/
+!docs/specs/**
+!docs/plans/
+!docs/plans/**
+!docs/standards/
+!docs/standards/**
+!docs/runbooks/
+!docs/runbooks/**

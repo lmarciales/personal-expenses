@@ -1,185 +1,118 @@
-# Personal Expenses App
+# Lumina Personal Finance
 
-## Tech Stack
-- Vite + React + TypeScript
-- Supabase (auth + database)
-- Tailwind CSS + Radix UI (shadcn/ui components in `src/components/ui/`)
-- React Router DOM (client routing with protected routes)
-- React Hook Form + Zod (form validation)
-- Recharts (analytics charts)
-- Biome (linter + formatter)
-- UI language: Spanish
+## Product and boundaries
 
-## Commands
-- `pnpm dev` — Start dev server (port 5173)
-- `pnpm build` — TypeScript check + Vite build
-- `pnpm lint` — Lint with Biome
-- `pnpm format` — Auto-format with Biome
-- `pnpm check` — Combined lint + format
+- Lumina is a private-use personal-finance app focused on trustworthy daily money management.
+- The source repository is public. User data, credentials, financial records, exports, receipts, database dumps, and unsanitized QA artifacts are private.
+- The UI supports Spanish and English. Preserve translation parity and locale-correct dates and currency.
+- Optimize for calculation correctness, privacy, convenience, accessibility, and low-maintenance reliability rather than enterprise scale.
 
-## Architecture
-- `src/pages/` — Route pages (Login, Dashboard, Accounts, Analytics, Debts, Transactions, Profile)
-- `src/components/` — Feature-based components + `ui/` for shared shadcn components
-- `src/hooks/` — Data hooks (`useDashboardData`, `useAccountsData`, etc.) using Supabase client
-- `src/store/` — Context providers (AuthContext, SidebarContext)
-- `src/supabase/` — Supabase client, auth helpers, generated `database.types.ts`
-- `supabase/migrations/` — SQL migration files
+## Stack and structure
 
-## Key Patterns
-- Auth: `AuthProvider` in `src/store/authContext.tsx` wraps app; `ProtectedRoute` guards authenticated pages
-- Data: Custom hooks query Supabase with `eq("user_id", userId)` for RLS compliance
-- Forms: React Hook Form + Zod schemas; Spanish validation messages
+- Vite, React, and TypeScript.
+- Supabase Auth and Postgres with Row Level Security.
+- Tailwind CSS and Radix/shadcn components under `src/components/ui/`.
+- React Router, React Hook Form, Zod, i18next, and Recharts.
+- Pages: `src/pages/`; feature/shared components: `src/components/`; data hooks: `src/hooks/`.
+- Auth/sidebar contexts: `src/store/`; Supabase client and generated types: `src/supabase/`.
+- Database changes: `supabase/migrations/`. Migrations are the schema source of truth.
 
-## Testing with Preview Browser
-When using the preview browser to test the app:
-1. Read test credentials from `.env.test.local` (format: `TEST_USER_EMAIL` and `TEST_USER_PASSWORD`)
-2. The app opens to a login page at `/` — fill in the email and password fields and submit
-3. On successful login, the app redirects to `/dashboard`
+## Current commands
 
-**Important:** `.env.test.local` is gitignored. Each developer must create their own copy locally.
+- `pnpm dev` — start the app on port 5173.
+- `pnpm lint` — non-mutating Biome lint.
+- `pnpm check:i18n` — verify translation-key parity.
+- `pnpm build` — TypeScript project build and production Vite build.
+- `pnpm format` and `pnpm check` modify files; never use them as validation-only commands.
 
-## Automation Setup
+Until roadmap item GOV-003 adds `pnpm verify`, run `pnpm lint`, `pnpm check:i18n`, and `pnpm build` as the repository-wide gate.
 
-### Hooks (`.codex/hooks.json`)
-- **PreToolUse**: Blocks edits to `.env*` files (credential protection)
-- **PreToolUse**: Blocks `git commit` and `git push` unless `.codex/.commit-in-progress` marker exists (commit-agent creates it)
-- **PostToolUse**: Auto-runs Biome check on edited files (formatting + linting)
-- **PostToolUse**: Auto-runs `tsc --noEmit` on TypeScript file edits (type checking)
+## Task ownership
 
-### Subagents (`.codex/agents/`)
-- **security-reviewer**: Reviews code for Supabase RLS gaps, auth issues, input validation, and exposed credentials
-- **commit-agent**: Handles all git commits and pushes. Runs `/simplify` and `/pre-commit-check` before committing. Invoke the `commit-agent` role with the available Codex model.
+- The agent/session accepting an implementation task is its task owner from scope through final evidence.
+- The task owner may delegate independent QA, UI/accessibility, security, or data-integrity reviews; delegation itself does not transfer ownership.
+- The owner must resolve every material reviewer finding, rerun affected checks, and disclose any limitation.
+- Planning, review, explanation, or diagnosis requests do not authorize implementation.
+- Implementation requests authorize in-scope local edits, non-destructive validation, and a focused local commit after every applicable gate passes, unless the maintainer says not to commit. An intentionally uncommitted item remains In progress with review-ready evidence until commit is authorized, or becomes Deferred by explicit maintainer decision; it is not Done.
+- Destructive actions, production database mutations, and material scope expansion require explicit approval.
+- Push/deployment requires explicit authorization such as “deploy,” “push,” or equivalent wording. Authorization may be given at task start.
+- Delegated QA retains the original task owner. Ownership changes only through an explicit handoff that the new owner accepts with the scope, diff, evidence, findings, and limitations.
 
-### Skills (`.agents/skills/`)
-- **create-migration**: Invoke with `/create-migration` to scaffold Supabase SQL migration files and regenerate TypeScript types
+## Roadmap and planning
 
-## Git Commit Policy
+- `ROADMAP.md` is the only status ledger. Preserve stable IDs; never silently delete work.
+- Work on one active delivery item at a time. Put newly discovered work in the Inbox instead of expanding scope silently.
+- Create and review a public-safe plan under `docs/plans/` before moving a Ready item to In progress.
+- A completed task updates its roadmap status and adds sanitized commit/verification evidence.
 
-**Never run `git commit` or `git push` directly.** A PreToolUse hook enforces this — direct attempts will be blocked.
+## Git and release workflow
 
-Always delegate to a general-purpose agent with the commit-agent instructions:
-```
-Agent tool:
-  description: "Commit current changes"
-  agent_type: "commit-agent"
-  prompt: "Read .codex/agents/commit-agent.toml and follow its workflow exactly. Context: <describe what was done>"
-```
+- Normal work is sequential on local `main`. Do not create branches, worktrees, or pull requests unless the maintainer explicitly changes this policy.
+- Before editing, understand existing changes. Never overwrite, reset, or include unrelated user work.
+- Before committing, require the active branch to be exactly `main`; detached HEAD is a stop condition.
+- Keep commits focused and reversible. Never force-push or rewrite published history.
+- A local commit and a production push are separate boundaries. If the available commit mechanism cannot commit without pushing, stop and leave the change uncommitted.
+- Authorization applies to effects, not command names: alternate history-writing or remote-ref commands never bypass the commit or push boundary.
+- Tracked command guards are defense-in-depth for supported agent tool surfaces, not a hostile-code sandbox. A missing, opaque, or bypassable hook never grants commit, push, or deployment authorization.
+- Never bypass a failed quality, safety, or secret-scanning gate.
+- After an authorized push, verify the Vercel deployment and smoke-test the affected production behavior.
 
-The commit-agent will:
-1. Run `/simplify` — review and improve changed code
-2. Run `/pre-commit-check` — validate build, security, and hygiene
-3. Fix any issues found in steps 1-2
-4. Stage, commit (with Co-Authored-By trailer), and push
+## Public repository safety
 
-<!-- autoskills:start -->
+- Follow `docs/runbooks/data-safety.md` for the complete boundary and staged-content review.
+- Never commit `.env*` files other than reviewed placeholder examples.
+- Never print or reproduce values from `.env.test.local`. It may be read locally only for authenticated QA.
+- Use synthetic fixtures and disposable test records. Never put real account names, balances, emails, exports, receipts, logs, database dumps, or unsanitized screenshots in Git.
+- Migration files contain schema and generic transformations only—never copied production rows or personal values.
+- Treat a real secret alert as a blocker; do not bypass it.
 
-Summary generated by `autoskills`. Check the full files inside `.agents/skills`.
+## Financial, auth, and database invariants
 
-## Accessibility (a11y)
+- Financial totals must be traceable to source records and use deterministic, tested rules.
+- Do not hide reconciliation differences with silent adjustments or presentation-only fixes.
+- Transfers, debt movements, taxes/fees, dates, signs, and currency rounding need regression coverage when changed.
+- Sensitive routes and data operations require authenticated ownership checks; client filtering does not replace RLS.
+- Every new or changed table/view/function must receive an explicit privilege and RLS review.
+- Use backward-compatible migrations and regenerate `src/supabase/database.types.ts` after schema changes.
+- Destructive or irreversible migrations require explicit approval, a private backup/recovery plan, and current Supabase advisor review.
 
-Audit and improve web accessibility following WCAG 2.2 guidelines. Use when asked to "improve accessibility", "a11y audit", "WCAG compliance", "screen reader support", "keyboard navigation", or "make accessible".
+## UI and behavior QA
 
-- `.agents/skills/accessibility/SKILL.md`
-- `.agents/skills/accessibility/references/A11Y-PATTERNS.md`: Practical, copy-paste-ready patterns for common accessibility requirements. Each pattern is self-contained and linked from the main [SKILL.md](../SKILL.md).
-- `.agents/skills/accessibility/references/WCAG.md`
+- Follow `docs/standards/definition-of-done.md` for applicability and evidence.
+- User-visible behavior changes require a real browser; source inspection and automated tests alone are insufficient.
+- Before browser testing, record the affected routes/consumers, highest-impact plausible failure, source-of-truth boundary, safe backend class, and required reviewer workflows.
+- Browser cases must cover the primary path, risk-matched failure and successful recovery, impact-based regressions, authoritative persistence, and triggered auth boundaries.
+- UI changes also require deterministic desktop/mobile viewports, visual inspection, keyboard and accessibility checks, affected states, and both languages when triggered.
+- Use any capable browser driver available in the current environment. Do not encode one product as the only valid browser.
+- If browser access or safe test data is unavailable, do not claim behavior/UI QA passed; report the task blocked or incomplete.
+- Documentation-only changes may mark browser QA not applicable with a concrete reason.
 
-## Create Supabase Migration
+## Change-specific gates
 
-Scaffold a new Supabase SQL migration file and regenerate TypeScript types. Use when creating database schema changes, adding tables, columns, or modifying RLS policies.
+Every change satisfies every matching row in the reviewer trigger matrix in `docs/standards/definition-of-done.md`, in addition to these gates:
 
-- `.agents/skills/create-migration/SKILL.md`
+- Logic/financial change: focused regression tests, repository-wide gate, and the security/data-integrity reviewer workflow for financial behavior.
+- UI/behavior change: focused tests, repository-wide gate, browser QA, and the mandatory reviewer workflows selected by the definition-of-done trigger matrix.
+- Auth/security change: triggered auth scenarios plus the security/data-integrity reviewer workflow.
+- Supabase change: migration review, generated types, RLS/privilege checks, relevant tests, current advisors, and the security/data-integrity reviewer workflow.
+- Deployment configuration change: local production-equivalent build, documented smoke/rollback path, and the release-risk reviewer workflow.
 
-## Design Thinking
+## Stop conditions
 
-Create distinctive, production-grade frontend interfaces with high design quality. Use this skill when the user asks to build web components, pages, artifacts, posters, or applications (examples include websites, landing pages, dashboards, React components, HTML/CSS layouts, or when styling/beaut...
+Stop and report rather than guessing when:
 
-- `.agents/skills/frontend-design/SKILL.md`
+- Git is detached, not on intended `main`, or contains inseparable unrelated changes.
+- Required automated validation fails.
+- Browser validation is required but cannot be performed or reproduced safely.
+- A material QA, accessibility, security, or data-integrity finding remains unresolved.
+- A staged file may contain a secret, personal data, or a private artifact.
+- An external/destructive action lacks authorization or recovery preparation.
+- Production smoke testing fails after deployment.
 
-## Pre-Commit Check
+## Instruction architecture
 
-Pre-commit quality gate — validates build output (catches warnings and errors, not just exit codes), scans for security issues (leaked credentials, hardcoded secrets, vulnerable patterns), and checks for other common commit pitfalls. Use this skill before committing changes, when the user says "c...
-
-- `.agents/skills/pre-commit-check/SKILL.md`
-
-## shadcn/ui
-
-Manages shadcn components and projects — adding, searching, fixing, debugging, styling, and composing UI. Provides project context, component docs, and usage examples. Applies when working with shadcn/ui, component registries, presets, --preset codes, or any project with a components.json file. A...
-
-- `.agents/skills/shadcn/SKILL.md`
-- `.agents/skills/shadcn/cli.md`: Configuration is read from `components.json`.
-- `.agents/skills/shadcn/customization.md`: Components reference semantic CSS variable tokens. Change the variables to change every component.
-- `.agents/skills/shadcn/mcp.md`: The CLI includes an MCP server that lets AI assistants search, browse, view, and install components from registries.
-- `.agents/skills/shadcn/rules/base-vs-radix.md`: API differences between `base` and `radix`. Check the `base` field from `npx shadcn@latest info`.
-- `.agents/skills/shadcn/rules/composition.md`: Never render items directly inside the content container.
-- `.agents/skills/shadcn/rules/forms.md`: Always use `FieldGroup` + `Field` — never raw `div` with `space-y-*`:
-- `.agents/skills/shadcn/rules/icons.md`: **Always use the project's configured `iconLibrary` for imports.** Check the `iconLibrary` field from project context: `lucide` → `lucide-react`, `tabler` → `@tabler/icons-react`, etc. Never assume `lucide-react`.
-- `.agents/skills/shadcn/rules/styling.md`: See [customization.md](../customization.md) for theming, CSS variables, and adding custom colors.
-
-## Supabase Postgres Best Practices
-
-Postgres performance optimization and best practices from Supabase. Use this skill when writing, reviewing, or optimizing Postgres queries, schema designs, or database configurations.
-
-- `.agents/skills/supabase-postgres-best-practices/SKILL.md`
-- `.agents/skills/supabase-postgres-best-practices/references/_contributing.md`: This document provides guidelines for creating effective Postgres best practice references that work well with AI agents and LLMs.
-- `.agents/skills/supabase-postgres-best-practices/references/_sections.md`: This file defines the rule categories for Postgres best practices. Rules are automatically assigned to sections based on their filename prefix.
-- `.agents/skills/supabase-postgres-best-practices/references/_template.md`: [1-2 sentence explanation of the problem and why it matters. Focus on performance impact.]
-- `.agents/skills/supabase-postgres-best-practices/references/advanced-full-text-search.md`: LIKE with wildcards can't use indexes. Full-text search with tsvector is orders of magnitude faster.
-- `.agents/skills/supabase-postgres-best-practices/references/advanced-jsonb-indexing.md`: JSONB queries without indexes scan the entire table. Use GIN indexes for containment queries.
-- `.agents/skills/supabase-postgres-best-practices/references/conn-idle-timeout.md`: Idle connections waste resources. Configure timeouts to automatically reclaim them.
-- `.agents/skills/supabase-postgres-best-practices/references/conn-limits.md`: Too many connections exhaust memory and degrade performance. Set limits based on available resources.
-- `.agents/skills/supabase-postgres-best-practices/references/conn-pooling.md`: Postgres connections are expensive (1-3MB RAM each). Without pooling, applications exhaust connections under load.
-- `.agents/skills/supabase-postgres-best-practices/references/conn-prepared-statements.md`: Prepared statements are tied to individual database connections. In transaction-mode pooling, connections are shared, causing conflicts.
-- `.agents/skills/supabase-postgres-best-practices/references/data-batch-inserts.md`: Individual INSERT statements have high overhead. Batch multiple rows in single statements or use COPY.
-- `.agents/skills/supabase-postgres-best-practices/references/data-n-plus-one.md`: N+1 queries execute one query per item in a loop. Batch them into a single query using arrays or JOINs.
-- `.agents/skills/supabase-postgres-best-practices/references/data-pagination.md`: OFFSET-based pagination scans all skipped rows, getting slower on deeper pages. Cursor pagination is O(1).
-- `.agents/skills/supabase-postgres-best-practices/references/data-upsert.md`: Using separate SELECT-then-INSERT/UPDATE creates race conditions. Use INSERT ... ON CONFLICT for atomic upserts.
-- `.agents/skills/supabase-postgres-best-practices/references/lock-advisory.md`: Advisory locks provide application-level coordination without requiring database rows to lock.
-- `.agents/skills/supabase-postgres-best-practices/references/lock-deadlock-prevention.md`: Deadlocks occur when transactions lock resources in different orders. Always acquire locks in a consistent order.
-- `.agents/skills/supabase-postgres-best-practices/references/lock-short-transactions.md`: Long-running transactions hold locks that block other queries. Keep transactions as short as possible.
-- `.agents/skills/supabase-postgres-best-practices/references/lock-skip-locked.md`: When multiple workers process a queue, SKIP LOCKED allows workers to process different rows without waiting.
-- `.agents/skills/supabase-postgres-best-practices/references/monitor-explain-analyze.md`: EXPLAIN ANALYZE executes the query and shows actual timings, revealing the true performance bottlenecks.
-- `.agents/skills/supabase-postgres-best-practices/references/monitor-pg-stat-statements.md`: pg_stat_statements tracks execution statistics for all queries, helping identify slow and frequent queries.
-- `.agents/skills/supabase-postgres-best-practices/references/monitor-vacuum-analyze.md`: Outdated statistics cause the query planner to make poor decisions. VACUUM reclaims space, ANALYZE updates statistics.
-- `.agents/skills/supabase-postgres-best-practices/references/query-composite-indexes.md`: When queries filter on multiple columns, a composite index is more efficient than separate single-column indexes.
-- `.agents/skills/supabase-postgres-best-practices/references/query-covering-indexes.md`: Covering indexes include all columns needed by a query, enabling index-only scans that skip the table entirely.
-- `.agents/skills/supabase-postgres-best-practices/references/query-index-types.md`: Different index types excel at different query patterns. The default B-tree isn't always optimal.
-- `.agents/skills/supabase-postgres-best-practices/references/query-missing-indexes.md`: Queries filtering or joining on unindexed columns cause full table scans, which become exponentially slower as tables grow.
-- `.agents/skills/supabase-postgres-best-practices/references/query-partial-indexes.md`: Partial indexes only include rows matching a WHERE condition, making them smaller and faster when queries consistently filter on the same condition.
-- `.agents/skills/supabase-postgres-best-practices/references/schema-constraints.md`: PostgreSQL does not support `ADD CONSTRAINT IF NOT EXISTS`. Migrations using this syntax will fail.
-- `.agents/skills/supabase-postgres-best-practices/references/schema-data-types.md`: Using the right data types reduces storage, improves query performance, and prevents bugs.
-- `.agents/skills/supabase-postgres-best-practices/references/schema-foreign-key-indexes.md`: Postgres does not automatically index foreign key columns. Missing indexes cause slow JOINs and CASCADE operations.
-- `.agents/skills/supabase-postgres-best-practices/references/schema-lowercase-identifiers.md`: PostgreSQL folds unquoted identifiers to lowercase. Quoted mixed-case identifiers require quotes forever and cause issues with tools, ORMs, and AI assistants that may not recognize them.
-- `.agents/skills/supabase-postgres-best-practices/references/schema-partitioning.md`: Partitioning splits a large table into smaller pieces, improving query performance and maintenance operations.
-- `.agents/skills/supabase-postgres-best-practices/references/schema-primary-keys.md`: Primary key choice affects insert performance, index size, and replication efficiency.
-- `.agents/skills/supabase-postgres-best-practices/references/security-privileges.md`: Grant only the minimum permissions required. Never use superuser for application queries.
-- `.agents/skills/supabase-postgres-best-practices/references/security-rls-basics.md`: Row Level Security (RLS) enforces data access at the database level, ensuring users only see their own data.
-- `.agents/skills/supabase-postgres-best-practices/references/security-rls-performance.md`: Poorly written RLS policies can cause severe performance issues. Use subqueries and indexes strategically.
-
-## Tailwind CSS Development Patterns
-
-Provides comprehensive Tailwind CSS utility-first styling patterns including responsive design, layout utilities, flexbox, grid, spacing, typography, colors, and modern CSS best practices. Use when styling React/Vue/Svelte components, building responsive layouts, implementing design systems, or o...
-
-- `.agents/skills/tailwind-css-patterns/SKILL.md`
-- `.agents/skills/tailwind-css-patterns/references/accessibility.md`
-- `.agents/skills/tailwind-css-patterns/references/animations.md`: Usage:
-- `.agents/skills/tailwind-css-patterns/references/component-patterns.md`
-- `.agents/skills/tailwind-css-patterns/references/configuration.md`: Use the `@theme` directive for CSS-based configuration:
-- `.agents/skills/tailwind-css-patterns/references/layout-patterns.md`: Basic flex container:
-- `.agents/skills/tailwind-css-patterns/references/performance.md`: Configure content sources for optimal purging:
-- `.agents/skills/tailwind-css-patterns/references/reference.md`: Tailwind CSS is a utility-first CSS framework that generates styles by scanning HTML, JavaScript, and template files for class names. It provides a comprehensive design system through CSS utility classes, enabling rapid UI development without writing custom CSS. The framework operates at build-ti...
-- `.agents/skills/tailwind-css-patterns/references/responsive-design.md`: Enable dark mode in tailwind.config.js:
-
-## Vite
-
-Vite build tool configuration, plugin API, SSR, and Vite 8 Rolldown migration. Use when working with Vite projects, vite.config.ts, Vite plugins, or building libraries/SSR apps with Vite.
-
-- `.agents/skills/vite/SKILL.md`
-- `.agents/skills/vite/GENERATION.md`
-- `.agents/skills/vite/references/build-and-ssr.md`: Vite library mode, multi-page apps, JavaScript API, and SSR guidance
-- `.agents/skills/vite/references/core-config.md`: Vite configuration patterns using vite.config.ts
-- `.agents/skills/vite/references/core-features.md`: Vite-specific import patterns and runtime features
-- `.agents/skills/vite/references/core-plugin-api.md`: Vite plugin authoring with Vite-specific hooks
-- `.agents/skills/vite/references/environment-api.md`: Vite 6+ Environment API for multiple runtime environments
-- `.agents/skills/vite/references/rolldown-migration.md`: Vite 8 Rolldown bundler and Oxc transformer migration
-
-<!-- autoskills:end -->
+- This file is the canonical repository contract. State each durable rule once.
+- Detailed procedures belong in standards, runbooks, plans, or portable `SKILL.md` workflows.
+- Tool-specific files are optional thin adapters and must not duplicate or override this policy.
+- Legacy tracked provider automation remains non-authoritative until roadmap item GOV-007 removes or reduces it.
+- Keep generic installed skills local. Track only project-specific workflows that are safe and useful in a public clone.
