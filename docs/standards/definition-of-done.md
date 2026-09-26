@@ -42,15 +42,15 @@ Every finding records severity, reproduction, disposition (`fixed`, `not applica
 
 After a fix, rerun the finding's original reproduction and affected regression cases. Material security or accessibility fixes receive fresh re-review when a compatible independent reviewer exists. A task owner cannot downgrade a material result merely because the tool labels it differently.
 
-Until `pnpm verify` exists, the repository-wide gate is:
+The repository-wide gate is:
 
 ```text
-pnpm lint
-pnpm check:i18n
-pnpm build
+pnpm verify
 ```
 
-After the explicit task allowlist is staged, run `pnpm check:public-safety` against that candidate. A policy finding or inspection failure blocks commit authorization. The scanner is defense in depth; manual staged-path and diff review remains mandatory.
+This source-preserving command runs formatting validation, lint, type checking, i18n parity, all unit tests, and the production build in sequence, stopping at the first failure. Generated build output and compiler caches are expected; source fixes are separate actions. See `docs/runbooks/verification.md` for individual commands, recovery, and Vercel activation evidence.
+
+After the explicit task allowlist is staged, run `pnpm check:public-safety` against that candidate. It remains separate from `pnpm verify` because it validates the staged Git candidate, not the working tree or a deployment checkout. A policy finding or inspection failure blocks commit authorization. The scanner is defense in depth; manual staged-path and diff review remains mandatory.
 
 ## Documentation or non-runtime configuration
 

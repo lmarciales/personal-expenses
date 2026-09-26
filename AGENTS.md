@@ -20,13 +20,17 @@
 ## Current commands
 
 - `pnpm dev` — start the app on port 5173.
+- `pnpm verify` — source-preserving formatting, lint, type, i18n, unit-test, and production-build gate.
+- `pnpm format:check` — non-mutating formatting validation.
 - `pnpm lint` — non-mutating Biome lint.
+- `pnpm typecheck` — TypeScript project checks without source emission.
+- `pnpm test` — all regular `*.test.mjs` files under `tests/`; an empty or unreadable suite fails.
 - `pnpm check:i18n` — verify translation-key parity.
 - `pnpm check:public-safety` — scan the exact staged Git candidate, not the worktree, for public-repository safety. Required before commit authorization.
 - `pnpm build` — TypeScript project build and production Vite build.
 - `pnpm format` and `pnpm check` modify files; never use them as validation-only commands.
 
-Until roadmap item GOV-003 adds `pnpm verify`, run `pnpm lint`, `pnpm check:i18n`, and `pnpm build` as the repository-wide gate. Candidate-bound commit authorization also requires a passing `pnpm check:public-safety` result for the same staged tree.
+Run `pnpm verify` as the repository-wide gate. Its production build and TypeScript caches write only expected generated output; it does not format, fix, stage, or commit source. See `docs/runbooks/verification.md`. Candidate-bound commit authorization also requires a passing `pnpm check:public-safety` result for the same staged tree.
 
 ## Task ownership
 

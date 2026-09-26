@@ -1,6 +1,6 @@
 # Lumina Roadmap
 
-Last updated: 2026-08-16
+Last updated: 2026-09-25
 
 Lumina is a private-use personal-finance application whose source repository is public. This roadmap is the canonical inventory of planned, active, deferred, and completed product work. It contains product behavior and engineering decisions only—never real account names, balances, credentials, exports, receipts, database dumps, or unsanitized screenshots.
 
@@ -69,10 +69,13 @@ Exit condition: future changes have one concise source of instructions, one dura
 
 ### GOV-003 — Canonical verification command
 
-- **Status:** Planned
+- **Status:** Awaiting deployment
 - **Outcome:** One non-mutating `pnpm verify` command runs formatting validation, lint, type checking, i18n parity, unit tests, and the production build.
 - **Dependencies:** GOV-001.
 - **Done when:** Each component can fail the aggregate command, the successful command is reproducible locally, and Vercel uses an equivalent gate.
+- **Plan:** `docs/plans/2026-09-25-gov-003-canonical-verification.md`
+- **Local completion evidence (2026-09-25):** The focused commit containing this entry adds the six-stage `pnpm verify` gate, source-preserving component commands, fail-closed unit-test discovery, and the same Vercel build command. Substantive tree `9680104cd3e452c63e50f60a4652f83e9d4a35b6` passed the full aggregate with 57/57 tests on Node 22, 24, and 26 using pnpm 10.31.0, staged safety with zero findings, manual review, and independent code-quality/release-risk re-reviews. Tracked source/index stayed unchanged, and production assets matched the baseline under identical synthetic inputs. Local browser login, logged-out protected deep-link, and reload cases passed; expected local-only telemetry/favicon responses are documented in the plan. Final evidence-only validation and commit/tree receipt belong to the task handoff.
+- **Release condition:** Explicit authorization to push the two local GOV-002/GOV-003 commits, followed by Vercel evidence for the exact commit, actual toolchain and all six stages, successful deployment, and read-only production smoke. No push/deployment or remote setting change was performed. This item retains the active delivery slot.
 
 ### GOV-004 — Task ownership and browser QA system
 

@@ -7,7 +7,11 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "verify": "pnpm run format:check && pnpm run lint && pnpm run typecheck && pnpm run check:i18n && pnpm run test && pnpm run build",
+    "format:check": "biome format .",
     "lint": "biome lint .",
+    "typecheck": "tsc -b",
+    "test": "node scripts/run-tests.mjs",
     "format": "biome format . --write",
     "check": "biome check --write",
     "check:i18n": "node scripts/check_i18n_parity.mjs",
