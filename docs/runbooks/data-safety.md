@@ -63,8 +63,27 @@ Lumina's code and public documentation may be shared; the maintainer's identity 
 3. Inspect the staged file names individually; never rely on a broad add operation.
 4. Review the staged diff and any binary file metadata.
 5. Search candidate text for common secret markers, private keys, credential assignments, service-role references, real emails, machine-specific user paths, and copied financial data.
-6. Run the repository public-safety check when GOV-002 provides it.
+6. Run `pnpm check:public-safety` against the staged candidate. Correlate any `candidate-NNN` ordinal with a private local staged-path list; diagnostics never include paths or matched values.
 7. If uncertain whether content is public-safe, do not commit it; request review.
+
+## Staged-candidate public-safety check
+
+The Git index tree produced by `git write-tree` is the candidate source of truth. `pnpm check:public-safety` compares that immutable tree with `HEAD`, inspects every non-deletion destination, and never reads ignored or unstaged working-tree files.
+
+Exit codes:
+
+- `0` — no policy finding. An empty staged diff is reported as `inspected=0`.
+- `1` — one or more policy findings. Output is `public-safety candidate-NNN CODE` with an optional `line=N`.
+- `2` — usage, repository, Git, parsing, or inspection failure. The message is a fixed redacted inspection failure.
+
+Remediation:
+
+- Remove the forbidden path from the candidate, or replace it with a reviewed public-safe equivalent.
+- Deleting a forbidden tracked file is permitted cleanup and is not inspected as deleted content.
+- Never add a suppression flag or weaken a rule to make a candidate pass.
+- A possible real secret or personal artifact is material: stop, keep it out of Git, and follow the secret-scanning response below.
+
+Native GitHub secret scanning and repository push protection remain an independent layer. They are verified by read-only setting and alert-count read-back; they are not a substitute for the staged-candidate scan or manual review. Pattern matching cannot identify every meaningful name, note, screenshot, or financial fact.
 
 ## Secret-scanning response
 

@@ -50,6 +50,8 @@ pnpm check:i18n
 pnpm build
 ```
 
+After the explicit task allowlist is staged, run `pnpm check:public-safety` against that candidate. A policy finding or inspection failure blocks commit authorization. The scanner is defense in depth; manual staged-path and diff review remains mandatory.
+
 ## Documentation or non-runtime configuration
 
 Required:
@@ -179,7 +181,7 @@ Before a local commit:
 - all applicable requirements above pass;
 - active Git branch is exactly local `main`;
 - staged paths are allowlisted for the task;
-- staged public-content review passes;
+- staged public-content review passes, including `pnpm check:public-safety`;
 - no material finding remains.
 
 If the maintainer explicitly requests no commit, record a sanitized review-ready handoff and keep the item In progress. It becomes Deferred only by explicit maintainer decision and cannot be marked Done while implementation remains uncommitted.

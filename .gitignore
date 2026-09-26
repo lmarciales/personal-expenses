@@ -42,7 +42,11 @@ dist-ssr
 !.agents/skills/review-database-change/**
 .codex/skills/
 .codex/.commit-in-progress
+.codex/config.toml
 .claude/
+.vercel/
+.supabase/
+supabase/.temp/
 # Existing tracked provider adapters remain visible until GOV-007 removes or
 # reduces them; do not admit new local files under those directories.
 skills-lock.json
@@ -61,3 +65,50 @@ docs/*
 !docs/standards/**
 !docs/runbooks/
 !docs/runbooks/**
+!docs/assets/
+docs/assets/*
+!docs/assets/public/
+!docs/assets/public/**
+
+# GOV-002: narrow private-artifact and QA-output classes. Do not ignore
+# all SQL, CSV, images, documentation, migrations, or fixtures.
+exports/
+receipts/
+statements/
+backups/
+dumps/
+coverage/
+playwright-report/
+playwright/.auth/
+test-results/
+blob-report/
+.nyc_output/
+test-output/
+browser-profile/
+chrome-profile/
+cypress/screenshots/
+cypress/videos/
+*.har
+*.trace
+*.pem
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.key
+*.sqlite
+*.sqlite3
+*.dump
+*.backup
+*.bak
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
+*.rar
+*.sql.gz
+id_rsa
+id_ed25519
+id_dsa
+id_ecdsa

@@ -22,10 +22,11 @@
 - `pnpm dev` — start the app on port 5173.
 - `pnpm lint` — non-mutating Biome lint.
 - `pnpm check:i18n` — verify translation-key parity.
+- `pnpm check:public-safety` — scan the exact staged Git candidate, not the worktree, for public-repository safety. Required before commit authorization.
 - `pnpm build` — TypeScript project build and production Vite build.
 - `pnpm format` and `pnpm check` modify files; never use them as validation-only commands.
 
-Until roadmap item GOV-003 adds `pnpm verify`, run `pnpm lint`, `pnpm check:i18n`, and `pnpm build` as the repository-wide gate.
+Until roadmap item GOV-003 adds `pnpm verify`, run `pnpm lint`, `pnpm check:i18n`, and `pnpm build` as the repository-wide gate. Candidate-bound commit authorization also requires a passing `pnpm check:public-safety` result for the same staged tree.
 
 ## Task ownership
 

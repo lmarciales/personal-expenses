@@ -56,14 +56,16 @@ Exit condition: future changes have one concise source of instructions, one dura
 - **Outcome:** `ROADMAP.md` is the single work ledger and `AGENTS.md` is a concise, vendor-neutral operating contract with no duplicated skill catalogue or model-specific instructions.
 - **Dependencies:** None.
 - **Done when:** The roadmap, approved governance design, concise rules, thin compatibility adapters, and documentation tracking policy are reviewed and validated.
-- **Completion evidence:** The reviewed governance design, canonical contract, roadmap, definition of done, data-safety runbook, thin provider adapters, and candidate-bound commit guard are included in the GOV-001 completion commit. The exact 16-file candidate passed lint, i18n parity, production build, 26 Node subtests, diff and public-safety inspection, and independent quality, security, and guard-design reviews. Browser QA was not applicable because no application runtime or rendered UI changed. The final handoff reports the local commit ID; nothing was pushed or deployed. INBOX-001 records the host-owned hook lifecycle limitation without treating it as authorization.
+- **Completion evidence:** The reviewed governance design, canonical contract, roadmap, definition of done, data-safety runbook, thin provider adapters, and candidate-bound commit guard are included in commit `2a2ae1c2c0a0c57b76e782e17ea113768ceab815`. The exact 16-file candidate passed lint, i18n parity, production build, 26 Node subtests, diff and public-safety inspection, and independent quality, security, and guard-design reviews. Browser QA was not applicable to the implementation because no application runtime or rendered UI changed. Release evidence (2026-08-16): the commit was pushed to `origin/main`; the Vercel production deployment mapped to that exact commit completed successfully; and a sanitized production login smoke check passed without console errors. A non-blocking Google Identity Services FedCM-related warning observed during the smoke check is recorded separately as INBOX-002 and is not attributed to GOV-001. INBOX-001 records the host-owned hook lifecycle limitation without treating it as authorization.
 
 ### GOV-002 — Public-repository safety baseline
 
-- **Status:** Planned
+- **Status:** Done
 - **Outcome:** Secrets, local credentials, financial exports, database dumps, receipts, logs, test artifacts, and unsanitized QA evidence are prevented from entering Git through explicit ignore rules, staged-content checks, and repository push protection.
 - **Dependencies:** GOV-001.
 - **Done when:** A controlled safety test proves allowed examples pass and representative forbidden artifacts fail without exposing real data.
+- **Plan:** `docs/plans/2026-08-16-gov-002-public-repository-safety-baseline.md`
+- **Completion evidence (2026-09-25):** The commit containing this entry delivers the reviewed 12-path public-safety baseline. Substantive tree `d1f503032f0aa6f68965addbc270a760253983af` passed 23 focused tests, all 49 Node tests, lint, i18n parity, production build, scoped Biome, staged whitespace checks, and a zero-finding public-safety scan of 11 non-deletion entries. Independent security/data-integrity and code-quality re-reviews passed after all material findings were corrected and reproduced. Authenticated read-only GitHub verification showed secret scanning and push protection enabled with zero open alerts. Application browser QA and deployment are not applicable because no runtime, UI, routing, schema, or deployment configuration changes. Manual staged-content review passed; the local tooling configuration is preserved but no longer tracked. Final evidence-only validation and the resulting local commit ID are recorded in the task handoff. No push or remote setting mutation was performed. Pattern matching remains a complementary safeguard with documented limits.
 
 ### GOV-003 — Canonical verification command
 
@@ -212,6 +214,12 @@ All items are **Planned**. Offline writes remain conditional on a proven conflic
 - **Finding:** Some host runtimes can execute nested shell commands through a free-form orchestration tool without emitting a matching shell-command hook event, and some direct command events omit the command's effective working directory. The tracked command guard cannot enforce context the host never sends, and interactive session writes need the same explicit coverage decision.
 - **Triage:** During GOV-005 or GOV-007, prove the current hook envelope and lifecycle for every supported command surface, add a safe adapter only where the host provides a stable contract, and remove any adapter claim that cannot be reproduced. Until then, `AGENTS.md` remains authoritative and a missing hook never grants commit, push, or deployment authorization.
 
+### INBOX-002 — Google One Tap FedCM compatibility warning
+
+- **Status:** Inbox
+- **Finding:** A sanitized production smoke check after GOV-001 observed a Google Identity Services FedCM-related browser-console warning. The exercised login surface remained functional, and GOV-001 changed no runtime or authentication code. The observation does not establish that GOV-001 caused the warning.
+- **Triage:** Reproduce in a clean current browser against an exact deployed commit, consult current primary Google Identity Services and FedCM guidance, and resolve under TRUST-002 if authentication configuration or behavior must change. Escalate earlier if it becomes a login failure, relevant failed request, privacy concern, or other material authentication regression.
+
 ## Completed, deferred, and superseded items
 
-GOV-001 is Done; its sanitized completion evidence remains with the Phase 0 entry above. No items are Deferred or Superseded.
+GOV-001 and GOV-002 are Done; their sanitized completion evidence remains with the Phase 0 entries above. No items are Deferred or Superseded.
